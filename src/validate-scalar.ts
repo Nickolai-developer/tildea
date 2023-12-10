@@ -1,5 +1,9 @@
-import { ScalarDefinition, TypeMisuseResult } from "./interfaces.js";
-import { ReprDefinitions, ReprOptions, repr, typeRepr } from "./repr.js";
+import {
+    ReprOptions,
+    ScalarDefinition,
+    TypeMisuseResult,
+} from "./interfaces.js";
+import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import TildaScalarType from "./tilda-scalar-type.js";
 import validateNullable from "./validate-nullable.js";
 

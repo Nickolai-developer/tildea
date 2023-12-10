@@ -1,5 +1,5 @@
-import { NullableOptions } from "../interfaces.js";
-import { ReprDefinitions, ReprOptions, typeRepr } from "../repr.js";
+import { NullableOptions, ReprOptions } from "../interfaces.js";
+import { ReprDefinitions, typeRepr } from "../repr.js";
 import validateNullable from "../validate-nullable.js";
 import { Clock, UnitTest } from "./common.js";
 

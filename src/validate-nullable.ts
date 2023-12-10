@@ -1,5 +1,9 @@
-import { NullableOptions, TypeMisuseResult } from "./interfaces.js";
-import { ReprOptions, repr, typeRepr } from "./repr.js";
+import {
+    NullableOptions,
+    ReprOptions,
+    TypeMisuseResult,
+} from "./interfaces.js";
+import { repr, typeRepr } from "./repr.js";
 
 export default function validateNullable(
     value: unknown,

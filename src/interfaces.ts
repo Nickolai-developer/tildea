@@ -33,3 +33,10 @@ export interface TypeMisuseResult {
 }
 
 export type TypeStringRepresentation = string;
+
+export interface ReprOptions {
+    /** make difference between missing property and undefined */
+    hasPropertyCheck?: boolean;
+    /** display value instead of string representation where's possible */
+    useValue?: boolean;
+}

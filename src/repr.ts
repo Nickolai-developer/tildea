@@ -2,6 +2,7 @@ import {
     Definition,
     DefinitionType,
     NullableOptions,
+    ReprOptions,
     TypeStringRepresentation,
 } from "./interfaces.js";
 import TildaScalarType from "./tilda-scalar-type.js";
@@ -13,13 +14,6 @@ export enum ReprDefinitions {
     NULL = "null",
     NAN = "<NaN>",
     OBJECT = "<object>",
-}
-
-export interface ReprOptions {
-    /** make difference between missing property and undefined */
-    hasPropertyCheck?: boolean;
-    /** display value instead of string representation where's possible */
-    useValue?: boolean;
 }
 
 export function repr(

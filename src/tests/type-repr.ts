@@ -1,5 +1,9 @@
-import { NullableOptions, ScalarDefinition } from "../interfaces.js";
-import { ReprDefinitions, ReprOptions, typeRepr } from "../repr.js";
+import {
+    NullableOptions,
+    ReprOptions,
+    ScalarDefinition,
+} from "../interfaces.js";
+import { ReprDefinitions, typeRepr } from "../repr.js";
 import TildaScalarType from "../tilda-scalar-type.js";
 import { Clock, UnitTest } from "./common.js";
 
