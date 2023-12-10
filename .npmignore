@@ -1,0 +1,9 @@
+/node_modules/
+/.prettierrc
+/.vscode/
+/.gitignore
+/src/
+/tsconfig.json
+/README.md
+!/dist
+/dist/tests/
