@@ -1,6 +1,8 @@
 import { UnitTest, runUnitTests } from "./common.js";
+import repr from "./repr.js";
+import typeRepr from "./type-repr.js";
 
-const tests: UnitTest[] = [];
+const tests: UnitTest[] = [repr, typeRepr];
 
 runUnitTests(tests);
 
