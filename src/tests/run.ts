@@ -2,8 +2,9 @@ import { UnitTest, runUnitTests } from "./common.js";
 import repr from "./repr.js";
 import typeRepr from "./type-repr.js";
 import nullable from "./validate-nullable.js";
+import scalar from "./validate-scalar.js";
 
-const tests: UnitTest[] = [repr, typeRepr, nullable];
+const tests: UnitTest[] = [repr, typeRepr, nullable, scalar];
 
 runUnitTests(tests);
 
