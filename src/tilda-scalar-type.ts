@@ -1,15 +1,16 @@
 interface TildaInput {
     validate: (v: unknown) => boolean;
-    repr: string;
+    name: string;
 }
 
 class TildaScalarType {
+    readonly _tildaEntityType = "scalar";
     readonly validate: (v: unknown) => boolean;
-    readonly repr: string;
+    readonly name: string;
 
-    constructor({ validate, repr }: TildaInput) {
+    constructor({ validate, name }: TildaInput) {
         this.validate = validate;
-        this.repr = repr;
+        this.name = name;
     }
 }
 

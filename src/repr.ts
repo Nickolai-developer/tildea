@@ -5,7 +5,6 @@ import {
     ReprOptions,
     TypeStringRepresentation,
 } from "./interfaces.js";
-import TildaScalarType from "./tilda-scalar-type.js";
 
 export enum ReprDefinitions {
     DELIMETER = " | ",
@@ -22,27 +21,27 @@ export function repr(
 ): TypeStringRepresentation;
 export function repr(
     obj: object,
-    field: string,
+    propertyName: string,
     options?: ReprOptions,
 ): TypeStringRepresentation;
 export function repr(
     valOrObj: any,
-    fieldOrOptions?: string | ReprOptions,
+    propOrOptions?: string | ReprOptions,
     opts?: ReprOptions,
 ): TypeStringRepresentation {
-    let val, obj, field: string, options: ReprOptions;
-    if (typeof fieldOrOptions === "string") {
-        field = fieldOrOptions;
+    let val, obj, property: string, options: ReprOptions;
+    if (typeof propOrOptions === "string") {
+        property = propOrOptions;
         obj = valOrObj;
         options = opts || {};
-        return obj.hasOwnProperty(field)
-            ? repr(obj[field], options)
+        return obj.hasOwnProperty(property)
+            ? repr(obj[property], options)
             : options.hasPropertyCheck
             ? ReprDefinitions.NO_PROPERTY
             : ReprDefinitions.UNDEFINED;
     } else {
         val = valOrObj;
-        options = fieldOrOptions || {};
+        options = propOrOptions || {};
         if (
             options.useValue &&
             ["bigint", "number", "string", "boolean"].includes(typeof val)
@@ -80,10 +79,22 @@ export function typeRepr(
 ): TypeStringRepresentation {
     const { defined, nullable, optional } = definition;
     const type: DefinitionType | undefined = (definition as Definition).type;
-    if (!type || type instanceof TildaScalarType) {
+    if (!type) {
         return (
             [
-                type && type.repr,
+                nullable && ReprDefinitions.NULL,
+                !defined && ReprDefinitions.UNDEFINED,
+                hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
+            ].filter(s => typeof s === "string") as string[]
+        ).join(ReprDefinitions.DELIMETER);
+    }
+    if (
+        type._tildaEntityType === "scalar" ||
+        type._tildaEntityType === "schema"
+    ) {
+        return (
+            [
+                type.name,
                 nullable && ReprDefinitions.NULL,
                 !defined && ReprDefinitions.UNDEFINED,
                 hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,

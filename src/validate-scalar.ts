@@ -12,7 +12,7 @@ const enrichWithType = (
     type: TildaScalarType,
 ): TypeMisuseResult => ({
     found,
-    expected: [type.repr, expected]
+    expected: [type.name, expected]
         .filter(p => p)
         .join(ReprDefinitions.DELIMETER),
 });
@@ -24,7 +24,7 @@ export default function validateScalar(
 ): TypeMisuseResult | null;
 export default function validateScalar(
     obj: object,
-    fieldName: string,
+    propertyName: string,
     definition: ScalarDefinition,
     options: ReprOptions,
 ): TypeMisuseResult | null;
@@ -34,14 +34,14 @@ export default function validateScalar(
     arg3: ReprOptions | ScalarDefinition,
     arg4?: ReprOptions,
 ): TypeMisuseResult | null {
-    let obj, fieldName, scalar, definition, options, nullable;
+    let obj, propertyName, scalar, definition, options, nullable;
     if (arg4) {
         obj = arg1 as object;
-        fieldName = arg2 as string;
+        propertyName = arg2 as string;
         definition = arg3 as ScalarDefinition;
         options = arg4;
-        scalar = (obj as any)[fieldName];
-        nullable = validateNullable(obj, fieldName, definition, options);
+        scalar = (obj as any)[propertyName];
+        nullable = validateNullable(obj, propertyName, definition, options);
     } else {
         scalar = arg1;
         definition = arg2 as ScalarDefinition;

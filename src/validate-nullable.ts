@@ -12,7 +12,7 @@ export default function validateNullable(
 ): TypeMisuseResult | null;
 export default function validateNullable(
     obj: object,
-    fieldName: string,
+    propertyName: string,
     nullableOptions: NullableOptions,
     options: ReprOptions,
 ): TypeMisuseResult | null;

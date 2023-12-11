@@ -8,12 +8,12 @@ import TildaScalarType from "../tilda-scalar-type.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_ = new TildaScalarType({
-    repr: "string",
+    name: "string",
     validate: val => typeof val === "string",
 });
 
 const Int = new TildaScalarType({
-    repr: "Int",
+    name: "Int",
     validate: val => Number.isInteger(val),
 });
 
