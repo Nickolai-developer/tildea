@@ -81,6 +81,43 @@ const unitTest: UnitTest = {
             ),
             null,
         );
+
+        clock.assertEqual(
+            validateNullable(
+                {},
+                "a",
+                { defined: true, nullable: false, optional: true },
+                { hasPropertyCheck: true },
+            ),
+            null,
+        );
+        clock.assertEqual(
+            validateNullable(
+                { a: undefined },
+                "a",
+                { defined: true, nullable: false, optional: true },
+                { hasPropertyCheck: true },
+            ),
+            {
+                expected: ReprDefinitions.NO_PROPERTY,
+                found: ReprDefinitions.UNDEFINED,
+            },
+        );
+        clock.assertEqual(
+            validateNullable(
+                { a: undefined },
+                "a",
+                { defined: true, nullable: true, optional: true },
+                { hasPropertyCheck: true },
+            ),
+            {
+                expected:
+                    ReprDefinitions.NULL +
+                    ReprDefinitions.DELIMETER +
+                    ReprDefinitions.NO_PROPERTY,
+                found: ReprDefinitions.UNDEFINED,
+            },
+        );
     },
 };
 
