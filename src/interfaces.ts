@@ -11,7 +11,16 @@ export interface Schema {
     definitions: PropertyDefinition[];
 }
 
-export type Definition = ScalarDefinition | SchemaDefinition;
+export interface TildaArrayType {
+    _tildaEntityType: "array";
+    elemDefinition: Definition;
+}
+
+export type Definition = ScalarDefinition | SchemaDefinition | ArrayDefinition;
+
+export interface ArrayDefinition extends NullableOptions {
+    type: TildaArrayType;
+}
 
 export interface ScalarDefinition extends NullableOptions {
     type: TildaScalarType;
@@ -30,7 +39,7 @@ export interface NullableOptions {
     defined: boolean;
 }
 
-export type DefinitionType = TildaScalarType | Schema;
+export type TildaDefinitionEntity = TildaScalarType | Schema | TildaArrayType;
 
 export type ScalarType = number | bigint | string | boolean | undefined | null;
 

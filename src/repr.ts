@@ -1,6 +1,5 @@
 import {
     Definition,
-    DefinitionType,
     NullableOptions,
     ReprOptions,
     TypeStringRepresentation,
@@ -77,28 +76,36 @@ export function typeRepr(
     definition: Definition | NullableOptions,
     { hasPropertyCheck }: Omit<ReprOptions, "useValue">,
 ): TypeStringRepresentation {
-    const { defined, nullable, optional } = definition;
-    const type: DefinitionType | undefined = (definition as Definition).type;
+    const { type, ...nullablePart } = definition as Definition;
     if (!type) {
         return (
             [
-                nullable && ReprDefinitions.NULL,
-                !defined && ReprDefinitions.UNDEFINED,
-                hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
+                nullablePart.nullable && ReprDefinitions.NULL,
+                !nullablePart.defined && ReprDefinitions.UNDEFINED,
+                hasPropertyCheck &&
+                    nullablePart.optional &&
+                    ReprDefinitions.NO_PROPERTY,
             ].filter(s => typeof s === "string") as string[]
         ).join(ReprDefinitions.DELIMETER);
     }
+    const nullableStr = typeRepr(nullablePart, { hasPropertyCheck });
     if (
         type._tildaEntityType === "scalar" ||
         type._tildaEntityType === "schema"
     ) {
+        return ([type.name, nullableStr].filter(s => s) as string[]).join(
+            ReprDefinitions.DELIMETER,
+        );
+    }
+    if (type._tildaEntityType === "array") {
+        const elem = typeRepr(type.elemDefinition, { hasPropertyCheck });
+        const [parenL, parenR] = elem.includes(ReprDefinitions.DELIMETER)
+            ? ["(", ")"]
+            : ["", ""];
         return (
-            [
-                type.name,
-                nullable && ReprDefinitions.NULL,
-                !defined && ReprDefinitions.UNDEFINED,
-                hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
-            ].filter(s => typeof s === "string") as string[]
+            [`${parenL}${elem}${parenR}[]`, nullableStr].filter(
+                s => s,
+            ) as string[]
         ).join(ReprDefinitions.DELIMETER);
     }
     throw new Error("Not implemened~");
