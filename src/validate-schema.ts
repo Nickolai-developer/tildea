@@ -89,21 +89,24 @@ const validateProperty = (
               }
             : null;
     }
+    if (type._tildaEntityType === "staticArray") {
+        const arr = obj[key as keyof object] as Array<unknown>;
+        if (!(arr instanceof Array)) {
+            return commonError();
+        }
+        const subproperties: PropertyValidationResult[] = [];
+        const maxindex = Math.max(arr.length, type.types.length);
+        for (let i = 0; i < maxindex; i++) {}
+    }
     throw new Error("Not implemented~");
 };
 
-export default function validateSchema(
+const redundantPropsErrors = (
     obj: object,
     schema: Schema,
     options: ReprOptions,
-): SchemaValidationResult {
+): PropertyValidationResult[] | null => {
     const errors: PropertyValidationResult[] = [];
-    for (const { name: key, definition } of schema.definitions) {
-        const error = validateProperty(obj, key, definition, options);
-        if (error) {
-            errors.push(error);
-        }
-    }
 
     const objKeys = Object.keys(obj);
     const schemaKeys = schema.definitions.map(def => def.name);
@@ -126,5 +129,23 @@ export default function validateSchema(
         });
     }
 
-    return { errors: errors.length ? errors : null };
+    return errors.length ? errors : null;
+};
+
+export default function validateSchema(
+    obj: object,
+    schema: Schema,
+    options: ReprOptions,
+): SchemaValidationResult {
+    const errors: (PropertyValidationResult | PropertyValidationResult[])[] =
+        [];
+    for (const { name, definition } of schema.definitions) {
+        const error = validateProperty(obj, name, definition, options);
+        error && errors.push(error);
+    }
+
+    const errs = redundantPropsErrors(obj, schema, options);
+    errs && errors.push(errs);
+
+    return { errors: errors.length ? errors.flat() : null };
 }
