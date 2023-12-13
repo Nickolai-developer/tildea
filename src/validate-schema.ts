@@ -34,11 +34,11 @@ const validateProperty = (
 
     const propR = repr(obj, key, options);
     const { type, ...nullableOptions } = definition;
-    const commonError = {
+    const commonError = () => ({
         name: key,
         expected: typeRepr(definition, options),
         found: propR,
-    };
+    });
 
     const valNull = validateNullable(obj, key, nullableOptions, options);
     if (valNull) {
@@ -49,35 +49,47 @@ const validateProperty = (
     }
 
     if (propR !== ReprDefinitions.OBJECT) {
-        return commonError;
+        return commonError();
     }
 
     if (type._tildaEntityType === "schema") {
-        const validationResult = validateSchema(
+        const { errors: subproperties } = validateSchema(
             obj[key as keyof object],
             type,
             options,
         );
-        return validationResult.errors
+        return subproperties
             ? {
-                  name: key,
-                  expected: typeRepr(definition, options),
-                  found: ReprDefinitions.OBJECT,
-                  subproperties: validationResult.errors,
+                  ...commonError(),
+                  subproperties,
               }
             : null;
     }
     if (type._tildaEntityType === "array") {
         const arr = obj[key as keyof object] as Array<unknown>;
         if (!(arr instanceof Array)) {
-            return commonError;
+            return commonError();
         }
-        // const subErrors: PropertyValidationResult[] = []
-        // for (let i = 0; i < arr.length; i++) {
-        //     const validationResult
-        // }
+        const subproperties: PropertyValidationResult[] = [];
+        for (let i = 0; i < arr.length; i++) {
+            const error = validateProperty(
+                arr,
+                "" + i,
+                type.elemDefinition,
+                options,
+            );
+            if (error) {
+                subproperties.push(error);
+            }
+        }
+        return subproperties.length
+            ? {
+                  ...commonError(),
+                  subproperties,
+              }
+            : null;
     }
-    return null;
+    throw new Error("Not implemented~");
 };
 
 export default function validateSchema(
