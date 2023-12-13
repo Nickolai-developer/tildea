@@ -65,25 +65,27 @@ const validateProperty = (
               }
             : null;
     }
+
+    const array = obj[key as keyof object] as Array<unknown>;
+    if (!(array instanceof Array)) {
+        return commonError();
+    }
+
     if (type._tildaEntityType === "array") {
-        const arr = obj[key as keyof object] as Array<unknown>;
-        if (!(arr instanceof Array)) {
-            return commonError();
-        }
         const subproperties: PropertyValidationResult[] = [];
         const arrKeys: string[] = [];
-        for (let i = 0; i < arr.length; i++) {
+        for (let i = 0; i < array.length; i++) {
             const arrKey = "" + i;
             arrKeys.push(arrKey);
             const error = validateProperty(
-                arr,
+                array,
                 arrKey,
                 type.elemDefinition,
                 options,
             );
             error && subproperties.push(error);
         }
-        const redtErrs = redundantPropsErrors(arr, arrKeys, options);
+        const redtErrs = redundantPropsErrors(array, arrKeys, options);
         return subproperties.length
             ? {
                   ...commonError(),
@@ -94,13 +96,30 @@ const validateProperty = (
             : null;
     }
     if (type._tildaEntityType === "staticArray") {
-        const arr = obj[key as keyof object] as Array<unknown>;
-        if (!(arr instanceof Array)) {
-            return commonError();
-        }
         const subproperties: PropertyValidationResult[] = [];
-        const maxindex = Math.max(arr.length, type.types.length);
-        for (let i = 0; i < maxindex; i++) {}
+        const maxindex = Math.max(array.length, type.types.length);
+        let i = 0;
+        for (; i < maxindex; i++) {
+            const elemType = type.types[i];
+            if (!elemType) {
+                break;
+            }
+            const error = validateProperty(array, "" + i, elemType, options);
+            error && subproperties.push(error);
+        }
+        for (; i < maxindex; i++) {
+            const arrKey = "" + i;
+            subproperties.push({
+                name: arrKey,
+                expected: options.hasPropertyCheck
+                    ? ReprDefinitions.NO_PROPERTY
+                    : ReprDefinitions.UNDEFINED,
+                found: repr(array, arrKey),
+            });
+        }
+        return subproperties.length
+            ? { ...commonError(), subproperties }
+            : null;
     }
     throw new Error("Not implemented~");
 };
