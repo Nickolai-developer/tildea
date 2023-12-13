@@ -1,4 +1,5 @@
 import {
+    Definition,
     PropertyValidationResult,
     ReprOptions,
     ScalarDefinition,
@@ -9,6 +10,76 @@ import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
 import validateScalar from "./validate-scalar.js";
 
+const validateProperty = (
+    obj: object,
+    key: string,
+    definition: Definition,
+    options: ReprOptions,
+): PropertyValidationResult | null => {
+    if (definition.type._tildaEntityType === "scalar") {
+        const misuse = validateScalar(
+            obj,
+            key,
+            definition as ScalarDefinition,
+            options,
+        );
+
+        return misuse
+            ? {
+                  name: key,
+                  ...misuse,
+              }
+            : null;
+    }
+
+    const propR = repr(obj, key, options);
+    const { type, ...nullableOptions } = definition;
+    const commonError = {
+        name: key,
+        expected: typeRepr(definition, options),
+        found: propR,
+    };
+
+    const valNull = validateNullable(obj, key, nullableOptions, options);
+    if (valNull) {
+        return {
+            name: key,
+            ...valNull,
+        };
+    }
+
+    if (propR !== ReprDefinitions.OBJECT) {
+        return commonError;
+    }
+
+    if (type._tildaEntityType === "schema") {
+        const validationResult = validateSchema(
+            obj[key as keyof object],
+            type,
+            options,
+        );
+        return validationResult.errors
+            ? {
+                  name: key,
+                  expected: typeRepr(definition, options),
+                  found: ReprDefinitions.OBJECT,
+                  subproperties: validationResult.errors,
+              }
+            : null;
+    }
+    if (type._tildaEntityType === "array") {
+        const arr = obj[key as keyof object] as Array<unknown>;
+        if (!(arr instanceof Array)) {
+            return commonError;
+        }
+        // const subErrors: PropertyValidationResult[] = []
+        // for (let i = 0; i < arr.length; i++) {
+        //     const validationResult
+        // }
+    }
+    return null;
+};
+
 export default function validateSchema(
     obj: object,
     schema: Schema,
@@ -16,61 +87,10 @@ export default function validateSchema(
 ): SchemaValidationResult {
     const errors: PropertyValidationResult[] = [];
     for (const { name: key, definition } of schema.definitions) {
-        if (definition.type._tildaEntityType === "scalar") {
-            const misuse = validateScalar(
-                obj,
-                key,
-                definition as ScalarDefinition,
-                options,
-            );
-            if (misuse) {
-                errors.push({
-                    name: key,
-                    ...misuse,
-                });
-            }
-            continue;
+        const error = validateProperty(obj, key, definition, options);
+        if (error) {
+            errors.push(error);
         }
-
-        const propR = repr(obj, key, options);
-        const { type, ...nullableOptions } = definition;
-
-        const valNull = validateNullable(obj, key, nullableOptions, options);
-        if (valNull) {
-            errors.push({
-                name: key,
-                ...valNull,
-            });
-            continue;
-        }
-
-        if (propR !== ReprDefinitions.OBJECT) {
-            errors.push({
-                name: key,
-                expected: typeRepr(definition, options),
-                found: propR,
-            });
-            continue;
-        }
-
-        if (type._tildaEntityType === "schema") {
-            const validationResult = validateSchema(
-                obj[key as keyof object],
-                type,
-                options,
-            );
-            if (validationResult.errors) {
-                errors.push({
-                    name: key,
-                    expected: typeRepr(definition, options),
-                    found: ReprDefinitions.OBJECT,
-                    subproperties: validationResult.errors,
-                });
-            }
-            continue;
-        }
-        // if (definition.type._tildaEntityType === "array") {
-        // }
     }
 
     const objKeys = Object.keys(obj);
