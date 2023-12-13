@@ -149,7 +149,7 @@ const unitTest: UnitTest = {
                         name: "prop1",
                         expected:
                             "Int" +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL,
                         found: ReprDefinitions.NO_PROPERTY,
                     },
@@ -189,9 +189,9 @@ const unitTest: UnitTest = {
                         name: "prop1",
                         expected:
                             "Int" +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NO_PROPERTY,
                         found: ReprDefinitions.UNDEFINED,
                     },
@@ -244,9 +244,9 @@ const unitTest: UnitTest = {
                         name: "prop0",
                         expected:
                             "string" +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NO_PROPERTY,
                         found: ReprDefinitions.UNDEFINED,
                     },
@@ -263,7 +263,7 @@ const unitTest: UnitTest = {
                         name: "prop0",
                         expected:
                             "string" +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL,
                         found: ReprDefinitions.UNDEFINED,
                     },
@@ -281,7 +281,7 @@ const unitTest: UnitTest = {
                         name: "schemaProp",
                         expected:
                             s1.name +
-                            ReprDefinitions.DELIMETER +
+                            ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL,
                         found: ReprDefinitions.OBJECT,
                         subproperties: [

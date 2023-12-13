@@ -6,7 +6,8 @@ import {
 } from "./interfaces.js";
 
 export enum ReprDefinitions {
-    DELIMETER = " | ",
+    DELIM_OR = " | ",
+    DELIM_COLON = ", ",
     NO_PROPERTY = "<no-property>",
     UNDEFINED = "undefined",
     NULL = "null",
@@ -64,6 +65,10 @@ export function repr(
     }
 }
 
+const joinTypeParts = (
+    ...args: (string | false | null | undefined)[]
+): string => args.filter(s => s).join(ReprDefinitions.DELIM_OR);
+
 export function typeRepr(
     definition: Definition,
     options: Omit<ReprOptions, "useValue">,
@@ -78,35 +83,40 @@ export function typeRepr(
 ): TypeStringRepresentation {
     const { type, ...nullablePart } = definition as Definition;
     if (!type) {
-        return (
-            [
-                nullablePart.nullable && ReprDefinitions.NULL,
-                !nullablePart.defined && ReprDefinitions.UNDEFINED,
-                hasPropertyCheck &&
-                    nullablePart.optional &&
-                    ReprDefinitions.NO_PROPERTY,
-            ].filter(s => typeof s === "string") as string[]
-        ).join(ReprDefinitions.DELIMETER);
+        return joinTypeParts(
+            nullablePart.nullable && ReprDefinitions.NULL,
+            !nullablePart.defined && ReprDefinitions.UNDEFINED,
+            hasPropertyCheck &&
+                nullablePart.optional &&
+                ReprDefinitions.NO_PROPERTY,
+        );
     }
     const nullableStr = typeRepr(nullablePart, { hasPropertyCheck });
+    if (type._tildaEntityType === "staticArray") {
+        return joinTypeParts(
+            type.name ||
+                `[${type.types
+                    .map(t => typeRepr(t, { hasPropertyCheck }))
+                    .join(ReprDefinitions.DELIM_COLON)}]`,
+            nullableStr,
+        );
+    }
     if (
         type._tildaEntityType === "scalar" ||
         type._tildaEntityType === "schema"
     ) {
-        return ([type.name, nullableStr].filter(s => s) as string[]).join(
-            ReprDefinitions.DELIMETER,
-        );
+        return joinTypeParts(type.name, nullableStr);
     }
     if (type._tildaEntityType === "array") {
         const elem = typeRepr(type.elemDefinition, { hasPropertyCheck });
-        const [parenL, parenR] = elem.includes(ReprDefinitions.DELIMETER)
+        const [parenL, parenR] = elem.includes(ReprDefinitions.DELIM_OR)
             ? ["(", ")"]
             : ["", ""];
         return (
             [`${parenL}${elem}${parenR}[]`, nullableStr].filter(
                 s => s,
             ) as string[]
-        ).join(ReprDefinitions.DELIMETER);
+        ).join(ReprDefinitions.DELIM_OR);
     }
     throw new Error("Not implemened~");
 }

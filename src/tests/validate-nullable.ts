@@ -113,7 +113,7 @@ const unitTest: UnitTest = {
             {
                 expected:
                     ReprDefinitions.NULL +
-                    ReprDefinitions.DELIMETER +
+                    ReprDefinitions.DELIM_OR +
                     ReprDefinitions.NO_PROPERTY,
                 found: ReprDefinitions.UNDEFINED,
             },

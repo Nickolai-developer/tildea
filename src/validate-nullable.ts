@@ -37,7 +37,7 @@ export default function validateNullable(
         const { defined, nullable, optional } = arg3 as NullableOptions;
         const typeR = typeRepr({ defined, nullable, optional }, arg4!);
         const possibleNulls = typeR.split(
-            ReprDefinitions.DELIMETER,
+            ReprDefinitions.DELIM_OR,
         ) as ReprDefinitions[];
 
         if (possibleNulls.includes(propR as ReprDefinitions)) {

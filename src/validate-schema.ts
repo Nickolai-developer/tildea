@@ -51,7 +51,7 @@ export default function validateSchema(
 
             const typeR = typeRepr(definition, options);
             const possibleNulls = typeR
-                .split(ReprDefinitions.DELIMETER)
+                .split(ReprDefinitions.DELIM_OR)
                 .slice(1) as ReprDefinitions[];
 
             if (!possibleNulls.includes(propR as ReprDefinitions)) {

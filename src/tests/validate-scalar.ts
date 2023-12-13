@@ -81,7 +81,7 @@ const unitTest: UnitTest = {
             ),
             {
                 expected:
-                    "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NULL,
+                    "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
                 found: ReprDefinitions.UNDEFINED,
             },
         );
@@ -89,7 +89,7 @@ const unitTest: UnitTest = {
             validateScalar({}, "a", { ...defInt, nullable: true }, opts1),
             {
                 expected:
-                    "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NULL,
+                    "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
                 found: ReprDefinitions.NO_PROPERTY,
             },
         );
@@ -97,7 +97,7 @@ const unitTest: UnitTest = {
             validateScalar({}, "a", { ...defInt, nullable: true }, opts0),
             {
                 expected:
-                    "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NULL,
+                    "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
                 found: ReprDefinitions.UNDEFINED,
             },
         );
@@ -112,11 +112,11 @@ const unitTest: UnitTest = {
             {
                 expected:
                     "Int" +
-                    ReprDefinitions.DELIMETER +
+                    ReprDefinitions.DELIM_OR +
                     ReprDefinitions.NULL +
-                    ReprDefinitions.DELIMETER +
+                    ReprDefinitions.DELIM_OR +
                     ReprDefinitions.UNDEFINED +
-                    ReprDefinitions.DELIMETER +
+                    ReprDefinitions.DELIM_OR +
                     ReprDefinitions.NO_PROPERTY,
                 found: '""',
             },

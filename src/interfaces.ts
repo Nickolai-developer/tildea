@@ -16,7 +16,21 @@ export interface TildaArrayType {
     elemDefinition: Definition;
 }
 
-export type Definition = ScalarDefinition | SchemaDefinition | ArrayDefinition;
+export interface TildaStaticArray {
+    _tildaEntityType: "staticArray";
+    name?: string;
+    types: Definition[];
+}
+
+export type Definition =
+    | ScalarDefinition
+    | SchemaDefinition
+    | ArrayDefinition
+    | StaticArrayDefinition;
+
+export interface StaticArrayDefinition extends NullableOptions {
+    type: TildaStaticArray;
+}
 
 export interface ArrayDefinition extends NullableOptions {
     type: TildaArrayType;

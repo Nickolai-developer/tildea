@@ -14,7 +14,7 @@ const enrichWithType = (
     found,
     expected: [type.name, expected]
         .filter(p => p)
-        .join(ReprDefinitions.DELIMETER),
+        .join(ReprDefinitions.DELIM_OR),
 });
 
 export default function validateScalar(

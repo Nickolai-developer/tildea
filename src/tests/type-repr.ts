@@ -67,7 +67,7 @@ const unitTest: UnitTest = {
         clock.assertEqual(
             typeRepr({ ...null0, defined: false, nullable: true }, opts0),
             ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
@@ -77,7 +77,7 @@ const unitTest: UnitTest = {
         clock.assertEqual(
             typeRepr({ ...null0, defined: false, optional: true }, opts1),
             ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
@@ -87,7 +87,7 @@ const unitTest: UnitTest = {
         clock.assertEqual(
             typeRepr({ ...null0, nullable: true, optional: true }, opts1),
             ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
@@ -96,7 +96,7 @@ const unitTest: UnitTest = {
                 opts0,
             ),
             ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
@@ -105,19 +105,19 @@ const unitTest: UnitTest = {
                 opts1,
             ),
             ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
 
         clock.assertEqual(
             typeRepr({ ...defInt, defined: false }, opts0),
-            "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.UNDEFINED,
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, nullable: true }, opts0),
-            "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NULL,
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, optional: true }, opts0),
@@ -125,38 +125,38 @@ const unitTest: UnitTest = {
         );
         clock.assertEqual(
             typeRepr({ ...defInt, optional: true }, opts1),
-            "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NO_PROPERTY,
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, defined: false, nullable: true }, opts0),
             "Int" +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, defined: false, optional: true }, opts0),
-            "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.UNDEFINED,
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, defined: false, optional: true }, opts1),
             "Int" +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, nullable: true, optional: true }, opts0),
-            "Int" + ReprDefinitions.DELIMETER + ReprDefinitions.NULL,
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
         clock.assertEqual(
             typeRepr({ ...defInt, nullable: true, optional: true }, opts1),
             "Int" +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
@@ -165,9 +165,9 @@ const unitTest: UnitTest = {
                 opts0,
             ),
             "Int" +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
@@ -176,11 +176,11 @@ const unitTest: UnitTest = {
                 opts1,
             ),
             "Int" +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIMETER +
+                ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
     },
