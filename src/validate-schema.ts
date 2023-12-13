@@ -71,21 +71,25 @@ const validateProperty = (
             return commonError();
         }
         const subproperties: PropertyValidationResult[] = [];
+        const arrKeys: string[] = [];
         for (let i = 0; i < arr.length; i++) {
+            const arrKey = "" + i;
+            arrKeys.push(arrKey);
             const error = validateProperty(
                 arr,
-                "" + i,
+                arrKey,
                 type.elemDefinition,
                 options,
             );
-            if (error) {
-                subproperties.push(error);
-            }
+            error && subproperties.push(error);
         }
+        const redtErrs = redundantPropsErrors(arr, arrKeys, options);
         return subproperties.length
             ? {
                   ...commonError(),
-                  subproperties,
+                  subproperties: redtErrs
+                      ? subproperties.concat(redtErrs)
+                      : subproperties,
               }
             : null;
     }
@@ -103,13 +107,12 @@ const validateProperty = (
 
 const redundantPropsErrors = (
     obj: object,
-    schema: Schema,
+    schemaKeys: string[],
     options: ReprOptions,
 ): PropertyValidationResult[] | null => {
     const errors: PropertyValidationResult[] = [];
 
     const objKeys = Object.keys(obj);
-    const schemaKeys = schema.definitions.map(def => def.name);
     const redundantKeys = objKeys.filter(key => !schemaKeys.includes(key));
 
     for (const key of redundantKeys) {
@@ -119,13 +122,12 @@ const redundantPropsErrors = (
         ) {
             continue;
         }
-        const propR = repr(obj, key, options);
         errors.push({
             name: key,
             expected: options.hasPropertyCheck
                 ? ReprDefinitions.NO_PROPERTY
                 : ReprDefinitions.UNDEFINED,
-            found: propR,
+            found: repr(obj, key, options),
         });
     }
 
@@ -144,8 +146,12 @@ export default function validateSchema(
         error && errors.push(error);
     }
 
-    const errs = redundantPropsErrors(obj, schema, options);
-    errs && errors.push(errs);
+    const redtErrs = redundantPropsErrors(
+        obj,
+        schema.definitions.map(def => def.name),
+        options,
+    );
+    redtErrs && errors.push(redtErrs);
 
     return { errors: errors.length ? errors.flat() : null };
 }
