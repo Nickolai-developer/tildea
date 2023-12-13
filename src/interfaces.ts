@@ -29,8 +29,8 @@ export interface TildaEitherType {
 }
 
 export type Definition =
-    | ScalarDefinition
     | SchemaDefinition
+    | ScalarDefinition
     | ArrayDefinition
     | StaticArrayDefinition
     | EitherTypeDefinition;
@@ -64,7 +64,12 @@ export interface NullableOptions {
     defined: boolean;
 }
 
-export type TildaDefinitionEntity = TildaScalarType | Schema | TildaArrayType;
+export type TildaDefinitionEntity =
+    | Schema
+    | TildaScalarType
+    | TildaArrayType
+    | TildaStaticArray
+    | TildaEitherType;
 
 export type ScalarType = number | bigint | string | boolean | undefined | null;
 
