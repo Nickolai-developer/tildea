@@ -300,6 +300,21 @@ const unitTest: UnitTest = {
                 ],
             } as SchemaValidationResult,
         );
+        clock.assertEqual(
+            validateSchema({ schemaProp: "{ prop1: 0 }", prop0: null }, s2, {}),
+            {
+                errors: [
+                    {
+                        name: "schemaProp",
+                        expected:
+                            s1.name +
+                            ReprDefinitions.DELIM_OR +
+                            ReprDefinitions.NULL,
+                        found: "string",
+                    },
+                ],
+            } as SchemaValidationResult,
+        );
     },
 };
 

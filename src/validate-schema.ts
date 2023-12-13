@@ -6,6 +6,7 @@ import {
     SchemaValidationResult,
 } from "./interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
+import validateNullable from "./validate-nullable.js";
 import validateScalar from "./validate-scalar.js";
 
 export default function validateSchema(
@@ -30,39 +31,46 @@ export default function validateSchema(
             }
             continue;
         }
-        if (definition.type._tildaEntityType === "schema") {
-            const propR = repr(obj, key, options);
-            if (propR === ReprDefinitions.OBJECT) {
-                const validationResult = validateSchema(
-                    obj[key as keyof object],
-                    definition.type,
-                    options,
-                );
-                if (validationResult.errors) {
-                    errors.push({
-                        name: key,
-                        expected: typeRepr(definition, options),
-                        found: ReprDefinitions.OBJECT,
-                        subproperties: validationResult.errors,
-                    });
-                }
-                continue;
-            }
 
-            const typeR = typeRepr(definition, options);
-            const possibleNulls = typeR
-                .split(ReprDefinitions.DELIM_OR)
-                .slice(1) as ReprDefinitions[];
+        const propR = repr(obj, key, options);
+        const { type, ...nullableOptions } = definition;
 
-            if (!possibleNulls.includes(propR as ReprDefinitions)) {
+        const valNull = validateNullable(obj, key, nullableOptions, options);
+        if (valNull) {
+            errors.push({
+                name: key,
+                ...valNull,
+            });
+            continue;
+        }
+
+        if (propR !== ReprDefinitions.OBJECT) {
+            errors.push({
+                name: key,
+                expected: typeRepr(definition, options),
+                found: propR,
+            });
+            continue;
+        }
+
+        if (type._tildaEntityType === "schema") {
+            const validationResult = validateSchema(
+                obj[key as keyof object],
+                type,
+                options,
+            );
+            if (validationResult.errors) {
                 errors.push({
                     name: key,
-                    expected: typeR,
-                    found: propR,
+                    expected: typeRepr(definition, options),
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: validationResult.errors,
                 });
             }
             continue;
         }
+        // if (definition.type._tildaEntityType === "array") {
+        // }
     }
 
     const objKeys = Object.keys(obj);
