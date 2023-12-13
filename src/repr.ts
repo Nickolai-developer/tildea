@@ -101,6 +101,16 @@ export function typeRepr(
             nullableStr,
         );
     }
+    if (type._tildaEntityType === "either") {
+        const [parenL, parenR] = type.types.length > 1 ? ["(", ")"] : ["", ""];
+        return joinTypeParts(
+            type.name ||
+                `${parenL}${type.types
+                    .map(t => typeRepr(t, { hasPropertyCheck }))
+                    .join(ReprDefinitions.DELIM_OR)}${parenR}`,
+            nullableStr,
+        );
+    }
     if (
         type._tildaEntityType === "scalar" ||
         type._tildaEntityType === "schema"

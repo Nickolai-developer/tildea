@@ -22,11 +22,22 @@ export interface TildaStaticArray {
     types: Definition[];
 }
 
+export interface TildaEitherType {
+    _tildaEntityType: "either";
+    name?: string;
+    types: Definition[];
+}
+
 export type Definition =
     | ScalarDefinition
     | SchemaDefinition
     | ArrayDefinition
-    | StaticArrayDefinition;
+    | StaticArrayDefinition
+    | EitherTypeDefinition;
+
+export interface EitherTypeDefinition extends NullableOptions {
+    type: TildaEitherType;
+}
 
 export interface StaticArrayDefinition extends NullableOptions {
     type: TildaStaticArray;
