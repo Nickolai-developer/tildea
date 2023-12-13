@@ -69,6 +69,9 @@ const joinTypeParts = (
     ...args: (string | false | null | undefined)[]
 ): string => args.filter(s => s).join(ReprDefinitions.DELIM_OR);
 
+const encase = (type: string): string =>
+    !(type.startsWith("(") && type.endsWith(")")) ? `(${type})` : type;
+
 export function typeRepr(
     definition: Definition,
     options: Omit<ReprOptions, "useValue">,
@@ -119,13 +122,15 @@ export function typeRepr(
     }
     if (type._tildaEntityType === "array") {
         const elem = typeRepr(type.elemDefinition, { hasPropertyCheck });
-        const [parenL, parenR] = elem.includes(ReprDefinitions.DELIM_OR)
-            ? ["(", ")"]
-            : ["", ""];
         return (
-            [`${parenL}${elem}${parenR}[]`, nullableStr].filter(
-                s => s,
-            ) as string[]
+            [
+                `${
+                    elem.includes(ReprDefinitions.DELIM_OR)
+                        ? encase(elem)
+                        : elem
+                }[]`,
+                nullableStr,
+            ].filter(s => s) as string[]
         ).join(ReprDefinitions.DELIM_OR);
     }
     throw new Error("Not implemened~");
