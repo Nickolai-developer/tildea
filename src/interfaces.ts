@@ -28,30 +28,27 @@ export interface TildaEitherType {
     types: Definition[];
 }
 
-export type Definition =
-    | SchemaDefinition
-    | ScalarDefinition
-    | ArrayDefinition
-    | StaticArrayDefinition
-    | EitherTypeDefinition;
+export interface Definition extends NullableOptions {
+    type: TildaDefinitionEntity;
+}
 
-export interface EitherTypeDefinition extends NullableOptions {
+export interface EitherTypeDefinition extends Definition {
     type: TildaEitherType;
 }
 
-export interface StaticArrayDefinition extends NullableOptions {
+export interface StaticArrayDefinition extends Definition {
     type: TildaStaticArray;
 }
 
-export interface ArrayDefinition extends NullableOptions {
+export interface ArrayDefinition extends Definition {
     type: TildaArrayType;
 }
 
-export interface ScalarDefinition extends NullableOptions {
+export interface ScalarDefinition extends Definition {
     type: TildaScalarType;
 }
 
-export interface SchemaDefinition extends NullableOptions {
+export interface SchemaDefinition extends Definition {
     type: Schema;
 }
 
