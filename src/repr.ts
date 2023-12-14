@@ -70,7 +70,22 @@ const joinTypeParts = (
 ): string => args.filter(s => s).join(ReprDefinitions.DELIM_OR);
 
 const encase = (type: string): string =>
-    !(type.startsWith("(") && type.endsWith(")")) ? `(${type})` : type;
+    type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
+
+const defaultNullableOptions: NullableOptions = {
+    defined: true,
+    nullable: false,
+    optional: false,
+};
+
+const mergeNullable = (
+    { defined, nullable, optional }: NullableOptions,
+    { defined: d0, nullable: n0, optional: o0 }: NullableOptions,
+): NullableOptions => ({
+    defined: defined && d0,
+    nullable: nullable || n0,
+    optional: optional || o0,
+});
 
 export function typeRepr(
     definition: Definition,
@@ -105,14 +120,29 @@ export function typeRepr(
         );
     }
     if (type._tildaEntityType === "either") {
-        const [parenL, parenR] = type.types.length > 1 ? ["(", ")"] : ["", ""];
-        return joinTypeParts(
-            type.name ||
-                `${parenL}${type.types
-                    .map(t => typeRepr(t, { hasPropertyCheck }))
-                    .join(ReprDefinitions.DELIM_OR)}${parenR}`,
-            nullableStr,
+        const [typeRs, innerNullablePart] = type.types.reduce(
+            (o, { type, ...nullablePart }) => {
+                const typeR = typeRepr(
+                    { type, ...defaultNullableOptions } as Definition,
+                    { hasPropertyCheck },
+                );
+                o[0].push(typeR);
+                o[1] = mergeNullable(o[1], nullablePart);
+                return o;
+            },
+            [[], defaultNullableOptions] as [string[], NullableOptions],
         );
+        const fullNullableStr = typeRepr(
+            mergeNullable(innerNullablePart, nullablePart),
+            { hasPropertyCheck },
+        );
+        fullNullableStr && typeRs.push(fullNullableStr);
+        const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
+        return type.name
+            ? joinTypeParts(type.name, fullNullableStr)
+            : typeRs.length
+            ? encase(typeR)
+            : typeR;
     }
     if (
         type._tildaEntityType === "scalar" ||
