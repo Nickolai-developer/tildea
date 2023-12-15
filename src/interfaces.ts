@@ -26,6 +26,7 @@ export interface TildaEitherType {
     _tildaEntityType: "either";
     name?: string;
     types: Definition[];
+    arranged?: boolean;
 }
 
 export interface Definition extends NullableOptions {
