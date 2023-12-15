@@ -25,8 +25,7 @@ export interface TildaStaticArray {
 export interface TildaEitherType {
     _tildaEntityType: "either";
     name?: string;
-    types: Definition[];
-    arranged?: boolean;
+    types: TildaDefinitionEntity[];
 }
 
 export interface Definition extends NullableOptions {

@@ -355,33 +355,11 @@ const unitTest: UnitTest = {
 
         const e0: TildaEitherType = {
             _tildaEntityType: "either",
-            types: [
-                {
-                    type: Int,
-                    ...null0,
-                },
-                {
-                    type: String_,
-                    ...null0,
-                },
-            ],
+            types: [Int, String_],
         };
         const e1: TildaEitherType = {
             _tildaEntityType: "either",
-            types: [
-                {
-                    type: Int,
-                    defined: false,
-                    nullable: true,
-                    optional: false,
-                },
-                {
-                    type: String_,
-                    defined: false,
-                    nullable: true,
-                    optional: false,
-                },
-            ],
+            types: [Int, String_],
         };
         clock.assertEqual(
             typeRepr(
@@ -402,7 +380,7 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: { ...e1, name: "EitherType1" },
-                    defined: true,
+                    defined: false,
                     nullable: true,
                     optional: false,
                 },
@@ -420,26 +398,7 @@ const unitTest: UnitTest = {
                 {
                     type: {
                         _tildaEntityType: "either",
-                        types: [
-                            {
-                                type: Int,
-                                defined: false,
-                                nullable: false,
-                                optional: false,
-                            },
-                            {
-                                type: String_,
-                                defined: true,
-                                nullable: false,
-                                optional: false,
-                            },
-                            {
-                                type: e0,
-                                defined: true,
-                                nullable: false,
-                                optional: false,
-                            },
-                        ],
+                        types: [Int, String_, e0],
                     },
                     defined: false,
                     nullable: true,

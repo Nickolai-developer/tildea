@@ -1,8 +1,6 @@
 import { nullableDefaults } from "./constants.js";
-import { arrangeEitherTypes } from "./utils.js";
 import {
     Definition,
-    EitherTypeDefinition,
     NullableOptions,
     ReprOptions,
     TildaDefinitionEntity,
@@ -76,6 +74,23 @@ const joinTypeParts = (
 const encase = (type: string): string =>
     type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
 
+const uniqueTypes = (
+    types: TildaDefinitionEntity[],
+): TildaDefinitionEntity[] => {
+    const extendedTypes = types.map(type =>
+        type._tildaEntityType === "either" && !type.name
+            ? uniqueTypes(type.types)
+            : type,
+    );
+    const unique = extendedTypes.flat().reduce((arr, current) => {
+        if (arr.findIndex(t => t === current) === -1) {
+            arr.push(current);
+        }
+        return arr;
+    }, [] as TildaDefinitionEntity[]);
+    return unique;
+};
+
 export function typeRepr(
     nullableOptions: NullableOptions,
     options: Omit<ReprOptions, "useValue">,
@@ -99,22 +114,13 @@ export function typeRepr(
         );
     }
     if (type._tildaEntityType === "either") {
-        let types: TildaDefinitionEntity[], outerNullablePart: NullableOptions;
-        if (type.arranged) {
-            types = type.types.map(t => t.type);
-            outerNullablePart = nullablePart;
-        } else {
-            ({ types, nullablePart: outerNullablePart } = arrangeEitherTypes(
-                definition as EitherTypeDefinition,
-            ));
-        }
-        const nullableStr = typeRepr(outerNullablePart, options);
+        const nullableStr = typeRepr(nullablePart, options);
         if (type.name) {
             return nullableStr
                 ? encase(joinTypeParts(type.name, nullableStr))
                 : type.name;
         }
-        const typeRs = types.map(t =>
+        const typeRs = uniqueTypes(type.types).map(t =>
             typeRepr({ type: t, ...nullableDefaults }, options),
         );
         nullableStr && typeRs.push(nullableStr);
