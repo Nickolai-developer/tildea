@@ -1,7 +1,9 @@
 import {
     Definition,
+    EitherTypeDefinition,
     NullableOptions,
     ReprOptions,
+    TildaDefinitionEntity,
     TypeStringRepresentation,
 } from "./interfaces.js";
 
@@ -87,62 +89,103 @@ const mergeNullable = (
     optional: optional || o0,
 });
 
-export function typeRepr(
-    definition: Definition,
+interface EitherArrangement {
+    types: TildaDefinitionEntity[];
+    nullablePart: NullableOptions;
+}
+
+const arrangeEitherTypes = (
+    { type, ...outerNullablePart }: EitherTypeDefinition,
     options: Omit<ReprOptions, "useValue">,
-): TypeStringRepresentation;
+): EitherArrangement => {
+    let fullNullablePart = outerNullablePart;
+    const types: (TildaDefinitionEntity | TildaDefinitionEntity[])[] = [];
+    for (const { type: t, ...innerNullablePart } of type.types) {
+        fullNullablePart = mergeNullable(fullNullablePart, innerNullablePart);
+        if (t._tildaEntityType === "either") {
+            const { types: subtypeTypes, nullablePart: subtypeNullablePart } =
+                arrangeEitherTypes(
+                    { type: t, ...defaultNullableOptions },
+                    options,
+                );
+            types.push(subtypeTypes);
+            fullNullablePart = mergeNullable(
+                fullNullablePart,
+                subtypeNullablePart,
+            );
+        } else {
+            types.push(t);
+        }
+    }
+
+    if (type.name) {
+        return {
+            types: [type],
+            nullablePart: fullNullablePart,
+        };
+    }
+
+    const unique = types.flat().reduce((arr, current) => {
+        if (arr.findIndex(t => t === current) === -1) {
+            arr.push(current);
+        }
+        return arr;
+    }, [] as TildaDefinitionEntity[]);
+    return {
+        types: unique,
+        nullablePart: fullNullablePart,
+    };
+};
+
 export function typeRepr(
     nullableOptions: NullableOptions,
     options: Omit<ReprOptions, "useValue">,
 ): TypeStringRepresentation;
 export function typeRepr(
+    definition: Definition,
+    options: Omit<ReprOptions, "useValue">,
+): TypeStringRepresentation;
+export function typeRepr(
     definition: Definition | NullableOptions,
-    { hasPropertyCheck }: Omit<ReprOptions, "useValue">,
+    options: Omit<ReprOptions, "useValue">,
 ): TypeStringRepresentation {
     const { type, ...nullablePart } = definition as Definition;
     if (!type) {
         return joinTypeParts(
             nullablePart.nullable && ReprDefinitions.NULL,
             !nullablePart.defined && ReprDefinitions.UNDEFINED,
-            hasPropertyCheck &&
+            options.hasPropertyCheck &&
                 nullablePart.optional &&
                 ReprDefinitions.NO_PROPERTY,
         );
     }
-    const nullableStr = typeRepr(nullablePart, { hasPropertyCheck });
+    if (type._tildaEntityType === "either") {
+        const { types, nullablePart } = arrangeEitherTypes(
+            definition as EitherTypeDefinition,
+            options,
+        );
+        const nullableStr = typeRepr(nullablePart, options);
+        if (type.name) {
+            return nullableStr
+                ? encase(joinTypeParts(type.name, nullableStr))
+                : type.name;
+        }
+        const typeRs = types.map(t =>
+            typeRepr({ type: t, ...defaultNullableOptions }, options),
+        );
+        nullableStr && typeRs.push(nullableStr);
+        const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
+        return typeRs.length > 1 ? encase(typeR) : typeR;
+    }
+    const nullableStr = typeRepr(nullablePart, options);
     if (type._tildaEntityType === "staticArray") {
         return joinTypeParts(
             type.name ||
                 `[${type.types
-                    .map(t => typeRepr(t, { hasPropertyCheck }))
+                    .map(t => typeRepr(t, options))
                     .join(ReprDefinitions.DELIM_COLON)}]`,
             nullableStr,
         );
-    }
-    if (type._tildaEntityType === "either") {
-        const [typeRs, innerNullablePart] = type.types.reduce(
-            (o, { type, ...nullablePart }) => {
-                const typeR = typeRepr(
-                    { type, ...defaultNullableOptions } as Definition,
-                    { hasPropertyCheck },
-                );
-                o[0].push(typeR);
-                o[1] = mergeNullable(o[1], nullablePart);
-                return o;
-            },
-            [[], defaultNullableOptions] as [string[], NullableOptions],
-        );
-        const fullNullableStr = typeRepr(
-            mergeNullable(innerNullablePart, nullablePart),
-            { hasPropertyCheck },
-        );
-        fullNullableStr && typeRs.push(fullNullableStr);
-        const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
-        return type.name
-            ? joinTypeParts(type.name, fullNullableStr)
-            : typeRs.length
-            ? encase(typeR)
-            : typeR;
     }
     if (
         type._tildaEntityType === "scalar" ||
@@ -151,7 +194,7 @@ export function typeRepr(
         return joinTypeParts(type.name, nullableStr);
     }
     if (type._tildaEntityType === "array") {
-        const elem = typeRepr(type.elemDefinition, { hasPropertyCheck });
+        const elem = typeRepr(type.elemDefinition, options);
         return (
             [
                 `${
