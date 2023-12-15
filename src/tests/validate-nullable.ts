@@ -1,5 +1,5 @@
 import { NullableOptions, ReprOptions } from "../interfaces.js";
-import { ReprDefinitions, typeRepr } from "../repr.js";
+import { ReprDefinitions, nullableRepr } from "../repr.js";
 import validateNullable from "../validate-nullable.js";
 import { Clock, UnitTest } from "./common.js";
 
@@ -31,7 +31,7 @@ const unitTest: UnitTest = {
                 { hasPropertyCheck: true },
             ),
             {
-                expected: typeRepr(null0, opts1),
+                expected: nullableRepr(null0, opts1),
                 found: ReprDefinitions.NO_PROPERTY,
             },
         );
@@ -43,7 +43,7 @@ const unitTest: UnitTest = {
                 { hasPropertyCheck: true, useValue: true },
             ),
             {
-                expected: typeRepr(null0, opts1),
+                expected: nullableRepr(null0, opts1),
                 found: ReprDefinitions.NO_PROPERTY,
             },
         );
@@ -55,7 +55,7 @@ const unitTest: UnitTest = {
                 { hasPropertyCheck: true, useValue: true },
             ),
             {
-                expected: typeRepr(null0, opts1),
+                expected: nullableRepr(null0, opts1),
                 found: ReprDefinitions.UNDEFINED,
             },
         );
@@ -67,7 +67,7 @@ const unitTest: UnitTest = {
                 { hasPropertyCheck: true, useValue: true },
             ),
             {
-                expected: typeRepr(null0, opts1),
+                expected: nullableRepr(null0, opts1),
                 found: ReprDefinitions.NULL,
             },
         );

@@ -91,30 +91,23 @@ const uniqueTypes = (
     return unique;
 };
 
-export function typeRepr(
-    nullableOptions: NullableOptions,
-    options: Omit<ReprOptions, "useValue">,
-): TypeStringRepresentation;
-export function typeRepr(
-    definition: Definition,
-    options: Omit<ReprOptions, "useValue">,
-): TypeStringRepresentation;
-export function typeRepr(
-    definition: Definition | NullableOptions,
+export function nullableRepr(
+    { nullable, defined, optional }: NullableOptions,
     options: Omit<ReprOptions, "useValue">,
 ): TypeStringRepresentation {
-    const { type, ...nullablePart } = definition as Definition;
-    if (!type) {
-        return joinTypeParts(
-            nullablePart.nullable && ReprDefinitions.NULL,
-            !nullablePart.defined && ReprDefinitions.UNDEFINED,
-            options.hasPropertyCheck &&
-                nullablePart.optional &&
-                ReprDefinitions.NO_PROPERTY,
-        );
-    }
+    return joinTypeParts(
+        nullable && ReprDefinitions.NULL,
+        !defined && ReprDefinitions.UNDEFINED,
+        options.hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
+    );
+}
+
+export function typeRepr(
+    { type, ...nullablePart }: Definition,
+    options: Omit<ReprOptions, "useValue">,
+): TypeStringRepresentation {
+    const nullableStr = nullableRepr(nullablePart, options);
     if (type._tildaEntityType === "either") {
-        const nullableStr = typeRepr(nullablePart, options);
         if (type.name) {
             return nullableStr
                 ? encase(joinTypeParts(type.name, nullableStr))
@@ -127,7 +120,6 @@ export function typeRepr(
         const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
         return typeRs.length > 1 ? encase(typeR) : typeR;
     }
-    const nullableStr = typeRepr(nullablePart, options);
     if (type._tildaEntityType === "staticArray") {
         return joinTypeParts(
             type.name ||

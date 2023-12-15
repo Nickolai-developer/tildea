@@ -3,7 +3,7 @@ import {
     ReprOptions,
     TypeMisuseResult,
 } from "./interfaces.js";
-import { ReprDefinitions, repr, typeRepr } from "./repr.js";
+import { ReprDefinitions, nullableRepr, repr } from "./repr.js";
 
 export default function validateNullable(
     value: unknown,
@@ -35,7 +35,7 @@ export default function validateNullable(
         }
 
         const { defined, nullable, optional } = arg3 as NullableOptions;
-        const typeR = typeRepr({ defined, nullable, optional }, arg4!);
+        const typeR = nullableRepr({ defined, nullable, optional }, arg4!);
         const possibleNulls = typeR.split(
             ReprDefinitions.DELIM_OR,
         ) as ReprDefinitions[];
