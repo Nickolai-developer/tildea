@@ -88,17 +88,21 @@ function* validateProperty(
         return;
     }
 
-    if (type._tildaEntityType === "array") {
-        const arrKeys: string[] = [];
-        const propErrors: Generator<PropertyValidationSubResult, void, void>[] =
-            [];
+    const arrKeys: string[] = [];
+    const propErrors: Generator<PropertyValidationSubResult, void, void>[] = [];
+
+    if (
+        type._tildaEntityType === "array" ||
+        type._tildaEntityType === "staticArray"
+    ) {
+        const isArray = type._tildaEntityType === "array";
         for (let i = 0; i < array.length; i++) {
             const arrKey = "" + i;
             arrKeys.push(arrKey);
             const errors = validateProperty(
                 array,
                 arrKey,
-                type.elemDefinition,
+                isArray ? type.elemDefinition : type.types[i],
                 options,
                 currentDepth + 1,
             );
@@ -123,45 +127,7 @@ function* validateProperty(
         }
         return;
     }
-    if (type._tildaEntityType === "staticArray") {
-        const arrKeys: string[] = [];
-        const propErrors: Generator<PropertyValidationSubResult, void, void>[] =
-            [];
-        for (let i = 0; i < type.types.length; i++) {
-            const arrKey = "" + i;
-            arrKeys.push(arrKey);
-            const elemType = type.types[i];
-            if (!elemType) {
-                break;
-            }
-            const errors = validateProperty(
-                array,
-                arrKey,
-                elemType,
-                options,
-                currentDepth + 1,
-            );
-            propErrors.push(errors);
-        }
-        propErrors.push(
-            redundantPropsErrors(array, arrKeys, options, currentDepth + 1),
-        );
 
-        let commonErrorWasEjected = false;
-        for (const errors of propErrors) {
-            if (commonErrorWasEjected) {
-                yield* errors;
-            } else {
-                for (const error of errors) {
-                    commonErrorWasEjected = true;
-                    yield commonError();
-                    yield error;
-                    yield* errors;
-                }
-            }
-        }
-        return;
-    }
     throw new Error("Not implemented~");
 }
 
