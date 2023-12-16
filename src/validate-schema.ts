@@ -106,13 +106,21 @@ function* validateProperty(
         type._tildaEntityType === "staticArray"
     ) {
         const isArray = type._tildaEntityType === "array";
-        for (let i = 0; i < array.length; i++) {
+        const maxindex = Math.max(
+            array.length,
+            isArray ? 0 : type.types.length,
+        );
+        for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
+            const elemType = isArray ? type.elemDefinition : type.types[i];
+            if (!elemType) {
+                break;
+            }
             arrKeys.push(arrKey);
             const errors = validateProperty(
                 array,
                 arrKey,
-                isArray ? type.elemDefinition : type.types[i],
+                elemType,
                 options,
                 currentDepth + 1,
             );
@@ -213,6 +221,7 @@ export default function validateSchema(
             currentDepth--;
             currentFacility = stack.pop()!;
         }
+        pickFacility(newDepth);
     };
 
     for (const { depth, ...result } of executeSchema(obj, schema, options, 0)) {
