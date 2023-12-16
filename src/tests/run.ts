@@ -3,9 +3,17 @@ import repr from "./repr.js";
 import typeRepr from "./type-repr.js";
 import nullable from "./validate-nullable.js";
 import scalar from "./validate-scalar.js";
-import schema from "./validate-schema-common.js";
+import schemaCommon from "./validate-schema-common.js";
+import schemaIntermediate from "./validate-schema-intermediate.js";
 
-const tests: UnitTest[] = [repr, typeRepr, nullable, scalar, schema];
+const tests: UnitTest[] = [
+    repr,
+    typeRepr,
+    nullable,
+    scalar,
+    schemaCommon,
+    schemaIntermediate,
+];
 
 runUnitTests(tests);
 
