@@ -41,7 +41,6 @@ function* validateProperty(
         return;
     }
 
-    const propR = repr(obj, key, options);
     const { type, ...nullableOptions } = definition;
 
     const valNull = validateNullable(obj, key, nullableOptions, options);
@@ -51,6 +50,17 @@ function* validateProperty(
             depth: currentDepth,
             ...valNull,
         };
+        return;
+    }
+
+    const propR = repr(obj, key, options);
+    if (
+        [
+            ReprDefinitions.NULL,
+            ReprDefinitions.UNDEFINED,
+            ReprDefinitions.NO_PROPERTY,
+        ].includes(propR as ReprDefinitions)
+    ) {
         return;
     }
 
