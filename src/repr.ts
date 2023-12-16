@@ -19,16 +19,16 @@ export enum ReprDefinitions {
 
 export function repr(
     val: any,
-    options?: Omit<ReprOptions, "hasPropertyCheck">,
+    options: Omit<ReprOptions, "hasPropertyCheck">,
 ): TypeStringRepresentation;
 export function repr(
     obj: object,
     propertyName: string,
-    options?: ReprOptions,
+    options: ReprOptions,
 ): TypeStringRepresentation;
 export function repr(
     valOrObj: any,
-    propOrOptions?: string | ReprOptions,
+    propOrOptions: string | ReprOptions,
     opts?: ReprOptions,
 ): TypeStringRepresentation {
     let val, obj, property: string, options: ReprOptions;
@@ -43,7 +43,7 @@ export function repr(
             : ReprDefinitions.UNDEFINED;
     } else {
         val = valOrObj;
-        options = propOrOptions || {};
+        options = propOrOptions;
         if (
             options.useValue &&
             ["bigint", "number", "string", "boolean"].includes(typeof val)
