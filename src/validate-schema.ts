@@ -1,3 +1,4 @@
+import { nullableDefaults } from "./constants.js";
 import {
     Definition,
     PropertyValidationResult,
@@ -15,6 +16,49 @@ interface PropertyValidationSubResult extends TypeMisuseResult {
     name: string;
     depth: number;
 }
+
+type Score = number[];
+
+const calcScores = (
+    errs: PropertyValidationSubResult[],
+    baseDepth: number,
+): Score => {
+    const scores: Score = [];
+    for (let i = 0, currentDepth = baseDepth; i < errs.length; i++) {
+        const newDepth = errs[i].depth;
+        const scoreLevel = newDepth - baseDepth;
+        if (!scores[scoreLevel]) {
+            scores[scoreLevel] = 0;
+        }
+        if (newDepth > currentDepth) {
+            scores[scoreLevel - 1]--;
+        }
+        scores[scoreLevel]++;
+        currentDepth = newDepth;
+    }
+    return scores;
+};
+
+const lt = (score: Score, other: Score): boolean => {
+    const minindex = Math.min(score.length, other.length);
+    for (let i = 0; i < minindex; i++) {
+        if (score[i] !== other[i]) {
+            return score[i] < other[i];
+        }
+    }
+    return false;
+};
+
+const pickBestGuess = (scores: Score[]): number => {
+    let min = 0;
+    for (let i = 1; i < scores.length; i++) {
+        const score = scores[i];
+        if (lt(score, scores[min])) {
+            min = i;
+        }
+    }
+    return min;
+};
 
 function* validateProperty(
     obj: object,
@@ -70,6 +114,36 @@ function* validateProperty(
         expected: typeRepr(definition, options),
         found: propR,
     });
+
+    if (type._tildaEntityType === "either") {
+        const errPools = type.types.map(t =>
+            validateProperty(
+                obj,
+                key,
+                { type: t, ...nullableDefaults },
+                options,
+                currentDepth,
+            ),
+        );
+        const errors: PropertyValidationSubResult[][] = [];
+        for (let i = 0; i < errPools.length; i++) {
+            const pool = errPools[i];
+            const err = pool.next().value;
+            if (!err) {
+                return;
+            }
+            errors.push([err]);
+        }
+        for (let i = 0; i < errPools.length; i++) {
+            const pool = errPools[i];
+            errors[i].push(...pool);
+        }
+        const scores = errors.map(errs => calcScores(errs, currentDepth));
+        const bestGuess = pickBestGuess(scores);
+        yield commonError();
+        yield* errors[bestGuess].slice(1) as any;
+        return;
+    }
 
     if (propR !== ReprDefinitions.OBJECT) {
         yield commonError();
