@@ -85,7 +85,7 @@ function* validateProperty(
         return;
     }
 
-    const { type, ...nullableOptions } = definition;
+    const { type, nullableOptions } = definition;
 
     const valNull = validateNullable(obj, key, nullableOptions, options);
     if (valNull) {
@@ -120,7 +120,7 @@ function* validateProperty(
             validateProperty(
                 obj,
                 key,
-                { type: t, ...nullableDefaults },
+                { type: t, nullableOptions: nullableDefaults },
                 options,
                 currentDepth,
             ),

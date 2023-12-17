@@ -29,7 +29,13 @@ const unitTest: UnitTest = {
             _tildaEntityType: "schema",
             name: "S0",
             definitions: [
-                { name: "a", definition: { type: Any, ...nullableDefaults } },
+                {
+                    name: "a",
+                    definition: {
+                        type: Any,
+                        nullableOptions: nullableDefaults,
+                    },
+                },
             ],
         };
         clock.assertEqual(validateSchema({ a: [1, 2, 3, 4] }, s0, {}), {
@@ -47,11 +53,13 @@ const unitTest: UnitTest = {
                             _tildaEntityType: "array",
                             elemDefinition: {
                                 type: Int,
-                                ...nullableDefaults,
-                                nullable: true,
+                                nullableOptions: {
+                                    ...nullableDefaults,
+                                    nullable: true,
+                                },
                             },
                         },
-                        ...nullableDefaults,
+                        nullableOptions: nullableDefaults,
                     },
                 },
                 {
@@ -64,14 +72,16 @@ const unitTest: UnitTest = {
                                     _tildaEntityType: "array",
                                     elemDefinition: {
                                         type: Int,
-                                        ...nullableDefaults,
+                                        nullableOptions: nullableDefaults,
                                     },
                                 },
-                                ...nullableDefaults,
-                                nullable: true,
+                                nullableOptions: {
+                                    ...nullableDefaults,
+                                    nullable: true,
+                                },
                             },
                         },
-                        ...nullableDefaults,
+                        nullableOptions: nullableDefaults,
                     },
                 },
             ],
@@ -157,9 +167,12 @@ const unitTest: UnitTest = {
                     definition: {
                         type: {
                             _tildaEntityType: "array",
-                            elemDefinition: { type: Int, ...nullableDefaults },
+                            elemDefinition: {
+                                type: Int,
+                                nullableOptions: nullableDefaults,
+                            },
                         },
-                        ...nullableDefaults,
+                        nullableOptions: nullableDefaults,
                     },
                 },
             ],
@@ -217,13 +230,17 @@ const unitTest: UnitTest = {
                             types: [
                                 {
                                     type: Int,
-                                    ...nullableDefaults,
-                                    nullable: true,
+                                    nullableOptions: {
+                                        ...nullableDefaults,
+                                        nullable: true,
+                                    },
                                 },
                                 {
                                     type: String_,
-                                    ...nullableDefaults,
-                                    defined: false,
+                                    nullableOptions: {
+                                        ...nullableDefaults,
+                                        defined: false,
+                                    },
                                 },
                                 {
                                     type: {
@@ -231,7 +248,8 @@ const unitTest: UnitTest = {
                                         types: [
                                             {
                                                 type: Int,
-                                                ...nullableDefaults,
+                                                nullableOptions:
+                                                    nullableDefaults,
                                             },
                                             {
                                                 type: {
@@ -241,23 +259,26 @@ const unitTest: UnitTest = {
                                                     types: [
                                                         {
                                                             type: Int,
-                                                            ...nullableDefaults,
+                                                            nullableOptions:
+                                                                nullableDefaults,
                                                         },
                                                         {
                                                             type: Int,
-                                                            ...nullableDefaults,
+                                                            nullableOptions:
+                                                                nullableDefaults,
                                                         },
                                                     ],
                                                 },
-                                                ...nullableDefaults,
+                                                nullableOptions:
+                                                    nullableDefaults,
                                             },
                                         ],
                                     },
-                                    ...nullableDefaults,
+                                    nullableOptions: nullableDefaults,
                                 },
                             ],
                         },
-                        ...nullableDefaults,
+                        nullableOptions: nullableDefaults,
                     },
                 },
             ],

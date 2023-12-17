@@ -41,7 +41,7 @@ const unitTest: UnitTest = {
             definitions: [
                 {
                     name: "prop1",
-                    definition: { type: Int, ...null0 },
+                    definition: { type: Int, nullableOptions: null0 },
                 },
             ],
         };
@@ -131,9 +131,11 @@ const unitTest: UnitTest = {
                             ...s1.definitions[0],
                             definition: {
                                 type: Int,
-                                defined: true,
-                                optional: false,
-                                nullable: true,
+                                nullableOptions: {
+                                    defined: true,
+                                    optional: false,
+                                    nullable: true,
+                                },
                             },
                         },
                     ],
@@ -171,9 +173,11 @@ const unitTest: UnitTest = {
                             ...s1.definitions[0],
                             definition: {
                                 type: Int,
-                                defined: true,
-                                optional: true,
-                                nullable: true,
+                                nullableOptions: {
+                                    defined: true,
+                                    optional: true,
+                                    nullable: true,
+                                },
                             },
                         },
                     ],
@@ -212,18 +216,22 @@ const unitTest: UnitTest = {
                     name: "prop0",
                     definition: {
                         type: String_,
-                        defined: true,
-                        nullable: true,
-                        optional: true,
+                        nullableOptions: {
+                            defined: true,
+                            nullable: true,
+                            optional: true,
+                        },
                     },
                 },
                 {
                     name: "schemaProp",
                     definition: {
                         type: s1,
-                        defined: true,
-                        nullable: true,
-                        optional: false,
+                        nullableOptions: {
+                            defined: true,
+                            nullable: true,
+                            optional: false,
+                        },
                     },
                 },
             ],

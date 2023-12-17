@@ -28,12 +28,12 @@ const null0: NullableOptions = {
 
 const defInt: ScalarDefinition = {
     type: Int,
-    ...null0,
+    nullableOptions: null0,
 };
 
 const defString: ScalarDefinition = {
     type: String_,
-    ...null0,
+    nullableOptions: null0,
 };
 
 const opts0: ReprOptions = {
@@ -118,56 +118,43 @@ const unitTest: UnitTest = {
         );
 
         clock.assertEqual(
-            typeRepr({ ...defInt, defined: false }, opts0),
+            typeRepr(
+                { ...defInt, nullableOptions: { ...null0, defined: false } },
+                opts0,
+            ),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, nullable: true }, opts0),
-            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, optional: true }, opts0),
-            "Int",
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, optional: true }, opts1),
-            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NO_PROPERTY,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, defined: false, nullable: true }, opts0),
-            "Int" +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, defined: false, optional: true }, opts0),
-            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, defined: false, optional: true }, opts1),
-            "Int" +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NO_PROPERTY,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, nullable: true, optional: true }, opts0),
-            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
-        );
-        clock.assertEqual(
-            typeRepr({ ...defInt, nullable: true, optional: true }, opts1),
-            "Int" +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
             typeRepr(
-                { ...defInt, defined: false, nullable: true, optional: true },
+                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                opts0,
+            ),
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
+        );
+        clock.assertEqual(
+            typeRepr(
+                { ...defInt, nullableOptions: { ...null0, optional: true } },
+                opts0,
+            ),
+            "Int",
+        );
+        clock.assertEqual(
+            typeRepr(
+                { ...defInt, nullableOptions: { ...null0, optional: true } },
+                opts1,
+            ),
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NO_PROPERTY,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        ...null0,
+                        defined: false,
+                        nullable: true,
+                    },
+                },
                 opts0,
             ),
             "Int" +
@@ -178,7 +165,96 @@ const unitTest: UnitTest = {
         );
         clock.assertEqual(
             typeRepr(
-                { ...defInt, defined: false, nullable: true, optional: true },
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        ...null0,
+                        defined: false,
+                        optional: true,
+                    },
+                },
+                opts0,
+            ),
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        ...null0,
+                        defined: false,
+                        optional: true,
+                    },
+                },
+                opts1,
+            ),
+            "Int" +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.UNDEFINED +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.NO_PROPERTY,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        ...null0,
+                        nullable: true,
+                        optional: true,
+                    },
+                },
+                opts0,
+            ),
+            "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        ...null0,
+                        nullable: true,
+                        optional: true,
+                    },
+                },
+                opts1,
+            ),
+            "Int" +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.NULL +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.NO_PROPERTY,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        defined: false,
+                        nullable: true,
+                        optional: true,
+                    },
+                },
+                opts0,
+            ),
+            "Int" +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.NULL +
+                ReprDefinitions.DELIM_OR +
+                ReprDefinitions.UNDEFINED,
+        );
+        clock.assertEqual(
+            typeRepr(
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        defined: false,
+                        nullable: true,
+                        optional: true,
+                    },
+                },
                 opts1,
             ),
             "Int" +
@@ -194,38 +270,47 @@ const unitTest: UnitTest = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
-                ...null0,
+                nullableOptions: null0,
             },
         };
         const arrType1: TildaArrayType = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
-                defined: false,
-                nullable: false,
-                optional: false,
+                nullableOptions: {
+                    defined: false,
+                    nullable: false,
+                    optional: false,
+                },
             },
         };
         const arrType2: TildaArrayType = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
-                defined: false,
-                nullable: true,
-                optional: true,
+                nullableOptions: {
+                    defined: false,
+                    nullable: true,
+                    optional: true,
+                },
             },
         };
         clock.assertEqual(
-            typeRepr({ type: arrType0, ...null0 }, { hasPropertyCheck: true }),
+            typeRepr(
+                { type: arrType0, nullableOptions: null0 },
+                { hasPropertyCheck: true },
+            ),
             "Int[]",
         );
         clock.assertEqual(
             typeRepr(
                 {
                     type: arrType0,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: true },
             ),
@@ -235,9 +320,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: arrType1,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: true },
             ),
@@ -252,9 +339,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: arrType2,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),
@@ -271,9 +360,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: arrType2,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: true },
             ),
@@ -292,18 +383,27 @@ const unitTest: UnitTest = {
         const sArray0: TildaStaticArray = {
             _tildaEntityType: "staticArray",
             types: [
-                { type: Int, ...null0 },
-                { type: String_, ...null0 },
-                { type: Int, defined: true, nullable: true, optional: true },
+                { type: Int, nullableOptions: null0 },
+                { type: String_, nullableOptions: null0 },
+                {
+                    type: Int,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: true,
+                    },
+                },
             ],
         };
         clock.assertEqual(
             typeRepr(
                 {
                     type: { ...sArray0, name: "StaticArrayProperties" },
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),
@@ -315,9 +415,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: sArray0,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),
@@ -336,9 +438,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: sArray0,
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: true },
             ),
@@ -368,9 +472,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: { ...e0, name: "EitherType1" },
-                    defined: true,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),
@@ -383,9 +489,11 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: { ...e1, name: "EitherType1" },
-                    defined: false,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: false,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),
@@ -403,9 +511,11 @@ const unitTest: UnitTest = {
                         _tildaEntityType: "either",
                         types: [Int, String_, e0],
                     },
-                    defined: false,
-                    nullable: true,
-                    optional: false,
+                    nullableOptions: {
+                        defined: false,
+                        nullable: true,
+                        optional: false,
+                    },
                 },
                 { hasPropertyCheck: false },
             ),

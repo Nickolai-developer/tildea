@@ -41,12 +41,21 @@ export default function validateScalar(
         definition = arg3 as ScalarDefinition;
         options = arg4;
         scalar = (obj as any)[propertyName];
-        nullable = validateNullable(obj, propertyName, definition, options);
+        nullable = validateNullable(
+            obj,
+            propertyName,
+            definition.nullableOptions,
+            options,
+        );
     } else {
         scalar = arg1;
         definition = arg2 as ScalarDefinition;
         options = arg3 as ReprOptions;
-        nullable = validateNullable(scalar, definition, options);
+        nullable = validateNullable(
+            scalar,
+            definition.nullableOptions,
+            options,
+        );
     }
 
     if (nullable) {

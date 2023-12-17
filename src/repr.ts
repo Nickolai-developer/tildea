@@ -103,10 +103,10 @@ export function nullableRepr(
 }
 
 export function typeRepr(
-    { type, ...nullablePart }: Definition,
+    { type, nullableOptions }: Definition,
     options: Omit<ReprOptions, "useValue">,
 ): TypeStringRepresentation {
-    const nullableStr = nullableRepr(nullablePart, options);
+    const nullableStr = nullableRepr(nullableOptions, options);
     if (type._tildaEntityType === "either") {
         if (type.name) {
             return nullableStr
@@ -114,7 +114,7 @@ export function typeRepr(
                 : type.name;
         }
         const typeRs = uniqueTypes(type.types).map(t =>
-            typeRepr({ type: t, ...nullableDefaults }, options),
+            typeRepr({ type: t, nullableOptions: nullableDefaults }, options),
         );
         nullableStr && typeRs.push(nullableStr);
         const typeR = typeRs.join(ReprDefinitions.DELIM_OR);

@@ -5,6 +5,7 @@ import nullable from "./validate-nullable.js";
 import scalar from "./validate-scalar.js";
 import schemaCommon from "./validate-schema-common.js";
 import schemaIntermediate from "./validate-schema-intermediate.js";
+import schemaAdvanced from "./validate-schema-advanced.js";
 
 const tests: UnitTest[] = [
     repr,
@@ -13,6 +14,7 @@ const tests: UnitTest[] = [
     scalar,
     schemaCommon,
     schemaIntermediate,
+    schemaAdvanced,
 ];
 
 runUnitTests(tests);

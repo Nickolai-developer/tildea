@@ -26,12 +26,12 @@ const null0: NullableOptions = {
 
 const defInt: ScalarDefinition = {
     type: Int,
-    ...null0,
+    nullableOptions: null0,
 };
 
 const defString: ScalarDefinition = {
     type: String_,
-    ...null0,
+    nullableOptions: null0,
 };
 
 const opts0: ReprOptions = {
@@ -76,7 +76,7 @@ const unitTest: UnitTest = {
             validateScalar(
                 { a: undefined },
                 "a",
-                { ...defInt, nullable: true },
+                { ...defInt, nullableOptions: { ...null0, nullable: true } },
                 opts1,
             ),
             {
@@ -86,7 +86,12 @@ const unitTest: UnitTest = {
             },
         );
         clock.assertEqual(
-            validateScalar({}, "a", { ...defInt, nullable: true }, opts1),
+            validateScalar(
+                {},
+                "a",
+                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                opts1,
+            ),
             {
                 expected:
                     "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
@@ -94,7 +99,12 @@ const unitTest: UnitTest = {
             },
         );
         clock.assertEqual(
-            validateScalar({}, "a", { ...defInt, nullable: true }, opts0),
+            validateScalar(
+                {},
+                "a",
+                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                opts0,
+            ),
             {
                 expected:
                     "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
@@ -106,7 +116,14 @@ const unitTest: UnitTest = {
             validateScalar(
                 { a: "" },
                 "a",
-                { ...defInt, nullable: true, optional: true, defined: false },
+                {
+                    ...defInt,
+                    nullableOptions: {
+                        nullable: true,
+                        optional: true,
+                        defined: false,
+                    },
+                },
                 opts3,
             ),
             {

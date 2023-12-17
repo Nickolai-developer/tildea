@@ -28,8 +28,9 @@ export interface TildaEitherType {
     types: TildaDefinitionEntity[];
 }
 
-export interface Definition extends NullableOptions {
+export interface Definition {
     type: TildaDefinitionEntity;
+    nullableOptions: NullableOptions;
 }
 
 export interface EitherTypeDefinition extends Definition {
