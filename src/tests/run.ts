@@ -34,7 +34,7 @@ for (const [name, index, error] of errors) {
         `Unit \`${name}\` error at assertion with index ${index}:`,
         error.message,
     );
-    console.error(error.cause);
+    console.error(JSON.stringify(error.cause, undefined, 2));
     console.log("------------------------------------------------------------");
 }
 
