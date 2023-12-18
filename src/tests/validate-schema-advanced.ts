@@ -1,6 +1,6 @@
 import { nullableDefaults } from "../constants.js";
-import { Schema } from "../interfaces.js";
-import { ReprDefinitions } from "../repr.js";
+import { Schema, SchemaValidationResult } from "../interfaces.js";
+import { ReprDefinitions, typeRepr } from "../repr.js";
 import TildaScalarType from "../tilda-scalar-type.js";
 import validateSchema from "../validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
@@ -76,7 +76,98 @@ const unitTest: UnitTest = {
                 },
             ],
         };
-        console.log(validateSchema({ prop1: { a: "" } }, s4, {}));
+        clock.assertEqual(validateSchema({ prop1: 0 }, s4, {}), {
+            errors: null,
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: "0" }, s4, {}), {
+            errors: null,
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: true }, s4, {}), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    found: "boolean",
+                },
+            ],
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: {} }, s4, {}), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: [
+                        {
+                            name: "a",
+                            expected: typeRepr(
+                                {
+                                    type: Int,
+                                    nullableOptions: nullableDefaults,
+                                },
+                                {},
+                            ),
+                            found: ReprDefinitions.UNDEFINED,
+                        },
+                        {
+                            name: "b",
+                            expected: typeRepr(
+                                {
+                                    type: String_,
+                                    nullableOptions: nullableDefaults,
+                                },
+                                {},
+                            ),
+                            found: ReprDefinitions.UNDEFINED,
+                        },
+                    ],
+                },
+            ],
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: { a: 0 } }, s4, {}), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: [
+                        {
+                            name: "b",
+                            expected: typeRepr(
+                                {
+                                    type: String_,
+                                    nullableOptions: nullableDefaults,
+                                },
+                                {},
+                            ),
+                            found: ReprDefinitions.UNDEFINED,
+                        },
+                    ],
+                },
+            ],
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: { a: "0" } }, s4, {}), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: [
+                        {
+                            name: "b",
+                            expected: typeRepr(
+                                {
+                                    type: Int,
+                                    nullableOptions: nullableDefaults,
+                                },
+                                {},
+                            ),
+                            found: ReprDefinitions.UNDEFINED,
+                        },
+                    ],
+                },
+            ],
+        } as SchemaValidationResult);
     },
 };
 
