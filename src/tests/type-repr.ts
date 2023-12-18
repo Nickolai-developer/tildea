@@ -5,7 +5,7 @@ import {
     TildaArrayType,
     TildaEitherType,
     TildaScalarType,
-    TildaStaticArray,
+    TildaStaticArrayType,
 } from "../interfaces.js";
 import { ReprDefinitions, nullableRepr, typeRepr } from "../repr.js";
 import { Clock, UnitTest } from "./common.js";
@@ -382,7 +382,7 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NULL,
         );
 
-        const sArray0: TildaStaticArray = {
+        const sArray0: TildaStaticArrayType = {
             _tildaEntityType: "staticArray",
             types: [
                 { type: Int, nullableOptions: null0 },

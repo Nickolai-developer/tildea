@@ -4,7 +4,7 @@ import {
     PropertyValidationResult,
     ReprOptions,
     ScalarDefinition,
-    Schema,
+    TildaSchema,
     SchemaValidationResult,
     TypeMisuseResult,
 } from "./interfaces.js";
@@ -12,7 +12,7 @@ import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
 import validateScalar from "./validate-scalar.js";
 
-interface PropertyValidationSubResult extends TypeMisuseResult {
+interface PropertyValidationStreamableMessage extends TypeMisuseResult {
     name: string;
     depth: number;
 }
@@ -20,7 +20,7 @@ interface PropertyValidationSubResult extends TypeMisuseResult {
 type Score = number[];
 
 const calcScores = (
-    errs: PropertyValidationSubResult[],
+    errs: PropertyValidationStreamableMessage[],
     baseDepth: number,
 ): Score => {
     const scores: Score = [];
@@ -66,7 +66,7 @@ function* validateProperty(
     definition: Definition,
     options: ReprOptions,
     currentDepth: number,
-): Generator<PropertyValidationSubResult, void, void> {
+): Generator<PropertyValidationStreamableMessage, void, void> {
     if (definition.type._tildaEntityType === "scalar") {
         const misuse = validateScalar(
             obj,
@@ -126,7 +126,7 @@ function* validateProperty(
                 currentDepth,
             ),
         );
-        const errors: PropertyValidationSubResult[][] = [];
+        const errors: PropertyValidationStreamableMessage[][] = [];
         for (let i = 0; i < errPools.length; i++) {
             const pool = errPools[i];
             const err = pool.next().value;
@@ -174,7 +174,11 @@ function* validateProperty(
     }
 
     const arrKeys: string[] = [];
-    const propErrors: Generator<PropertyValidationSubResult, void, void>[] = [];
+    const propErrors: Generator<
+        PropertyValidationStreamableMessage,
+        void,
+        void
+    >[] = [];
 
     if (
         type._tildaEntityType === "array" ||
@@ -229,7 +233,7 @@ function* redundantPropsErrors(
     objectOwnKeys: string[],
     options: ReprOptions,
     currentDepth: number,
-): Generator<PropertyValidationSubResult, void, void> {
+): Generator<PropertyValidationStreamableMessage, void, void> {
     const objKeys = Object.keys(obj);
     const redundantKeys = objKeys.filter(key => !objectOwnKeys.includes(key));
 
@@ -253,10 +257,10 @@ function* redundantPropsErrors(
 
 function* executeSchema(
     obj: object,
-    schema: Schema,
+    schema: TildaSchema,
     options: ReprOptions,
     currentDepth: number,
-): Generator<PropertyValidationSubResult, void, void> {
+): Generator<PropertyValidationStreamableMessage, void, void> {
     for (const { name, definition } of schema.definitions) {
         yield* validateProperty(obj, name, definition, options, currentDepth);
     }
@@ -271,7 +275,7 @@ function* executeSchema(
 
 export default function validateSchema(
     obj: object,
-    schema: Schema,
+    schema: TildaSchema,
     options: ReprOptions,
 ): SchemaValidationResult {
     const errors: PropertyValidationResult[] = [];

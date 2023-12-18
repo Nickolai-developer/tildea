@@ -3,8 +3,8 @@ import {
     Definition,
     NullableOptions,
     ReprOptions,
-    TildaDefinitionEntity,
-    TypeStringRepresentation,
+    TildaTypeEntity,
+    TypeRepresentation,
 } from "./interfaces.js";
 
 export enum ReprDefinitions {
@@ -18,19 +18,10 @@ export enum ReprDefinitions {
 }
 
 export function repr(
-    val: any,
-    options: Omit<ReprOptions, "hasPropertyCheck">,
-): TypeStringRepresentation;
-export function repr(
-    obj: object,
-    propertyName: string,
-    options: ReprOptions,
-): TypeStringRepresentation;
-export function repr(
     valOrObj: any,
     propOrOptions: string | ReprOptions,
     opts?: ReprOptions,
-): TypeStringRepresentation {
+): TypeRepresentation {
     let val, obj, property: string, options: ReprOptions;
     if (typeof propOrOptions === "string") {
         property = propOrOptions;
@@ -74,9 +65,7 @@ const joinTypeParts = (
 const encase = (type: string): string =>
     type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
 
-const uniqueTypes = (
-    types: TildaDefinitionEntity[],
-): TildaDefinitionEntity[] => {
+const uniqueTypes = (types: TildaTypeEntity[]): TildaTypeEntity[] => {
     const extendedTypes = types.map(type =>
         type._tildaEntityType === "either" && !type.name
             ? uniqueTypes(type.types)
@@ -87,14 +76,14 @@ const uniqueTypes = (
             arr.push(current);
         }
         return arr;
-    }, [] as TildaDefinitionEntity[]);
+    }, [] as TildaTypeEntity[]);
     return unique;
 };
 
 export function nullableRepr(
     { nullable, defined, optional }: NullableOptions,
-    options: Omit<ReprOptions, "useValue">,
-): TypeStringRepresentation {
+    options: ReprOptions,
+): TypeRepresentation {
     return joinTypeParts(
         nullable && ReprDefinitions.NULL,
         !defined && ReprDefinitions.UNDEFINED,
@@ -104,8 +93,8 @@ export function nullableRepr(
 
 export function typeRepr(
     { type, nullableOptions }: Definition,
-    options: Omit<ReprOptions, "useValue">,
-): TypeStringRepresentation {
+    options: ReprOptions,
+): TypeRepresentation {
     const nullableStr = nullableRepr(nullableOptions, options);
     if (type._tildaEntityType === "either") {
         if (type.name) {

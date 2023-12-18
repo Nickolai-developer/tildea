@@ -1,12 +1,40 @@
-export interface PropertyDefinition {
-    name: string;
-    definition: Definition;
+export interface ReprOptions {
+    /** make difference between missing property and undefined */
+    hasPropertyCheck?: boolean;
+    /** display value instead of string representation where's possible */
+    useValue?: boolean;
 }
 
-export interface Schema {
+export interface NullableOptions {
+    /** Can be not a property */
+    optional: boolean;
+    /** Can be null */
+    nullable: boolean;
+    /** Can't be undefined */
+    defined: boolean;
+}
+
+export interface Definition {
+    type: TildaTypeEntity;
+    nullableOptions: NullableOptions;
+}
+
+export type TildaTypeEntity =
+    | TildaSchema
+    | TildaScalarType
+    | TildaArrayType
+    | TildaStaticArrayType
+    | TildaEitherType;
+
+export interface TildaSchema {
     _tildaEntityType: "schema";
     name: string;
-    definitions: PropertyDefinition[];
+    definitions: SchemaPropertyDefinition[];
+}
+
+interface SchemaPropertyDefinition {
+    name: string;
+    definition: Definition;
 }
 
 export interface TildaScalarType {
@@ -20,7 +48,7 @@ export interface TildaArrayType {
     elemDefinition: Definition;
 }
 
-export interface TildaStaticArray {
+export interface TildaStaticArrayType {
     _tildaEntityType: "staticArray";
     name?: string;
     types: Definition[];
@@ -29,12 +57,7 @@ export interface TildaStaticArray {
 export interface TildaEitherType {
     _tildaEntityType: "either";
     name?: string;
-    types: TildaDefinitionEntity[];
-}
-
-export interface Definition {
-    type: TildaDefinitionEntity;
-    nullableOptions: NullableOptions;
+    types: TildaTypeEntity[];
 }
 
 export interface EitherTypeDefinition extends Definition {
@@ -42,7 +65,7 @@ export interface EitherTypeDefinition extends Definition {
 }
 
 export interface StaticArrayDefinition extends Definition {
-    type: TildaStaticArray;
+    type: TildaStaticArrayType;
 }
 
 export interface ArrayDefinition extends Definition {
@@ -54,26 +77,8 @@ export interface ScalarDefinition extends Definition {
 }
 
 export interface SchemaDefinition extends Definition {
-    type: Schema;
+    type: TildaSchema;
 }
-
-export interface NullableOptions {
-    /** Can be not a property */
-    optional: boolean;
-    /** Can be null */
-    nullable: boolean;
-    /** Can't be undefined */
-    defined: boolean;
-}
-
-export type TildaDefinitionEntity =
-    | Schema
-    | TildaScalarType
-    | TildaArrayType
-    | TildaStaticArray
-    | TildaEitherType;
-
-export type ScalarType = number | bigint | string | boolean | undefined | null;
 
 export interface TypeMisuseResult {
     expected: string;
@@ -89,11 +94,4 @@ export interface SchemaValidationResult {
     errors: PropertyValidationResult[] | null;
 }
 
-export type TypeStringRepresentation = string;
-
-export interface ReprOptions {
-    /** make difference between missing property and undefined */
-    hasPropertyCheck?: boolean;
-    /** display value instead of string representation where's possible */
-    useValue?: boolean;
-}
+export type TypeRepresentation = string;

@@ -1,6 +1,6 @@
 import { nullableDefaults } from "../constants.js";
 import {
-    Schema,
+    TildaSchema,
     SchemaValidationResult,
     TildaScalarType,
 } from "../interfaces.js";
@@ -31,7 +31,7 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        const s0: Schema = {
+        const s0: TildaSchema = {
             _tildaEntityType: "schema",
             name: "S0",
             definitions: [
@@ -48,7 +48,7 @@ const unitTest: UnitTest = {
             errors: null,
         });
 
-        const s1: Schema = {
+        const s1: TildaSchema = {
             _tildaEntityType: "schema",
             name: "S1",
             definitions: [
@@ -164,7 +164,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s2: Schema = {
+        const s2: TildaSchema = {
             _tildaEntityType: "schema",
             name: "S2",
             definitions: [
@@ -224,7 +224,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s3: Schema = {
+        const s3: TildaSchema = {
             _tildaEntityType: "schema",
             name: "S3",
             definitions: [

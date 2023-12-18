@@ -1,7 +1,7 @@
 import {
     NullableOptions,
     ReprOptions,
-    Schema,
+    TildaSchema,
     SchemaValidationResult,
     TildaScalarType,
 } from "../interfaces.js";
@@ -37,7 +37,7 @@ const unitTest: UnitTest = {
     test() {
         const clock = new Clock(this.errors);
 
-        const s1: Schema = {
+        const s1: TildaSchema = {
             _tildaEntityType: "schema",
             name: "Schema1",
             definitions: [
@@ -210,7 +210,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s2: Schema = {
+        const s2: TildaSchema = {
             _tildaEntityType: "schema",
             name: "Schema2",
             definitions: [
