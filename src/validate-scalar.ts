@@ -11,10 +11,10 @@ const enrichWithType = (
     { expected, found }: TypeMisuseResult,
     type: TildaScalarType,
 ): TypeMisuseResult => ({
-    found,
     expected: [type.name, expected]
         .filter(p => p)
         .join(ReprDefinitions.DELIM_OR),
+    found,
 });
 
 export default function validateScalar(
@@ -66,8 +66,8 @@ export default function validateScalar(
     }
     if (!definition.type.validate(scalar)) {
         return {
-            found: repr(scalar, options),
             expected: typeRepr(definition, options),
+            found: repr(scalar, options),
         };
     }
     return null;

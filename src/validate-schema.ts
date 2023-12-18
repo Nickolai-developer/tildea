@@ -92,8 +92,8 @@ function* validateProperty(
         yield {
             name: key,
             depth: currentDepth,
-            ...valNull,
             expected: typeRepr(definition, options),
+            found: valNull.found,
         };
         return;
     }

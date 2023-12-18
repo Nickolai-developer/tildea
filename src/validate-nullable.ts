@@ -45,8 +45,8 @@ export default function validateNullable(
         }
 
         return {
-            found: propR,
             expected: typeR,
+            found: propR,
         };
     } else {
         return validateNullable(
