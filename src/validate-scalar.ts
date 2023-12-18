@@ -1,10 +1,10 @@
 import {
     ReprOptions,
     ScalarDefinition,
+    TildaScalarType,
     TypeMisuseResult,
 } from "./interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
-import TildaScalarType from "./tilda-scalar-type.js";
 import validateNullable from "./validate-nullable.js";
 
 const enrichWithType = (

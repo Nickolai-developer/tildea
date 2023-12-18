@@ -4,21 +4,23 @@ import {
     ScalarDefinition,
     TildaArrayType,
     TildaEitherType,
+    TildaScalarType,
     TildaStaticArray,
 } from "../interfaces.js";
 import { ReprDefinitions, nullableRepr, typeRepr } from "../repr.js";
-import TildaScalarType from "../tilda-scalar-type.js";
 import { Clock, UnitTest } from "./common.js";
 
-const String_ = new TildaScalarType({
+const String_: TildaScalarType = {
+    _tildaEntityType: "scalar",
     name: "string",
     validate: val => typeof val === "string",
-});
+};
 
-const Int = new TildaScalarType({
+const Int: TildaScalarType = {
+    _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),
-});
+};
 
 const null0: NullableOptions = {
     defined: true,

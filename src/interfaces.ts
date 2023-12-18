@@ -1,5 +1,3 @@
-import TildaScalarType from "./tilda-scalar-type.js";
-
 export interface PropertyDefinition {
     name: string;
     definition: Definition;
@@ -9,6 +7,12 @@ export interface Schema {
     _tildaEntityType: "schema";
     name: string;
     definitions: PropertyDefinition[];
+}
+
+export interface TildaScalarType {
+    _tildaEntityType: "scalar";
+    validate: (v: unknown) => boolean;
+    name: string;
 }
 
 export interface TildaArrayType {
