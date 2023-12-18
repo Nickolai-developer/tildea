@@ -93,6 +93,7 @@ function* validateProperty(
             name: key,
             depth: currentDepth,
             ...valNull,
+            expected: typeRepr(definition, options),
         };
         return;
     }
