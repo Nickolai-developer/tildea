@@ -14,6 +14,10 @@ export interface NullableOptions {
     defined: boolean;
 }
 
+export type DefinitionEntity = Definition | DependencyIndex;
+
+export type DependencyIndex = string;
+
 export interface Definition {
     type: TildaTypeEntity;
     nullableOptions: NullableOptions;
@@ -34,7 +38,7 @@ export interface TildaSchema {
 
 interface SchemaPropertyDefinition {
     name: string;
-    definition: Definition;
+    definition: Definition /*  | DependencyIndex */;
 }
 
 export interface TildaScalarType {
@@ -51,13 +55,13 @@ export interface TildaArrayType {
 export interface TildaStaticArrayType {
     _tildaEntityType: "staticArray";
     name?: string;
-    types: Definition[];
+    types: Definition /* | DependencyIndex) */[];
 }
 
 export interface TildaEitherType {
     _tildaEntityType: "either";
     name?: string;
-    types: TildaTypeEntity[];
+    types: TildaTypeEntity /*  | DependencyIndex) */[];
 }
 
 export interface EitherTypeDefinition extends Definition {
