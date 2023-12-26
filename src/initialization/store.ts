@@ -1,4 +1,4 @@
-import { TildaSchema } from "./interfaces.js";
+import { TildaSchema } from "../interfaces.js";
 
 type StoredMetadataKey = Function;
 

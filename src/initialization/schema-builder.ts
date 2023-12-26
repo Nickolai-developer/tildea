@@ -1,11 +1,11 @@
-import { String_, nullableDefaults } from "./constants.js";
+import { String_, nullableDefaults } from "../constants.js";
 import Inspectable from "./inspectable.js";
 import {
     NullableOptions,
     TildaSchema,
     TildaTypeEntity,
     Type,
-} from "./interfaces.js";
+} from "../interfaces.js";
 import Store from "./store.js";
 
 const POSSIBLE_MODEL_ROOTS: Function[] = [Inspectable, Object];
