@@ -4,8 +4,8 @@ import {
     ScalarDefinition,
     TildaScalarType,
 } from "../interfaces.js";
-import { ReprDefinitions } from "../repr.js";
-import validateScalar from "../validate-scalar.js";
+import { ReprDefinitions } from "../validation/repr.js";
+import validateScalar from "../validation/validate-scalar.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: TildaScalarType = {

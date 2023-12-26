@@ -1,4 +1,4 @@
-import { ReprDefinitions, repr } from "../repr.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
 
 const unitTest: UnitTest = {

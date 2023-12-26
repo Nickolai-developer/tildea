@@ -5,8 +5,8 @@ import {
     SchemaValidationResult,
     TildaScalarType,
 } from "../interfaces.js";
-import { ReprDefinitions } from "../repr.js";
-import validateSchema from "../validate-schema.js";
+import { ReprDefinitions } from "../validation/repr.js";
+import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: TildaScalarType = {

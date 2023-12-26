@@ -1,6 +1,6 @@
 import { NullableOptions, ReprOptions } from "../interfaces.js";
-import { ReprDefinitions, nullableRepr } from "../repr.js";
-import validateNullable from "../validate-nullable.js";
+import { ReprDefinitions, nullableRepr } from "../validation/repr.js";
+import validateNullable from "../validation/validate-nullable.js";
 import { Clock, UnitTest } from "./common.js";
 
 const null0: NullableOptions = {

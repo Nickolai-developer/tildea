@@ -7,7 +7,7 @@ import {
     TildaScalarType,
     TildaStaticArrayType,
 } from "../interfaces.js";
-import { ReprDefinitions, nullableRepr, typeRepr } from "../repr.js";
+import { ReprDefinitions, nullableRepr, typeRepr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: TildaScalarType = {

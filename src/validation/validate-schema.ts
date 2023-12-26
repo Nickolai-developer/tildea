@@ -1,4 +1,4 @@
-import { nullableDefaults } from "./constants.js";
+import { nullableDefaults } from "../constants.js";
 import {
     Definition,
     PropertyValidationResult,
@@ -10,7 +10,7 @@ import {
     TildaArrayType,
     TildaEitherType,
     TildaStaticArrayType,
-} from "./interfaces.js";
+} from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
 import validateScalar from "./validate-scalar.js";

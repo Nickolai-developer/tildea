@@ -1,11 +1,11 @@
-import { nullableDefaults } from "./constants.js";
+import { nullableDefaults } from "../constants.js";
 import {
     Definition,
     NullableOptions,
     ReprOptions,
     TildaTypeEntity,
     TypeRepresentation,
-} from "./interfaces.js";
+} from "../interfaces.js";
 
 export enum ReprDefinitions {
     DELIM_OR = " | ",

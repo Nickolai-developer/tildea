@@ -3,7 +3,7 @@ import {
     ScalarDefinition,
     TildaScalarType,
     TypeMisuseResult,
-} from "./interfaces.js";
+} from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
 
