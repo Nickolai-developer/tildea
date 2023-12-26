@@ -7,6 +7,9 @@ import {
     TildaSchema,
     SchemaValidationResult,
     TypeMisuseResult,
+    TildaArrayType,
+    TildaEitherType,
+    TildaStaticArrayType,
 } from "./interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
@@ -117,7 +120,7 @@ function* validateProperty(
     });
 
     if (type._tildaEntityType === "either") {
-        const errPools = type.types.map(t =>
+        const errPools = (type as TildaEitherType).types.map(t =>
             validateProperty(
                 obj,
                 key,
@@ -154,7 +157,7 @@ function* validateProperty(
     if (type._tildaEntityType === "schema") {
         const errors = executeSchema(
             obj[key as keyof object],
-            type,
+            type as TildaSchema,
             options,
             currentDepth + 1,
         );
@@ -187,11 +190,13 @@ function* validateProperty(
         const isArray = type._tildaEntityType === "array";
         const maxindex = Math.max(
             array.length,
-            isArray ? 0 : type.types.length,
+            isArray ? 0 : (type as TildaStaticArrayType).types.length,
         );
         for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
-            const elemType = isArray ? type.elemDefinition : type.types[i];
+            const elemType = isArray
+                ? (type as TildaArrayType).elemDefinition
+                : (type as TildaStaticArrayType).types[i];
             if (!elemType) {
                 break;
             }

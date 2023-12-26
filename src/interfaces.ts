@@ -1,3 +1,5 @@
+export type Type = typeof String | TildaTypeEntity;
+
 export interface ReprOptions {
     /** make difference between missing property and undefined */
     hasPropertyCheck?: boolean;
