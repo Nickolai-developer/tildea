@@ -49,14 +49,13 @@ const lt = (score: Score, other: Score): boolean => {
             return score[i] < other[i];
         }
     }
-    return false;
+    return score.length < other.length;
 };
 
 const pickBestGuess = (scores: Score[]): number => {
     let min = 0;
     for (let i = 1; i < scores.length; i++) {
-        const score = scores[i];
-        if (lt(score, scores[min])) {
+        if (lt(scores[i], scores[min])) {
             min = i;
         }
     }
