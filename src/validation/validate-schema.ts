@@ -1,15 +1,15 @@
 import { nullableDefaults } from "../constants.js";
 import {
-    Definition,
+    CompleteDefinition,
     PropertyValidationResult,
     ReprOptions,
     ScalarDefinition,
-    TildaSchema,
+    Schema,
     SchemaValidationResult,
     TypeMisuseResult,
-    TildaArrayType,
-    TildaEitherType,
-    TildaStaticArrayType,
+    ArrayType,
+    EitherType,
+    StaticArrayType,
 } from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
@@ -65,7 +65,7 @@ const pickBestGuess = (scores: Score[]): number => {
 function* validateProperty(
     obj: object,
     key: string,
-    definition: Definition,
+    definition: CompleteDefinition,
     options: ReprOptions,
     currentDepth: number,
 ): Generator<PropertyValidationStreamableMessage, void, void> {
@@ -119,7 +119,7 @@ function* validateProperty(
     });
 
     if (type._tildaEntityType === "either") {
-        const errPools = (type as TildaEitherType).types.map(t =>
+        const errPools = (type as EitherType).types.map(t =>
             validateProperty(
                 obj,
                 key,
@@ -156,7 +156,7 @@ function* validateProperty(
     if (type._tildaEntityType === "schema") {
         const errors = executeSchema(
             obj[key as keyof object],
-            type as TildaSchema,
+            type as Schema,
             options,
             currentDepth + 1,
         );
@@ -189,13 +189,13 @@ function* validateProperty(
         const isArray = type._tildaEntityType === "array";
         const maxindex = Math.max(
             array.length,
-            isArray ? 0 : (type as TildaStaticArrayType).types.length,
+            isArray ? 0 : (type as StaticArrayType).types.length,
         );
         for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
             const elemType = isArray
-                ? (type as TildaArrayType).elemDefinition
-                : (type as TildaStaticArrayType).types[i];
+                ? (type as ArrayType).elemDefinition
+                : (type as StaticArrayType).types[i];
             if (!elemType) {
                 break;
             }
@@ -261,7 +261,7 @@ function* redundantPropsErrors(
 
 function* executeSchema(
     obj: object,
-    schema: TildaSchema,
+    schema: Schema,
     options: ReprOptions,
     currentDepth: number,
 ): Generator<PropertyValidationStreamableMessage, void, void> {
@@ -279,7 +279,7 @@ function* executeSchema(
 
 export default function validateSchema(
     obj: object,
-    schema: TildaSchema,
+    schema: Schema,
     options: ReprOptions,
 ): SchemaValidationResult {
     const errors: PropertyValidationResult[] = [];

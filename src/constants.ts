@@ -1,4 +1,4 @@
-import { NullableOptions, ReprOptions, TildaScalarType } from "./interfaces.js";
+import { NullableOptions, ReprOptions, ScalarType } from "./interfaces.js";
 
 export const nullableDefaults: NullableOptions = {
     defined: true,
@@ -11,19 +11,19 @@ export const reprDefaults: ReprOptions = {
     useValue: false,
 };
 
-export const Any: TildaScalarType = {
+export const Any: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Any",
     validate: () => true,
 };
 
-export const Int: TildaScalarType = {
+export const Int: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
 
-export const String_: TildaScalarType = {
+export const String_: ScalarType = {
     _tildaEntityType: "scalar",
     name: "String",
     validate: val => typeof val === "string",

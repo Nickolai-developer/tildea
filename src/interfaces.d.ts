@@ -1,29 +1,29 @@
-export type FieldTypeDescription =
+export type TypeDescription =
     | typeof String
-    | TildaTypeEntity
-    | ArrayFieldDescription
-    | StaticArrayFieldDescription
-    | EitherFieldDescription;
+    | ExactTypeEntity
+    | ArrayDescription
+    | StaticArrayDescription
+    | EitherDescription;
 
-export type ArrayFieldDescription =
-    | [TildaTypeEntity]
-    | [[TildaTypeEntity], Partial<NullableOptions>];
+export type ArrayDescription =
+    | [ExactTypeEntity]
+    | [[ExactTypeEntity], Partial<NullableOptions>];
 
-export type StaticArrayFieldDescriptionElement =
-    | TildaTypeEntity
-    | [TildaTypeEntity, Partial<NullableOptions>];
+export type StaticArrayElementDescription =
+    | ExactTypeEntity
+    | [ExactTypeEntity, Partial<NullableOptions>];
 
-export type StaticArrayFieldDescription = [
+export type StaticArrayDescription = [
     "STATIC",
-    StaticArrayFieldDescriptionElement,
-    ...StaticArrayFieldDescriptionElement[],
+    StaticArrayElementDescription,
+    ...StaticArrayElementDescription[],
 ];
 
-export type EitherFieldDescription = [
+export type EitherDescription = [
     "EITHER",
-    TildaTypeEntity,
-    TildaTypeEntity,
-    ...TildaTypeEntity[],
+    ExactTypeEntity,
+    ExactTypeEntity,
+    ...ExactTypeEntity[],
 ];
 
 export interface ReprOptions {
@@ -42,74 +42,76 @@ export interface NullableOptions {
     defined: boolean;
 }
 
-export type DefinitionEntity = Definition | DependencyIndex;
+export type Definition = CompleteDefinition | DependencyIndex;
+
+export type TypeEntity = ExactTypeEntity | DependencyIndex;
 
 export type DependencyIndex = string;
 
-export interface Definition {
-    type: TildaTypeEntity;
+export interface CompleteDefinition {
+    type: ExactTypeEntity;
     nullableOptions: NullableOptions;
 }
 
-export type TildaTypeEntity =
-    | TildaSchema
-    | TildaScalarType
-    | TildaArrayType
-    | TildaStaticArrayType
-    | TildaEitherType;
+export type ExactTypeEntity =
+    | Schema
+    | ScalarType
+    | ArrayType
+    | StaticArrayType
+    | EitherType;
 
-export interface TildaSchema {
+export interface Schema {
     _tildaEntityType: "schema";
     name: string;
-    definitions: SchemaPropertyDefinition[];
+    definitions: SchemaProperty[];
 }
 
-interface SchemaPropertyDefinition {
+interface SchemaProperty {
     name: string;
-    definition: Definition /*  | DependencyIndex */;
+    definition: CompleteDefinition /*  | DependencyIndex */;
 }
 
-export interface TildaScalarType {
+export interface ScalarType {
     _tildaEntityType: "scalar";
     validate: (v: unknown) => boolean;
     name: string;
 }
 
-export interface TildaArrayType {
+export interface ArrayType {
     _tildaEntityType: "array";
-    elemDefinition: Definition;
+    elemDefinition: CompleteDefinition;
 }
 
-export interface TildaStaticArrayType {
+export interface StaticArrayType {
     _tildaEntityType: "staticArray";
     name?: string;
-    types: Definition /* | DependencyIndex) */[];
+    types: CompleteDefinition /* | DependencyIndex) */[];
 }
 
-export interface TildaEitherType {
+export interface EitherType {
     _tildaEntityType: "either";
     name?: string;
-    types: TildaTypeEntity /*  | DependencyIndex) */[];
+    types: ExactTypeEntity /*  | DependencyIndex) */[];
 }
 
-export interface EitherTypeDefinition extends Definition {
-    type: TildaEitherType;
+export interface EitherTypeDefinition extends CompleteDefinition {
+    type: EitherType;
 }
 
-export interface StaticArrayDefinition extends Definition {
-    type: TildaStaticArrayType;
+export interface StaticArrayDefinition extends CompleteDefinition {
+    type: StaticArrayType;
 }
 
-export interface ArrayDefinition extends Definition {
-    type: TildaArrayType;
+export interface ArrayDefinition extends CompleteDefinition {
+    type: ArrayType;
 }
 
-export interface ScalarDefinition extends Definition {
-    type: TildaScalarType;
+export interface ScalarDefinition extends CompleteDefinition {
+    type: ScalarType;
 }
 
-export interface SchemaDefinition extends Definition {
-    type: TildaSchema;
+export interface SchemaDefinition extends CompleteDefinition {
+    type: Schema;
 }
 
 export interface TypeMisuseResult {

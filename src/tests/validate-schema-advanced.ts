@@ -1,20 +1,16 @@
 import { nullableDefaults } from "../constants.js";
-import {
-    TildaSchema,
-    SchemaValidationResult,
-    TildaScalarType,
-} from "../interfaces.js";
+import { Schema, SchemaValidationResult, ScalarType } from "../interfaces.js";
 import { ReprDefinitions, typeRepr } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
-const Int: TildaScalarType = {
+const Int: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
 
-const String_: TildaScalarType = {
+const String_: ScalarType = {
     _tildaEntityType: "scalar",
     name: "string",
     validate: val => typeof val === "string",
@@ -25,7 +21,7 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        const s04: TildaSchema = {
+        const s04: Schema = {
             _tildaEntityType: "schema",
             name: "S04",
             definitions: [
@@ -45,7 +41,7 @@ const unitTest: UnitTest = {
                 },
             ],
         };
-        const s14: TildaSchema = {
+        const s14: Schema = {
             _tildaEntityType: "schema",
             name: "S14",
             definitions: [
@@ -65,7 +61,7 @@ const unitTest: UnitTest = {
                 },
             ],
         };
-        const s4: TildaSchema = {
+        const s4: Schema = {
             _tildaEntityType: "schema",
             name: "S4",
             definitions: [

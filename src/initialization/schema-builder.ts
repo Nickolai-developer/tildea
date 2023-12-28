@@ -2,17 +2,17 @@ import { String_, nullableDefaults } from "../constants.js";
 import Inspectable from "./inspectable.js";
 import {
     NullableOptions,
-    TildaSchema,
-    TildaTypeEntity,
-    FieldTypeDescription,
-    StaticArrayFieldDescriptionElement,
-    Definition,
+    Schema,
+    ExactTypeEntity,
+    TypeDescription,
+    StaticArrayElementDescription,
+    CompleteDefinition,
 } from "../interfaces.js";
 import Store from "./store.js";
 
 const POSSIBLE_MODEL_ROOTS: Function[] = [Inspectable, Object];
 
-const getSchema = (target: Function): TildaSchema => {
+const getSchema = (target: Function): Schema => {
     let schema = Store.get(target);
     if (!schema) {
         schema = {
@@ -25,20 +25,20 @@ const getSchema = (target: Function): TildaSchema => {
     return schema;
 };
 
-const recognizeType = (type?: FieldTypeDescription): TildaTypeEntity | null => {
+const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
     if (!type || type === String) {
         return String_;
     }
 
-    if ((type as TildaTypeEntity)._tildaEntityType) {
-        return type as TildaTypeEntity;
+    if ((type as ExactTypeEntity)._tildaEntityType) {
+        return type as ExactTypeEntity;
     }
     if (Array.isArray(type)) {
         if (!type.length) {
             return null;
         }
         if (type[0] === "EITHER") {
-            const types = type.slice(1) as TildaTypeEntity[];
+            const types = type.slice(1) as ExactTypeEntity[];
             if (!types.every(e => e._tildaEntityType) || type.length < 3) {
                 return null;
             }
@@ -48,9 +48,9 @@ const recognizeType = (type?: FieldTypeDescription): TildaTypeEntity | null => {
             };
         }
         if (type[0] === "STATIC") {
-            const types = type.slice(1) as StaticArrayFieldDescriptionElement[];
-            const defs = types.map<Definition>(e => {
-                let type: TildaTypeEntity, options: Partial<NullableOptions>;
+            const types = type.slice(1) as StaticArrayElementDescription[];
+            const defs = types.map<CompleteDefinition>(e => {
+                let type: ExactTypeEntity, options: Partial<NullableOptions>;
                 if (Array.isArray(e)) {
                     [type, options] = e;
                 } else {
@@ -71,7 +71,7 @@ const recognizeType = (type?: FieldTypeDescription): TildaTypeEntity | null => {
                 types: defs,
             };
         }
-        let elemType: TildaTypeEntity | undefined,
+        let elemType: ExactTypeEntity | undefined,
             options: Partial<NullableOptions> = {};
         if (Array.isArray(type[0]) && type.length === 2) {
             [[elemType], options] = type;
@@ -129,7 +129,7 @@ export const SchemaClass = (name?: string): ClassDecorator => {
 };
 
 export const Field = (
-    type?: FieldTypeDescription,
+    type?: TypeDescription,
     options?: Partial<NullableOptions>,
 ): PropertyDecorator => {
     const opts = Object.assign({}, nullableDefaults, options || {});

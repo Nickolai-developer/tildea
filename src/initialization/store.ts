@@ -1,4 +1,4 @@
-import { TildaSchema } from "../interfaces.js";
+import { Schema } from "../interfaces.js";
 
 type StoredMetadataKey = Function;
 
@@ -6,7 +6,7 @@ type StoredMetadataKey = Function;
 
 // type StoredSchemaKey = `schema:${SchemaClassName}`;
 
-type StoredMetadataValue = TildaSchema;
+type StoredMetadataValue = Schema;
 
 // class StoreClass extends Map<StoredMetadataKey, StoredMetadataValue> {
 //     override get(key: StoredSchemaKey): TildaSchema;

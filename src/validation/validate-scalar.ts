@@ -1,7 +1,7 @@
 import {
     ReprOptions,
     ScalarDefinition,
-    TildaScalarType,
+    ScalarType,
     TypeMisuseResult,
 } from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
@@ -9,7 +9,7 @@ import validateNullable from "./validate-nullable.js";
 
 const enrichWithType = (
     { expected, found }: TypeMisuseResult,
-    type: TildaScalarType,
+    type: ScalarType,
 ): TypeMisuseResult => ({
     expected: [type.name, expected]
         .filter(p => p)

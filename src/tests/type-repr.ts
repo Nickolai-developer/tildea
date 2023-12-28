@@ -2,21 +2,21 @@ import {
     NullableOptions,
     ReprOptions,
     ScalarDefinition,
-    TildaArrayType,
-    TildaEitherType,
-    TildaScalarType,
-    TildaStaticArrayType,
+    ArrayType,
+    EitherType,
+    ScalarType,
+    StaticArrayType,
 } from "../interfaces.js";
 import { ReprDefinitions, nullableRepr, typeRepr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
 
-const String_: TildaScalarType = {
+const String_: ScalarType = {
     _tildaEntityType: "scalar",
     name: "string",
     validate: val => typeof val === "string",
 };
 
-const Int: TildaScalarType = {
+const Int: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),
@@ -268,14 +268,14 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NO_PROPERTY,
         );
 
-        const arrType0: TildaArrayType = {
+        const arrType0: ArrayType = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
                 nullableOptions: null0,
             },
         };
-        const arrType1: TildaArrayType = {
+        const arrType1: ArrayType = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
@@ -286,7 +286,7 @@ const unitTest: UnitTest = {
                 },
             },
         };
-        const arrType2: TildaArrayType = {
+        const arrType2: ArrayType = {
             _tildaEntityType: "array",
             elemDefinition: {
                 type: Int,
@@ -382,7 +382,7 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NULL,
         );
 
-        const sArray0: TildaStaticArrayType = {
+        const sArray0: StaticArrayType = {
             _tildaEntityType: "staticArray",
             types: [
                 { type: Int, nullableOptions: null0 },
@@ -462,11 +462,11 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NULL,
         );
 
-        const e0: TildaEitherType = {
+        const e0: EitherType = {
             _tildaEntityType: "either",
             types: [Int, String_],
         };
-        const e1: TildaEitherType = {
+        const e1: EitherType = {
             _tildaEntityType: "either",
             types: [Int, String_],
         };

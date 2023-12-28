@@ -1,9 +1,9 @@
 import { nullableDefaults } from "../constants.js";
 import {
-    Definition,
+    CompleteDefinition,
     NullableOptions,
     ReprOptions,
-    TildaTypeEntity,
+    ExactTypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 
@@ -65,7 +65,7 @@ const joinTypeParts = (
 const encase = (type: string): string =>
     type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
 
-const uniqueTypes = (types: TildaTypeEntity[]): TildaTypeEntity[] => {
+const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
     const extendedTypes = types.map(type =>
         type._tildaEntityType === "either" && !type.name
             ? uniqueTypes(type.types)
@@ -76,7 +76,7 @@ const uniqueTypes = (types: TildaTypeEntity[]): TildaTypeEntity[] => {
             arr.push(current);
         }
         return arr;
-    }, [] as TildaTypeEntity[]);
+    }, [] as ExactTypeEntity[]);
     return unique;
 };
 
@@ -92,7 +92,7 @@ export function nullableRepr(
 }
 
 export function typeRepr(
-    { type, nullableOptions }: Definition,
+    { type, nullableOptions }: CompleteDefinition,
     options: ReprOptions,
 ): TypeRepresentation {
     const nullableStr = nullableRepr(nullableOptions, options);

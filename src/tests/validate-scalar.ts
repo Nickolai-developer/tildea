@@ -2,19 +2,19 @@ import {
     NullableOptions,
     ReprOptions,
     ScalarDefinition,
-    TildaScalarType,
+    ScalarType,
 } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateScalar from "../validation/validate-scalar.js";
 import { Clock, UnitTest } from "./common.js";
 
-const String_: TildaScalarType = {
+const String_: ScalarType = {
     _tildaEntityType: "scalar",
     name: "string",
     validate: val => typeof val === "string",
 };
 
-const Int: TildaScalarType = {
+const Int: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),

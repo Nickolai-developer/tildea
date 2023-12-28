@@ -1,26 +1,22 @@
 import { nullableDefaults } from "../constants.js";
-import {
-    TildaSchema,
-    SchemaValidationResult,
-    TildaScalarType,
-} from "../interfaces.js";
+import { Schema, SchemaValidationResult, ScalarType } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
-const Any: TildaScalarType = {
+const Any: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Any",
     validate: () => true,
 };
 
-const Int: TildaScalarType = {
+const Int: ScalarType = {
     _tildaEntityType: "scalar",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
 
-const String_: TildaScalarType = {
+const String_: ScalarType = {
     _tildaEntityType: "scalar",
     name: "string",
     validate: val => typeof val === "string",
@@ -31,7 +27,7 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        const s0: TildaSchema = {
+        const s0: Schema = {
             _tildaEntityType: "schema",
             name: "S0",
             definitions: [
@@ -48,7 +44,7 @@ const unitTest: UnitTest = {
             errors: null,
         });
 
-        const s1: TildaSchema = {
+        const s1: Schema = {
             _tildaEntityType: "schema",
             name: "S1",
             definitions: [
@@ -164,7 +160,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s2: TildaSchema = {
+        const s2: Schema = {
             _tildaEntityType: "schema",
             name: "S2",
             definitions: [
@@ -224,7 +220,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s3: TildaSchema = {
+        const s3: Schema = {
             _tildaEntityType: "schema",
             name: "S3",
             definitions: [
