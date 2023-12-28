@@ -1,9 +1,14 @@
-import { NullableOptions, TildaScalarType } from "./interfaces.js";
+import { NullableOptions, ReprOptions, TildaScalarType } from "./interfaces.js";
 
 export const nullableDefaults: NullableOptions = {
     defined: true,
     nullable: false,
     optional: false,
+};
+
+export const reprDefaults: ReprOptions = {
+    hasPropertyCheck: false,
+    useValue: false,
 };
 
 export const Any: TildaScalarType = {
