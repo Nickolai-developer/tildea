@@ -1,4 +1,30 @@
-export type Type = typeof String | TildaTypeEntity;
+export type FieldTypeDescription =
+    | typeof String
+    | TildaTypeEntity
+    | ArrayFieldDescription
+    | StaticArrayFieldDescription
+    | EitherFieldDescription;
+
+export type ArrayFieldDescription =
+    | [TildaTypeEntity]
+    | [[TildaTypeEntity], Partial<NullableOptions>];
+
+export type StaticArrayFieldDescriptionElement =
+    | TildaTypeEntity
+    | [TildaTypeEntity, Partial<NullableOptions>];
+
+export type StaticArrayFieldDescription = [
+    "STATIC",
+    StaticArrayFieldDescriptionElement,
+    ...StaticArrayFieldDescriptionElement[],
+];
+
+export type EitherFieldDescription = [
+    "EITHER",
+    TildaTypeEntity,
+    TildaTypeEntity,
+    ...TildaTypeEntity[],
+];
 
 export interface ReprOptions {
     /** make difference between missing property and undefined */

@@ -4,7 +4,9 @@ import {
     NullableOptions,
     TildaSchema,
     TildaTypeEntity,
-    Type,
+    FieldTypeDescription,
+    StaticArrayFieldDescriptionElement,
+    Definition,
 } from "../interfaces.js";
 import Store from "./store.js";
 
@@ -21,6 +23,75 @@ const getSchema = (target: Function): TildaSchema => {
         Store.set(target, schema);
     }
     return schema;
+};
+
+const recognizeType = (type?: FieldTypeDescription): TildaTypeEntity | null => {
+    if (!type || type === String) {
+        return String_;
+    }
+
+    if ((type as TildaTypeEntity)._tildaEntityType) {
+        return type as TildaTypeEntity;
+    }
+    if (Array.isArray(type)) {
+        if (!type.length) {
+            return null;
+        }
+        if (type[0] === "EITHER") {
+            const types = type.slice(1) as TildaTypeEntity[];
+            if (!types.every(e => e._tildaEntityType) || type.length < 3) {
+                return null;
+            }
+            return {
+                _tildaEntityType: "either",
+                types,
+            };
+        }
+        if (type[0] === "STATIC") {
+            const types = type.slice(1) as StaticArrayFieldDescriptionElement[];
+            const defs = types.map<Definition>(e => {
+                let type: TildaTypeEntity, options: Partial<NullableOptions>;
+                if (Array.isArray(e)) {
+                    [type, options] = e;
+                } else {
+                    type = e;
+                    options = {};
+                }
+                return {
+                    type,
+                    nullableOptions: Object.assign(
+                        {},
+                        nullableDefaults,
+                        options,
+                    ),
+                };
+            });
+            return {
+                _tildaEntityType: "staticArray",
+                types: defs,
+            };
+        }
+        let elemType: TildaTypeEntity | undefined,
+            options: Partial<NullableOptions> = {};
+        if (Array.isArray(type[0]) && type.length === 2) {
+            [[elemType], options] = type;
+        } else if (type.length === 1) {
+            elemType = type[0];
+            options = {};
+        }
+        if (!elemType) {
+            return null;
+        }
+        return {
+            _tildaEntityType: "array",
+            elemDefinition: {
+                type: elemType,
+                nullableOptions: Object.assign({}, nullableDefaults, options),
+            },
+        };
+    }
+
+    return null;
 };
 
 export const SchemaClass = (name?: string): ClassDecorator => {
@@ -58,19 +129,19 @@ export const SchemaClass = (name?: string): ClassDecorator => {
 };
 
 export const Field = (
-    type?: Type,
+    type?: FieldTypeDescription,
     options?: Partial<NullableOptions>,
 ): PropertyDecorator => {
-    let typeEntity: TildaTypeEntity;
-    if (type && type !== String) {
-        typeEntity = type as any;
-    } else {
-        typeEntity = String_;
-    }
     const opts = Object.assign({}, nullableDefaults, options || {});
+    const typeEntity = recognizeType(type);
     return (target: Object, propertyKey: string | symbol) => {
         if (typeof propertyKey === "symbol") {
             throw new Error("Symbols aren't implemented~");
+        }
+        if (typeEntity === null) {
+            throw new Error(
+                `Cannot recognize type for ${target.constructor.name}.${propertyKey}`,
+            );
         }
         const schema = getSchema(target.constructor);
         schema.definitions.push({
@@ -82,26 +153,3 @@ export const Field = (
         });
     };
 };
-
-// @SchemaClass()
-// class A extends Inspectable {
-//     @Field(String)
-//     prop1: string;
-// }
-
-// @SchemaClass()
-// class B extends A {
-//     @Field(Int)
-//     prop2: number;
-// }
-
-// type Either1 = string | number;
-// const Either1_type = new TildaEitherType([String, Int], "Either1");
-
-// @SchemaClass()
-// class C extends B {
-//     @Field(Either1_type, { nullable: true })
-//     prop3: Either1;
-// }
-
-// console.log("f");
