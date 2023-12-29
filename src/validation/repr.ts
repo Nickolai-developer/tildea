@@ -6,6 +6,7 @@ import {
     ExactTypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
+import { eqDeep } from "../utils.js";
 
 export enum ReprDefinitions {
     DELIM_OR = " | ",
@@ -72,7 +73,7 @@ const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
             : type,
     );
     const unique = extendedTypes.flat().reduce((arr, current) => {
-        if (arr.findIndex(t => t === current) === -1) {
+        if (arr.findIndex(t => eqDeep(t, current)) === -1) {
             arr.push(current);
         }
         return arr;

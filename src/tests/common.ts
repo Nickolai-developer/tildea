@@ -1,22 +1,10 @@
+import { eqDeep } from "../utils.js";
+
 export interface UnitTest {
     name: string;
     test: () => void;
     errors: Map<number, Error>;
 }
-
-const eq = (one: any, other: any): boolean => {
-    if (typeof one !== typeof other) {
-        return false;
-    }
-    if (typeof one !== "object") {
-        return one === other;
-    }
-    if (one === null || other === null) {
-        return one === other;
-    }
-    const keys = [...new Set([...Object.keys(one), ...Object.keys(other)])];
-    return keys.every(k => eq(one[k], other[k]));
-};
 
 export class Clock {
     private index: number = 0;
@@ -29,7 +17,7 @@ export class Clock {
     }
 
     assertEqual(val1: any, val2: any) {
-        if (!eq(val1, val2)) {
+        if (!eqDeep(val1, val2)) {
             this.errors.set(
                 this.index,
                 new Error(Clock.EQ, { cause: [val1, val2] }),
