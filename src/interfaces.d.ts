@@ -1,30 +1,30 @@
-export type TypeDescription =
-    | typeof String
-    | ExactTypeEntity
-    | ArrayDescription
-    | StaticArrayDescription
-    | EitherDescription;
+// export type TypeDescription =
+//     | typeof String
+//     | ExactTypeEntity
+//     | ArrayDescription
+//     | StaticArrayDescription
+//     | EitherDescription;
 
-export type ArrayDescription =
-    | [ExactTypeEntity]
-    | [[ExactTypeEntity], Partial<NullableOptions>];
+// export type ArrayDescription =
+//     | [ExactTypeEntity]
+//     | [[ExactTypeEntity], Partial<NullableOptions>];
 
-export type StaticArrayElementDescription =
-    | ExactTypeEntity
-    | [ExactTypeEntity, Partial<NullableOptions>];
+// export type StaticArrayElementDescription =
+//     | ExactTypeEntity
+//     | [ExactTypeEntity, Partial<NullableOptions>];
 
-export type StaticArrayDescription = [
-    "STATIC",
-    StaticArrayElementDescription,
-    ...StaticArrayElementDescription[],
-];
+// export type StaticArrayDescription = [
+//     "STATIC",
+//     StaticArrayElementDescription,
+//     ...StaticArrayElementDescription[],
+// ];
 
-export type EitherDescription = [
-    "EITHER",
-    ExactTypeEntity,
-    ExactTypeEntity,
-    ...ExactTypeEntity[],
-];
+// export type EitherDescription = [
+//     "EITHER",
+//     ExactTypeEntity,
+//     ExactTypeEntity,
+//     ...ExactTypeEntity[],
+// ];
 
 export interface ReprOptions {
     /** make difference between missing property and undefined */
