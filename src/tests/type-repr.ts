@@ -11,13 +11,13 @@ import { ReprDefinitions, nullableRepr, typeRepr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "string",
     validate: val => typeof val === "string",
 };
 
 const Int: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
@@ -269,14 +269,14 @@ const unitTest: UnitTest = {
         );
 
         const arrType0: ArrayType = {
-            _tildaEntityType: "array",
+            entity: "ARRAY",
             elemDefinition: {
                 type: Int,
                 nullableOptions: null0,
             },
         };
         const arrType1: ArrayType = {
-            _tildaEntityType: "array",
+            entity: "ARRAY",
             elemDefinition: {
                 type: Int,
                 nullableOptions: {
@@ -287,7 +287,7 @@ const unitTest: UnitTest = {
             },
         };
         const arrType2: ArrayType = {
-            _tildaEntityType: "array",
+            entity: "ARRAY",
             elemDefinition: {
                 type: Int,
                 nullableOptions: {
@@ -383,7 +383,7 @@ const unitTest: UnitTest = {
         );
 
         const sArray0: StaticArrayType = {
-            _tildaEntityType: "staticArray",
+            entity: "STATIC",
             types: [
                 { type: Int, nullableOptions: null0 },
                 { type: String_, nullableOptions: null0 },
@@ -463,11 +463,11 @@ const unitTest: UnitTest = {
         );
 
         const e0: EitherType = {
-            _tildaEntityType: "either",
+            entity: "EITHER",
             types: [Int, String_],
         };
         const e1: EitherType = {
-            _tildaEntityType: "either",
+            entity: "EITHER",
             types: [Int, String_],
         };
         clock.assertEqual(
@@ -510,7 +510,7 @@ const unitTest: UnitTest = {
             typeRepr(
                 {
                     type: {
-                        _tildaEntityType: "either",
+                        entity: "EITHER",
                         types: [Int, String_, e0],
                     },
                     nullableOptions: {

@@ -67,9 +67,7 @@ const encase = (type: string): string =>
 
 const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
     const extendedTypes = types.map(type =>
-        type._tildaEntityType === "either" && !type.name
-            ? uniqueTypes(type.types)
-            : type,
+        type.entity === "EITHER" && !type.name ? uniqueTypes(type.types) : type,
     );
     const unique = extendedTypes.flat().reduce((arr, current) => {
         if (arr.findIndex(t => t === current) === -1) {
@@ -96,7 +94,7 @@ export function typeRepr(
     options: ReprOptions,
 ): TypeRepresentation {
     const nullableStr = nullableRepr(nullableOptions, options);
-    if (type._tildaEntityType === "either") {
+    if (type.entity === "EITHER") {
         if (type.name) {
             return nullableStr
                 ? encase(joinTypeParts(type.name, nullableStr))
@@ -109,7 +107,7 @@ export function typeRepr(
         const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
         return typeRs.length > 1 ? encase(typeR) : typeR;
     }
-    if (type._tildaEntityType === "staticArray") {
+    if (type.entity === "STATIC") {
         return joinTypeParts(
             type.name ||
                 `[${type.types
@@ -118,13 +116,10 @@ export function typeRepr(
             nullableStr,
         );
     }
-    if (
-        type._tildaEntityType === "scalar" ||
-        type._tildaEntityType === "schema"
-    ) {
+    if (type.entity === "SCALAR" || type.entity === "SCHEMA") {
         return joinTypeParts(type.name, nullableStr);
     }
-    if (type._tildaEntityType === "array") {
+    if (type.entity === "ARRAY") {
         const elem = typeRepr(type.elemDefinition, options);
         return (
             [

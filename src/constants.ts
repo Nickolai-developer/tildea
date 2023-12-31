@@ -12,19 +12,19 @@ export const reprDefaults: ReprOptions = {
 };
 
 export const Any: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Any",
     validate: () => true,
 };
 
 export const Int: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
 
 export const String_: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "String",
     validate: val => typeof val === "string",
 };

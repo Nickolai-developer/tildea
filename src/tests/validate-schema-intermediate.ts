@@ -5,19 +5,19 @@ import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
 const Any: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Any",
     validate: () => true,
 };
 
 const Int: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
 
 const String_: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "string",
     validate: val => typeof val === "string",
 };
@@ -28,7 +28,7 @@ const unitTest: UnitTest = {
     test() {
         const clock = new Clock(this.errors);
         const s0: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "S0",
             definitions: [
                 {
@@ -45,14 +45,14 @@ const unitTest: UnitTest = {
         });
 
         const s1: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "S1",
             definitions: [
                 {
                     name: "a",
                     definition: {
                         type: {
-                            _tildaEntityType: "array",
+                            entity: "ARRAY",
                             elemDefinition: {
                                 type: Int,
                                 nullableOptions: {
@@ -68,10 +68,10 @@ const unitTest: UnitTest = {
                     name: "b",
                     definition: {
                         type: {
-                            _tildaEntityType: "array",
+                            entity: "ARRAY",
                             elemDefinition: {
                                 type: {
-                                    _tildaEntityType: "array",
+                                    entity: "ARRAY",
                                     elemDefinition: {
                                         type: Int,
                                         nullableOptions: nullableDefaults,
@@ -161,14 +161,14 @@ const unitTest: UnitTest = {
         );
 
         const s2: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "S2",
             definitions: [
                 {
                     name: "a",
                     definition: {
                         type: {
-                            _tildaEntityType: "array",
+                            entity: "ARRAY",
                             elemDefinition: {
                                 type: Int,
                                 nullableOptions: nullableDefaults,
@@ -221,14 +221,14 @@ const unitTest: UnitTest = {
         );
 
         const s3: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "S3",
             definitions: [
                 {
                     name: "prop1",
                     definition: {
                         type: {
-                            _tildaEntityType: "staticArray",
+                            entity: "STATIC",
                             types: [
                                 {
                                     type: Int,
@@ -246,7 +246,7 @@ const unitTest: UnitTest = {
                                 },
                                 {
                                     type: {
-                                        _tildaEntityType: "staticArray",
+                                        entity: "STATIC",
                                         types: [
                                             {
                                                 type: Int,
@@ -255,8 +255,7 @@ const unitTest: UnitTest = {
                                             },
                                             {
                                                 type: {
-                                                    _tildaEntityType:
-                                                        "staticArray",
+                                                    entity: "STATIC",
                                                     name: "StaticArray1",
                                                     types: [
                                                         {

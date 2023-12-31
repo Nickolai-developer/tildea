@@ -10,13 +10,13 @@ import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "string",
     validate: val => typeof val === "string",
 };
 
 const Int: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Int",
     validate: val => Number.isInteger(val),
 };
@@ -38,7 +38,7 @@ const unitTest: UnitTest = {
         const clock = new Clock(this.errors);
 
         const s1: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "Schema1",
             definitions: [
                 {
@@ -211,7 +211,7 @@ const unitTest: UnitTest = {
         );
 
         const s2: Schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: "Schema2",
             definitions: [
                 {

@@ -9,13 +9,13 @@ import validateScalar from "../validation/validate-scalar.js";
 import { Clock, UnitTest } from "./common.js";
 
 const String_: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "string",
     validate: val => typeof val === "string",
 };
 
 const Int: ScalarType = {
-    _tildaEntityType: "scalar",
+    entity: "SCALAR",
     name: "Int",
     validate: val => Number.isInteger(val),
 };

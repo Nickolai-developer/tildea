@@ -16,7 +16,7 @@ const getSchema = (target: Function): Schema => {
     let schema = Store.get(target);
     if (!schema) {
         schema = {
-            _tildaEntityType: "schema",
+            entity: "SCHEMA",
             name: target.name,
             definitions: [],
         };
@@ -30,7 +30,7 @@ const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
         return String_;
     }
 
-    if ((type as ExactTypeEntity)._tildaEntityType) {
+    if ((type as ExactTypeEntity).entity) {
         return type as ExactTypeEntity;
     }
     if (Array.isArray(type)) {
@@ -39,11 +39,11 @@ const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
         }
         if (type[0] === "EITHER") {
             const types = type.slice(1) as ExactTypeEntity[];
-            if (!types.every(e => e._tildaEntityType) || type.length < 3) {
+            if (!types.every(e => e.entity) || type.length < 3) {
                 return null;
             }
             return {
-                _tildaEntityType: "either",
+                entity: "EITHER",
                 types,
             };
         }
@@ -67,7 +67,7 @@ const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
                 };
             });
             return {
-                _tildaEntityType: "staticArray",
+                entity: "STATIC",
                 types: defs,
             };
         }
@@ -83,7 +83,7 @@ const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
             return null;
         }
         return {
-            _tildaEntityType: "array",
+            entity: "ARRAY",
             elemDefinition: {
                 type: elemType,
                 nullableOptions: Object.assign({}, nullableDefaults, options),

@@ -61,7 +61,7 @@ export type ExactTypeEntity =
     | EitherType;
 
 export interface Schema {
-    _tildaEntityType: "schema";
+    entity: "SCHEMA";
     name: string;
     definitions: SchemaProperty[];
 }
@@ -72,24 +72,24 @@ interface SchemaProperty {
 }
 
 export interface ScalarType {
-    _tildaEntityType: "scalar";
+    entity: "SCALAR";
     validate: (v: unknown) => boolean;
     name: string;
 }
 
 export interface ArrayType {
-    _tildaEntityType: "array";
+    entity: "ARRAY";
     elemDefinition: CompleteDefinition;
 }
 
 export interface StaticArrayType {
-    _tildaEntityType: "staticArray";
+    entity: "STATIC";
     name?: string;
     types: CompleteDefinition /* | DependencyIndex) */[];
 }
 
 export interface EitherType {
-    _tildaEntityType: "either";
+    entity: "EITHER";
     name?: string;
     types: ExactTypeEntity /*  | DependencyIndex) */[];
 }

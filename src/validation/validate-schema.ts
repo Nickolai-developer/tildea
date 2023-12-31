@@ -69,7 +69,7 @@ function* validateProperty(
     options: ReprOptions,
     currentDepth: number,
 ): Generator<PropertyValidationStreamableMessage, void, void> {
-    if (definition.type._tildaEntityType === "scalar") {
+    if (definition.type.entity === "SCALAR") {
         const misuse = validateScalar(
             obj,
             key,
@@ -118,7 +118,7 @@ function* validateProperty(
         found: propR,
     });
 
-    if (type._tildaEntityType === "either") {
+    if (type.entity === "EITHER") {
         const errPools = (type as EitherType).types.map(t =>
             validateProperty(
                 obj,
@@ -153,7 +153,7 @@ function* validateProperty(
         return;
     }
 
-    if (type._tildaEntityType === "schema") {
+    if (type.entity === "SCHEMA") {
         const errors = executeSchema(
             obj[key as keyof object],
             type as Schema,
@@ -182,11 +182,8 @@ function* validateProperty(
         void
     >[] = [];
 
-    if (
-        type._tildaEntityType === "array" ||
-        type._tildaEntityType === "staticArray"
-    ) {
-        const isArray = type._tildaEntityType === "array";
+    if (type.entity === "ARRAY" || type.entity === "STATIC") {
+        const isArray = type.entity === "ARRAY";
         const maxindex = Math.max(
             array.length,
             isArray ? 0 : (type as StaticArrayType).types.length,
