@@ -95,3 +95,8 @@ export interface SchemaValidationResult {
 }
 
 export type TypeRepresentation = string;
+
+export interface PropertyValidationStreamableMessage extends TypeMisuseResult {
+    name: string;
+    depth: number;
+}
