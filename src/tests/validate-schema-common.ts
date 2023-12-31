@@ -1,25 +1,13 @@
+import { Int, String_ } from "../constants.js";
+import Schema from "../entities/schema.js";
 import {
     NullableOptions,
     ReprOptions,
-    Schema,
     SchemaValidationResult,
-    ScalarType,
 } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
-
-const String_: ScalarType = {
-    entity: "SCALAR",
-    name: "string",
-    validate: val => typeof val === "string",
-};
-
-const Int: ScalarType = {
-    entity: "SCALAR",
-    name: "Int",
-    validate: val => Number.isInteger(val),
-};
 
 const null0: NullableOptions = {
     defined: true,
@@ -37,8 +25,7 @@ const unitTest: UnitTest = {
     test() {
         const clock = new Clock(this.errors);
 
-        const s1: Schema = {
-            entity: "SCHEMA",
+        const s1 = new Schema({
             name: "Schema1",
             definitions: [
                 {
@@ -46,7 +33,7 @@ const unitTest: UnitTest = {
                     definition: { type: Int, nullableOptions: null0 },
                 },
             ],
-        };
+        });
         clock.assertEqual(validateSchema({ prop1: 0 }, s1, {}), {
             errors: null,
         });
@@ -123,30 +110,43 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        clock.assertEqual(
-            validateSchema(
-                { prop2: "value" },
+        const s12 = new Schema({
+            name: "Schema2",
+            definitions: [
                 {
-                    ...s1,
-                    definitions: [
-                        {
-                            ...s1.definitions[0],
-                            definition: {
-                                type: Int,
-                                nullableOptions: {
-                                    defined: true,
-                                    optional: false,
-                                    nullable: true,
-                                },
-                            },
+                    name: "prop1",
+                    definition: {
+                        type: Int,
+                        nullableOptions: {
+                            defined: true,
+                            optional: false,
+                            nullable: true,
                         },
-                    ],
+                    },
                 },
+            ],
+        });
+        const s13 = new Schema({
+            name: "Schema2",
+            definitions: [
                 {
-                    hasPropertyCheck: true,
-                    useValue: true,
+                    name: "prop1",
+                    definition: {
+                        type: Int,
+                        nullableOptions: {
+                            defined: true,
+                            optional: true,
+                            nullable: true,
+                        },
+                    },
                 },
-            ),
+            ],
+        });
+        clock.assertEqual(
+            validateSchema({ prop2: "value" }, s12, {
+                hasPropertyCheck: true,
+                useValue: true,
+            }),
             {
                 errors: [
                     {
@@ -166,29 +166,10 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
         clock.assertEqual(
-            validateSchema(
-                { prop1: undefined, prop2: "value" },
-                {
-                    ...s1,
-                    definitions: [
-                        {
-                            ...s1.definitions[0],
-                            definition: {
-                                type: Int,
-                                nullableOptions: {
-                                    defined: true,
-                                    optional: true,
-                                    nullable: true,
-                                },
-                            },
-                        },
-                    ],
-                },
-                {
-                    hasPropertyCheck: true,
-                    useValue: true,
-                },
-            ),
+            validateSchema({ prop1: undefined, prop2: "value" }, s13, {
+                hasPropertyCheck: true,
+                useValue: true,
+            }),
             {
                 errors: [
                     {
@@ -210,8 +191,7 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s2: Schema = {
-            entity: "SCHEMA",
+        const s2 = new Schema({
             name: "Schema2",
             definitions: [
                 {
@@ -237,7 +217,7 @@ const unitTest: UnitTest = {
                     },
                 },
             ],
-        };
+        });
         clock.assertEqual(
             validateSchema({ schemaProp: { prop1: 0 } }, s2, {
                 hasPropertyCheck: true,
@@ -253,7 +233,7 @@ const unitTest: UnitTest = {
                     {
                         name: "prop0",
                         expected:
-                            "string" +
+                            "String" +
                             ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL +
                             ReprDefinitions.DELIM_OR +
@@ -272,7 +252,7 @@ const unitTest: UnitTest = {
                     {
                         name: "prop0",
                         expected:
-                            "string" +
+                            "String" +
                             ReprDefinitions.DELIM_OR +
                             ReprDefinitions.NULL,
                         found: ReprDefinitions.UNDEFINED,

@@ -1,26 +1,14 @@
+import { Int, String_ } from "../constants.js";
+import ArrayType from "../entities/array.js";
+import EitherType from "../entities/either.js";
+import StaticArrayType from "../entities/static-array.js";
 import {
     NullableOptions,
     ReprOptions,
     ScalarDefinition,
-    ArrayType,
-    EitherType,
-    ScalarType,
-    StaticArrayType,
 } from "../interfaces.js";
 import { ReprDefinitions, nullableRepr, typeRepr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
-
-const String_: ScalarType = {
-    entity: "SCALAR",
-    name: "string",
-    validate: val => typeof val === "string",
-};
-
-const Int: ScalarType = {
-    entity: "SCALAR",
-    name: "Int",
-    validate: val => Number.isInteger(val),
-};
 
 const null0: NullableOptions = {
     defined: true,
@@ -54,7 +42,7 @@ const unitTest: UnitTest = {
         clock.assertEqual(nullableRepr(null0, opts0), "");
         clock.assertEqual(typeRepr(defInt, opts0), "Int");
         clock.assertEqual(nullableRepr(null0, opts1), "");
-        clock.assertEqual(typeRepr(defString, opts1), "string");
+        clock.assertEqual(typeRepr(defString, opts1), "String");
 
         clock.assertEqual(
             nullableRepr({ ...null0, defined: false }, opts0),
@@ -268,15 +256,13 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NO_PROPERTY,
         );
 
-        const arrType0: ArrayType = {
-            entity: "ARRAY",
+        const arrType0 = new ArrayType({
             elemDefinition: {
                 type: Int,
                 nullableOptions: null0,
             },
-        };
-        const arrType1: ArrayType = {
-            entity: "ARRAY",
+        });
+        const arrType1 = new ArrayType({
             elemDefinition: {
                 type: Int,
                 nullableOptions: {
@@ -285,9 +271,8 @@ const unitTest: UnitTest = {
                     optional: false,
                 },
             },
-        };
-        const arrType2: ArrayType = {
-            entity: "ARRAY",
+        });
+        const arrType2 = new ArrayType({
             elemDefinition: {
                 type: Int,
                 nullableOptions: {
@@ -296,7 +281,7 @@ const unitTest: UnitTest = {
                     optional: true,
                 },
             },
-        };
+        });
         clock.assertEqual(
             typeRepr(
                 { type: arrType0, nullableOptions: null0 },
@@ -382,8 +367,7 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NULL,
         );
 
-        const sArray0: StaticArrayType = {
-            entity: "STATIC",
+        const sArray0 = new StaticArrayType({
             types: [
                 { type: Int, nullableOptions: null0 },
                 { type: String_, nullableOptions: null0 },
@@ -396,11 +380,12 @@ const unitTest: UnitTest = {
                     },
                 },
             ],
-        };
+        });
+        sArray0.name = "StaticArrayProperties";
         clock.assertEqual(
             typeRepr(
                 {
-                    type: { ...sArray0, name: "StaticArrayProperties" },
+                    type: sArray0,
                     nullableOptions: {
                         defined: true,
                         nullable: true,
@@ -413,6 +398,7 @@ const unitTest: UnitTest = {
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL,
         );
+        sArray0.name = undefined;
         clock.assertEqual(
             typeRepr(
                 {
@@ -427,7 +413,7 @@ const unitTest: UnitTest = {
             ),
             "[Int" +
                 ReprDefinitions.DELIM_COLON +
-                "string" +
+                "String" +
                 ReprDefinitions.DELIM_COLON +
                 "Int" +
                 ReprDefinitions.DELIM_OR +
@@ -450,7 +436,7 @@ const unitTest: UnitTest = {
             ),
             "[Int" +
                 ReprDefinitions.DELIM_COLON +
-                "string" +
+                "String" +
                 ReprDefinitions.DELIM_COLON +
                 "Int" +
                 ReprDefinitions.DELIM_OR +
@@ -462,18 +448,18 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NULL,
         );
 
-        const e0: EitherType = {
-            entity: "EITHER",
+        const e0 = new EitherType({
             types: [Int, String_],
-        };
-        const e1: EitherType = {
-            entity: "EITHER",
+            name: "EitherType1",
+        });
+        const e1 = new EitherType({
             types: [Int, String_],
-        };
+            name: "EitherType1",
+        });
         clock.assertEqual(
             typeRepr(
                 {
-                    type: { ...e0, name: "EitherType1" },
+                    type: e0,
                     nullableOptions: {
                         defined: true,
                         nullable: true,
@@ -490,7 +476,7 @@ const unitTest: UnitTest = {
         clock.assertEqual(
             typeRepr(
                 {
-                    type: { ...e1, name: "EitherType1" },
+                    type: e1,
                     nullableOptions: {
                         defined: false,
                         nullable: true,
@@ -506,13 +492,13 @@ const unitTest: UnitTest = {
                 ReprDefinitions.UNDEFINED +
                 ")",
         );
+        e0.name = undefined;
         clock.assertEqual(
             typeRepr(
                 {
-                    type: {
-                        entity: "EITHER",
+                    type: new EitherType({
                         types: [Int, String_, e0],
-                    },
+                    }),
                     nullableOptions: {
                         defined: false,
                         nullable: true,
@@ -523,7 +509,7 @@ const unitTest: UnitTest = {
             ),
             "(Int" +
                 ReprDefinitions.DELIM_OR +
-                "string" +
+                "String" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
                 ReprDefinitions.DELIM_OR +

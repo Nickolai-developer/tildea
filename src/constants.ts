@@ -1,4 +1,5 @@
-import { NullableOptions, ReprOptions, ScalarType } from "./interfaces.js";
+import ScalarType from "./entities/scalar.js";
+import { NullableOptions, ReprOptions } from "./interfaces.js";
 
 export const nullableDefaults: NullableOptions = {
     defined: true,
@@ -11,20 +12,17 @@ export const reprDefaults: ReprOptions = {
     useValue: false,
 };
 
-export const Any: ScalarType = {
-    entity: "SCALAR",
+export const Any = new ScalarType({
     name: "Any",
     validate: () => true,
-};
+});
 
-export const Int: ScalarType = {
-    entity: "SCALAR",
+export const Int = new ScalarType({
     name: "Int",
     validate: val => Number.isInteger(val),
-};
+});
 
-export const String_: ScalarType = {
-    entity: "SCALAR",
+export const String_ = new ScalarType({
     name: "String",
     validate: val => typeof val === "string",
-};
+});

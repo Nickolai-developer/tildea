@@ -1,24 +1,12 @@
+import { Int, String_ } from "../constants.js";
 import {
     NullableOptions,
     ReprOptions,
     ScalarDefinition,
-    ScalarType,
 } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateScalar from "../validation/validate-scalar.js";
 import { Clock, UnitTest } from "./common.js";
-
-const String_: ScalarType = {
-    entity: "SCALAR",
-    name: "string",
-    validate: val => typeof val === "string",
-};
-
-const Int: ScalarType = {
-    entity: "SCALAR",
-    name: "Int",
-    validate: val => Number.isInteger(val),
-};
 
 const null0: NullableOptions = {
     defined: true,
@@ -69,7 +57,7 @@ const unitTest: UnitTest = {
             found: '"0"',
         });
         clock.assertEqual(validateScalar(0, defString, opts2), {
-            expected: "string",
+            expected: "String",
             found: "0",
         });
 

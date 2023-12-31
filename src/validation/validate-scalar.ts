@@ -1,7 +1,7 @@
+import ScalarType from "../entities/scalar.js";
 import {
     ReprOptions,
     ScalarDefinition,
-    ScalarType,
     TypeMisuseResult,
 } from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";

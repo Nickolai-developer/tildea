@@ -1,3 +1,10 @@
+import ArrayType from "./entities/array.ts";
+import EitherType from "./entities/either.ts";
+import ExactTypeEntity from "./entities/entity.ts";
+import ScalarType from "./entities/scalar.ts";
+import Schema from "./entities/schema.ts";
+import StaticArrayType from "./entities/static-array.ts";
+
 // export type TypeDescription =
 //     | typeof String
 //     | ExactTypeEntity
@@ -51,47 +58,6 @@ export type DependencyIndex = string;
 export interface CompleteDefinition {
     type: ExactTypeEntity;
     nullableOptions: NullableOptions;
-}
-
-export type ExactTypeEntity =
-    | Schema
-    | ScalarType
-    | ArrayType
-    | StaticArrayType
-    | EitherType;
-
-export interface Schema {
-    entity: "SCHEMA";
-    name: string;
-    definitions: SchemaProperty[];
-}
-
-interface SchemaProperty {
-    name: string;
-    definition: CompleteDefinition /*  | DependencyIndex */;
-}
-
-export interface ScalarType {
-    entity: "SCALAR";
-    validate: (v: unknown) => boolean;
-    name: string;
-}
-
-export interface ArrayType {
-    entity: "ARRAY";
-    elemDefinition: CompleteDefinition;
-}
-
-export interface StaticArrayType {
-    entity: "STATIC";
-    name?: string;
-    types: CompleteDefinition /* | DependencyIndex) */[];
-}
-
-export interface EitherType {
-    entity: "EITHER";
-    name?: string;
-    types: ExactTypeEntity /*  | DependencyIndex) */[];
 }
 
 export interface EitherTypeDefinition extends CompleteDefinition {

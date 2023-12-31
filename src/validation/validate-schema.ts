@@ -1,15 +1,16 @@
 import { nullableDefaults } from "../constants.js";
+import ArrayType from "../entities/array.js";
+import EitherType from "../entities/either.js";
+import ScalarType from "../entities/scalar.js";
+import Schema from "../entities/schema.js";
+import StaticArrayType from "../entities/static-array.js";
 import {
     CompleteDefinition,
     PropertyValidationResult,
     ReprOptions,
     ScalarDefinition,
-    Schema,
     SchemaValidationResult,
     TypeMisuseResult,
-    ArrayType,
-    EitherType,
-    StaticArrayType,
 } from "../interfaces.js";
 import { ReprDefinitions, repr, typeRepr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
@@ -69,7 +70,7 @@ function* validateProperty(
     options: ReprOptions,
     currentDepth: number,
 ): Generator<PropertyValidationStreamableMessage, void, void> {
-    if (definition.type.entity === "SCALAR") {
+    if (definition.type instanceof ScalarType) {
         const misuse = validateScalar(
             obj,
             key,
@@ -118,8 +119,8 @@ function* validateProperty(
         found: propR,
     });
 
-    if (type.entity === "EITHER") {
-        const errPools = (type as EitherType).types.map(t =>
+    if (type instanceof EitherType) {
+        const errPools = type.types.map(t =>
             validateProperty(
                 obj,
                 key,
@@ -153,10 +154,10 @@ function* validateProperty(
         return;
     }
 
-    if (type.entity === "SCHEMA") {
+    if (type instanceof Schema) {
         const errors = executeSchema(
             obj[key as keyof object],
-            type as Schema,
+            type,
             options,
             currentDepth + 1,
         );
@@ -182,8 +183,8 @@ function* validateProperty(
         void
     >[] = [];
 
-    if (type.entity === "ARRAY" || type.entity === "STATIC") {
-        const isArray = type.entity === "ARRAY";
+    if (type instanceof ArrayType || type instanceof StaticArrayType) {
+        const isArray = type instanceof ArrayType;
         const maxindex = Math.max(
             array.length,
             isArray ? 0 : (type as StaticArrayType).types.length,

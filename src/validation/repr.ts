@@ -1,9 +1,14 @@
 import { nullableDefaults } from "../constants.js";
+import ArrayType from "../entities/array.js";
+import EitherType from "../entities/either.js";
+import ExactTypeEntity from "../entities/entity.js";
+import ScalarType from "../entities/scalar.js";
+import Schema from "../entities/schema.js";
+import StaticArrayType from "../entities/static-array.js";
 import {
     CompleteDefinition,
     NullableOptions,
     ReprOptions,
-    ExactTypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 
@@ -67,7 +72,9 @@ const encase = (type: string): string =>
 
 const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
     const extendedTypes = types.map(type =>
-        type.entity === "EITHER" && !type.name ? uniqueTypes(type.types) : type,
+        type instanceof EitherType && !type.name
+            ? uniqueTypes(type.types)
+            : type,
     );
     const unique = extendedTypes.flat().reduce((arr, current) => {
         if (arr.findIndex(t => t === current) === -1) {
@@ -94,7 +101,7 @@ export function typeRepr(
     options: ReprOptions,
 ): TypeRepresentation {
     const nullableStr = nullableRepr(nullableOptions, options);
-    if (type.entity === "EITHER") {
+    if (type instanceof EitherType) {
         if (type.name) {
             return nullableStr
                 ? encase(joinTypeParts(type.name, nullableStr))
@@ -107,7 +114,7 @@ export function typeRepr(
         const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
         return typeRs.length > 1 ? encase(typeR) : typeR;
     }
-    if (type.entity === "STATIC") {
+    if (type instanceof StaticArrayType) {
         return joinTypeParts(
             type.name ||
                 `[${type.types
@@ -116,10 +123,10 @@ export function typeRepr(
             nullableStr,
         );
     }
-    if (type.entity === "SCALAR" || type.entity === "SCHEMA") {
+    if (type instanceof ScalarType || type instanceof Schema) {
         return joinTypeParts(type.name, nullableStr);
     }
-    if (type.entity === "ARRAY") {
+    if (type instanceof ArrayType) {
         const elem = typeRepr(type.elemDefinition, options);
         return (
             [

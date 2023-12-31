@@ -1,4 +1,4 @@
-import { Schema } from "../interfaces.js";
+import Schema from "../entities/schema.js";
 
 type StoredMetadataKey = Function;
 

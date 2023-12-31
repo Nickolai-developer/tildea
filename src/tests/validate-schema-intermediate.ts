@@ -1,34 +1,18 @@
-import { nullableDefaults } from "../constants.js";
-import { Schema, SchemaValidationResult, ScalarType } from "../interfaces.js";
+import { Any, Int, String_, nullableDefaults } from "../constants.js";
+import ArrayType from "../entities/array.js";
+import Schema from "../entities/schema.js";
+import StaticArrayType from "../entities/static-array.js";
+import { SchemaValidationResult } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
-
-const Any: ScalarType = {
-    entity: "SCALAR",
-    name: "Any",
-    validate: () => true,
-};
-
-const Int: ScalarType = {
-    entity: "SCALAR",
-    name: "Int",
-    validate: val => Number.isInteger(val),
-};
-
-const String_: ScalarType = {
-    entity: "SCALAR",
-    name: "string",
-    validate: val => typeof val === "string",
-};
 
 const unitTest: UnitTest = {
     name: "validate-schema-intermediate",
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        const s0: Schema = {
-            entity: "SCHEMA",
+        const s0 = new Schema({
             name: "S0",
             definitions: [
                 {
@@ -39,20 +23,18 @@ const unitTest: UnitTest = {
                     },
                 },
             ],
-        };
+        });
         clock.assertEqual(validateSchema({ a: [1, 2, 3, 4] }, s0, {}), {
             errors: null,
         });
 
-        const s1: Schema = {
-            entity: "SCHEMA",
+        const s1 = new Schema({
             name: "S1",
             definitions: [
                 {
                     name: "a",
                     definition: {
-                        type: {
-                            entity: "ARRAY",
+                        type: new ArrayType({
                             elemDefinition: {
                                 type: Int,
                                 nullableOptions: {
@@ -60,34 +42,32 @@ const unitTest: UnitTest = {
                                     nullable: true,
                                 },
                             },
-                        },
+                        }),
                         nullableOptions: nullableDefaults,
                     },
                 },
                 {
                     name: "b",
                     definition: {
-                        type: {
-                            entity: "ARRAY",
+                        type: new ArrayType({
                             elemDefinition: {
-                                type: {
-                                    entity: "ARRAY",
+                                type: new ArrayType({
                                     elemDefinition: {
                                         type: Int,
                                         nullableOptions: nullableDefaults,
                                     },
-                                },
+                                }),
                                 nullableOptions: {
                                     ...nullableDefaults,
                                     nullable: true,
                                 },
                             },
-                        },
+                        }),
                         nullableOptions: nullableDefaults,
                     },
                 },
             ],
-        };
+        });
         clock.assertEqual(
             validateSchema(
                 {
@@ -160,25 +140,23 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s2: Schema = {
-            entity: "SCHEMA",
+        const s2 = new Schema({
             name: "S2",
             definitions: [
                 {
                     name: "a",
                     definition: {
-                        type: {
-                            entity: "ARRAY",
+                        type: new ArrayType({
                             elemDefinition: {
                                 type: Int,
                                 nullableOptions: nullableDefaults,
                             },
-                        },
+                        }),
                         nullableOptions: nullableDefaults,
                     },
                 },
             ],
-        };
+        });
         const arr0 = [1, 2, 3, 4];
         (arr0 as any).prop0 = 6;
         clock.assertEqual(validateSchema({ a: arr0 }, s2, {}), {
@@ -220,15 +198,13 @@ const unitTest: UnitTest = {
             } as SchemaValidationResult,
         );
 
-        const s3: Schema = {
-            entity: "SCHEMA",
+        const s3 = new Schema({
             name: "S3",
             definitions: [
                 {
                     name: "prop1",
                     definition: {
-                        type: {
-                            entity: "STATIC",
+                        type: new StaticArrayType({
                             types: [
                                 {
                                     type: Int,
@@ -245,8 +221,7 @@ const unitTest: UnitTest = {
                                     },
                                 },
                                 {
-                                    type: {
-                                        entity: "STATIC",
+                                    type: new StaticArrayType({
                                         types: [
                                             {
                                                 type: Int,
@@ -254,8 +229,7 @@ const unitTest: UnitTest = {
                                                     nullableDefaults,
                                             },
                                             {
-                                                type: {
-                                                    entity: "STATIC",
+                                                type: new StaticArrayType({
                                                     name: "StaticArray1",
                                                     types: [
                                                         {
@@ -269,21 +243,21 @@ const unitTest: UnitTest = {
                                                                 nullableDefaults,
                                                         },
                                                     ],
-                                                },
+                                                }),
                                                 nullableOptions:
                                                     nullableDefaults,
                                             },
                                         ],
-                                    },
+                                    }),
                                     nullableOptions: nullableDefaults,
                                 },
                             ],
-                        },
+                        }),
                         nullableOptions: nullableDefaults,
                     },
                 },
             ],
-        };
+        });
         clock.assertEqual(
             validateSchema({ prop1: [0, "", [0, [0, 0]]] }, s3, {}),
             {
@@ -306,7 +280,7 @@ const unitTest: UnitTest = {
                 errors: [
                     {
                         name: "prop1",
-                        expected: `[Int${ReprDefinitions.DELIM_OR}${ReprDefinitions.NULL}${ReprDefinitions.DELIM_COLON}string${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}${ReprDefinitions.DELIM_COLON}[Int${ReprDefinitions.DELIM_COLON}StaticArray1]]`,
+                        expected: `[Int${ReprDefinitions.DELIM_OR}${ReprDefinitions.NULL}${ReprDefinitions.DELIM_COLON}String${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}${ReprDefinitions.DELIM_COLON}[Int${ReprDefinitions.DELIM_COLON}StaticArray1]]`,
                         found: ReprDefinitions.OBJECT,
                         subproperties: [
                             {
@@ -316,7 +290,7 @@ const unitTest: UnitTest = {
                             },
                             {
                                 name: "1",
-                                expected: `string${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}`,
+                                expected: `String${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}`,
                                 found: ReprDefinitions.OBJECT,
                             },
                             {
@@ -363,7 +337,7 @@ const unitTest: UnitTest = {
                 errors: [
                     {
                         name: "prop1",
-                        expected: `[Int${ReprDefinitions.DELIM_OR}${ReprDefinitions.NULL}${ReprDefinitions.DELIM_COLON}string${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}${ReprDefinitions.DELIM_COLON}[Int${ReprDefinitions.DELIM_COLON}StaticArray1]]`,
+                        expected: `[Int${ReprDefinitions.DELIM_OR}${ReprDefinitions.NULL}${ReprDefinitions.DELIM_COLON}String${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}${ReprDefinitions.DELIM_COLON}[Int${ReprDefinitions.DELIM_COLON}StaticArray1]]`,
                         found: ReprDefinitions.OBJECT,
                         subproperties: [
                             {
@@ -373,7 +347,7 @@ const unitTest: UnitTest = {
                             },
                             {
                                 name: "1",
-                                expected: `string${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}`,
+                                expected: `String${ReprDefinitions.DELIM_OR}${ReprDefinitions.UNDEFINED}`,
                                 found: ReprDefinitions.OBJECT,
                             },
                             {
