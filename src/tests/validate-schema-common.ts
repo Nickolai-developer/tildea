@@ -1,19 +1,9 @@
 import { Int, String_ } from "../constants.js";
 import Schema from "../entities/schema.js";
-import {
-    NullableOptions,
-    ReprOptions,
-    SchemaValidationResult,
-} from "../interfaces.js";
+import { ReprOptions, SchemaValidationResult } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
-
-const null0: NullableOptions = {
-    defined: true,
-    nullable: false,
-    optional: false,
-};
 
 const opts1: ReprOptions = {
     hasPropertyCheck: true,
@@ -27,10 +17,10 @@ const unitTest: UnitTest = {
 
         const s1 = new Schema({
             name: "Schema1",
-            definitions: [
+            props: [
                 {
                     name: "prop1",
-                    definition: { type: Int, nullableOptions: null0 },
+                    type: Int,
                 },
             ],
         });
@@ -112,33 +102,27 @@ const unitTest: UnitTest = {
 
         const s12 = new Schema({
             name: "Schema2",
-            definitions: [
+            props: [
                 {
                     name: "prop1",
-                    definition: {
-                        type: Int,
-                        nullableOptions: {
-                            defined: true,
-                            optional: false,
-                            nullable: true,
-                        },
-                    },
+                    type: Int.opts({
+                        defined: true,
+                        optional: false,
+                        nullable: true,
+                    }),
                 },
             ],
         });
         const s13 = new Schema({
             name: "Schema2",
-            definitions: [
+            props: [
                 {
                     name: "prop1",
-                    definition: {
-                        type: Int,
-                        nullableOptions: {
-                            defined: true,
-                            optional: true,
-                            nullable: true,
-                        },
-                    },
+                    type: Int.opts({
+                        defined: true,
+                        optional: true,
+                        nullable: true,
+                    }),
                 },
             ],
         });
@@ -193,28 +177,22 @@ const unitTest: UnitTest = {
 
         const s2 = new Schema({
             name: "Schema2",
-            definitions: [
+            props: [
                 {
                     name: "prop0",
-                    definition: {
-                        type: String_,
-                        nullableOptions: {
-                            defined: true,
-                            nullable: true,
-                            optional: true,
-                        },
-                    },
+                    type: String_.opts({
+                        defined: true,
+                        nullable: true,
+                        optional: true,
+                    }),
                 },
                 {
                     name: "schemaProp",
-                    definition: {
-                        type: s1,
-                        nullableOptions: {
-                            defined: true,
-                            nullable: true,
-                            optional: false,
-                        },
-                    },
+                    type: s1.opts({
+                        defined: true,
+                        nullable: true,
+                        optional: false,
+                    }),
                 },
             ],
         });

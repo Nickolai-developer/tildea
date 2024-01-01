@@ -1,8 +1,8 @@
-import { Int, String_, nullableDefaults } from "../constants.js";
+import { Int, String_ } from "../constants.js";
 import EitherType from "../entities/either.js";
 import Schema from "../entities/schema.js";
 import { SchemaValidationResult } from "../interfaces.js";
-import { ReprDefinitions, typeRepr } from "../validation/repr.js";
+import { ReprDefinitions } from "../validation/repr.js";
 import validateSchema from "../validation/validate-schema.js";
 import { Clock, UnitTest } from "./common.js";
 
@@ -13,53 +13,38 @@ const unitTest: UnitTest = {
         const clock = new Clock(this.errors);
         const s04 = new Schema({
             name: "S04",
-            definitions: [
+            props: [
                 {
                     name: "a",
-                    definition: {
-                        type: Int,
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: Int,
                 },
                 {
                     name: "b",
-                    definition: {
-                        type: String_,
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: String_,
                 },
             ],
         });
         const s14 = new Schema({
             name: "S14",
-            definitions: [
+            props: [
                 {
                     name: "b",
-                    definition: {
-                        type: Int,
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: Int,
                 },
                 {
                     name: "a",
-                    definition: {
-                        type: String_,
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: String_,
                 },
             ],
         });
         const s4 = new Schema({
             name: "S4",
-            definitions: [
+            props: [
                 {
                     name: "prop1",
-                    definition: {
-                        type: new EitherType({
-                            types: [Int, String_, s04, s14],
-                        }),
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: new EitherType({
+                        types: [Int, String_, s04, s14],
+                    }),
                 },
             ],
         });
@@ -73,7 +58,7 @@ const unitTest: UnitTest = {
             errors: [
                 {
                     name: "prop1",
-                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    expected: s4.props[0].type.repr({}),
                     found: "boolean",
                 },
             ],
@@ -82,29 +67,17 @@ const unitTest: UnitTest = {
             errors: [
                 {
                     name: "prop1",
-                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    expected: s4.props[0].type.repr({}),
                     found: ReprDefinitions.OBJECT,
                     subproperties: [
                         {
                             name: "a",
-                            expected: typeRepr(
-                                {
-                                    type: Int,
-                                    nullableOptions: nullableDefaults,
-                                },
-                                {},
-                            ),
+                            expected: Int.repr({}),
                             found: ReprDefinitions.UNDEFINED,
                         },
                         {
                             name: "b",
-                            expected: typeRepr(
-                                {
-                                    type: String_,
-                                    nullableOptions: nullableDefaults,
-                                },
-                                {},
-                            ),
+                            expected: String_.repr({}),
                             found: ReprDefinitions.UNDEFINED,
                         },
                     ],
@@ -115,18 +88,12 @@ const unitTest: UnitTest = {
             errors: [
                 {
                     name: "prop1",
-                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    expected: s4.props[0].type.repr({}),
                     found: ReprDefinitions.OBJECT,
                     subproperties: [
                         {
                             name: "b",
-                            expected: typeRepr(
-                                {
-                                    type: String_,
-                                    nullableOptions: nullableDefaults,
-                                },
-                                {},
-                            ),
+                            expected: String_.repr({}),
                             found: ReprDefinitions.UNDEFINED,
                         },
                     ],
@@ -137,18 +104,12 @@ const unitTest: UnitTest = {
             errors: [
                 {
                     name: "prop1",
-                    expected: typeRepr(s4.definitions[0].definition, {}),
+                    expected: s4.props[0].type.repr({}),
                     found: ReprDefinitions.OBJECT,
                     subproperties: [
                         {
                             name: "b",
-                            expected: typeRepr(
-                                {
-                                    type: Int,
-                                    nullableOptions: nullableDefaults,
-                                },
-                                {},
-                            ),
+                            expected: Int.repr({}),
                             found: ReprDefinitions.UNDEFINED,
                         },
                     ],

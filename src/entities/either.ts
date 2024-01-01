@@ -1,6 +1,4 @@
-import { nullableDefaults } from "../constants.js";
 import {
-    EitherTypeDefinition,
     PropertyValidationStreamableMessage,
     ReprOptions,
 } from "../interfaces.js";
@@ -96,12 +94,12 @@ export default class EitherType extends ExactTypeEntity {
     public override *execute(
         obj: object,
         key: string,
-        def: EitherTypeDefinition,
+        type: EitherType,
         options: ReprOptions,
         currentDepth: number,
     ) {
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, def, options, currentDepth).next().value;
+            this.checkNulls(obj, key, type, options, currentDepth).next().value;
         if (typeof nullCheck === "string") {
             return;
         }
@@ -110,14 +108,8 @@ export default class EitherType extends ExactTypeEntity {
             return;
         }
 
-        const errPools = def.type.types.map(t =>
-            t.execute(
-                obj,
-                key,
-                { type: t, nullableOptions: nullableDefaults },
-                options,
-                currentDepth,
-            ),
+        const errPools = type.types.map(type =>
+            type.execute(obj, key, type, options, currentDepth),
         );
         const errors: PropertyValidationStreamableMessage[][] = [];
         for (let i = 0; i < errPools.length; i++) {
@@ -137,7 +129,7 @@ export default class EitherType extends ExactTypeEntity {
         yield {
             name: key,
             depth: currentDepth,
-            expected: def.type.repr(options),
+            expected: type.repr(options),
             found: repr(obj, key, options),
         };
         yield* errors[bestGuess].slice(1) as any;

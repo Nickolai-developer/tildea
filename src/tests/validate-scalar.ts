@@ -1,28 +1,9 @@
 import { Int, String_ } from "../constants.js";
-import {
-    NullableOptions,
-    ReprOptions,
-    ScalarDefinition,
-} from "../interfaces.js";
+import ScalarType from "../entities/scalar.js";
+import { ReprOptions } from "../interfaces.js";
 import { ReprDefinitions } from "../validation/repr.js";
 import validateScalar from "../validation/validate-scalar.js";
 import { Clock, UnitTest } from "./common.js";
-
-const null0: NullableOptions = {
-    defined: true,
-    nullable: false,
-    optional: false,
-};
-
-const defInt: ScalarDefinition = {
-    type: Int,
-    nullableOptions: null0,
-};
-
-const defString: ScalarDefinition = {
-    type: String_,
-    nullableOptions: null0,
-};
 
 const opts0: ReprOptions = {
     hasPropertyCheck: false,
@@ -47,26 +28,26 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        clock.assertEqual(validateScalar(0, defInt, opts0), null);
-        clock.assertEqual(validateScalar("0", defInt, opts0), {
+        clock.assertEqual(validateScalar({ key: 0 }, "key", Int, opts0), null);
+        clock.assertEqual(validateScalar({ key: "0" }, "key", Int, opts0), {
             expected: "Int",
             found: "string",
         });
-        clock.assertEqual(validateScalar("0", defInt, opts2), {
+        clock.assertEqual(validateScalar({ key: "0" }, "key", Int, opts2), {
             expected: "Int",
             found: '"0"',
         });
-        clock.assertEqual(validateScalar(0, defString, opts2), {
+        clock.assertEqual(validateScalar({ key: 0 }, "key", String_, opts2), {
             expected: "String",
             found: "0",
         });
 
-        clock.assertEqual(validateScalar({ a: 1 }, "a", defInt, opts3), null);
+        clock.assertEqual(validateScalar({ a: 1 }, "a", Int, opts3), null);
         clock.assertEqual(
             validateScalar(
                 { a: undefined },
                 "a",
-                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                Int.opts({ nullable: true }) as ScalarType,
                 opts1,
             ),
             {
@@ -79,7 +60,7 @@ const unitTest: UnitTest = {
             validateScalar(
                 {},
                 "a",
-                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                Int.opts({ nullable: true }) as ScalarType,
                 opts1,
             ),
             {
@@ -92,7 +73,7 @@ const unitTest: UnitTest = {
             validateScalar(
                 {},
                 "a",
-                { ...defInt, nullableOptions: { ...null0, nullable: true } },
+                Int.opts({ nullable: true }) as ScalarType,
                 opts0,
             ),
             {
@@ -106,14 +87,11 @@ const unitTest: UnitTest = {
             validateScalar(
                 { a: "" },
                 "a",
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        nullable: true,
-                        optional: true,
-                        defined: false,
-                    },
-                },
+                Int.opts({
+                    nullable: true,
+                    optional: true,
+                    defined: false,
+                }) as ScalarType,
                 opts3,
             ),
             {

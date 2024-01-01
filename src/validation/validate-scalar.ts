@@ -1,10 +1,6 @@
 import ScalarType from "../entities/scalar.js";
-import {
-    ReprOptions,
-    ScalarDefinition,
-    TypeMisuseResult,
-} from "../interfaces.js";
-import { ReprDefinitions, repr, typeRepr } from "./repr.js";
+import { ReprOptions, TypeMisuseResult } from "../interfaces.js";
+import { ReprDefinitions, repr } from "./repr.js";
 import validateNullable from "./validate-nullable.js";
 
 const enrichWithType = (
@@ -18,55 +14,28 @@ const enrichWithType = (
 });
 
 export default function validateScalar(
-    scalar: unknown,
-    definition: ScalarDefinition,
-    options: ReprOptions,
-): TypeMisuseResult | null;
-export default function validateScalar(
     obj: object,
     propertyName: string,
-    definition: ScalarDefinition,
+    type: ScalarType,
     options: ReprOptions,
-): TypeMisuseResult | null;
-export default function validateScalar(
-    arg1: unknown | object,
-    arg2: ScalarDefinition | string,
-    arg3: ReprOptions | ScalarDefinition,
-    arg4?: ReprOptions,
 ): TypeMisuseResult | null {
-    let obj, propertyName, scalar, definition, options, nullable;
-    if (arg4) {
-        obj = arg1 as object;
-        propertyName = arg2 as string;
-        definition = arg3 as ScalarDefinition;
-        options = arg4;
-        scalar = (obj as any)[propertyName];
-        nullable = validateNullable(
-            obj,
-            propertyName,
-            definition.nullableOptions,
-            options,
-        );
-    } else {
-        scalar = arg1;
-        definition = arg2 as ScalarDefinition;
-        options = arg3 as ReprOptions;
-        nullable = validateNullable(
-            scalar,
-            definition.nullableOptions,
-            options,
-        );
-    }
+    const scalar = (obj as any)[propertyName];
+    const nullable = validateNullable(
+        obj,
+        propertyName,
+        type.nullable,
+        options,
+    );
 
     if (nullable) {
-        return enrichWithType(nullable, definition.type);
+        return enrichWithType(nullable, type);
     }
     if (scalar === null || scalar === undefined) {
         return null;
     }
-    if (!definition.type.validate(scalar)) {
+    if (!type.validate(scalar)) {
         return {
-            expected: typeRepr(definition, options),
+            expected: type.repr(options),
             found: repr(scalar, options),
         };
     }

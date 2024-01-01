@@ -1,9 +1,4 @@
-import {
-    CompleteDefinition,
-    ReprOptions,
-    ScalarDefinition,
-    TypeRepresentation,
-} from "../interfaces.js";
+import { ReprOptions, TypeRepresentation } from "../interfaces.js";
 import validateScalar from "../validation/validate-scalar.js";
 import ExactTypeEntity, { EntityInput } from "./entity.js";
 
@@ -31,16 +26,11 @@ export default class ScalarType extends ExactTypeEntity {
     public override *execute(
         obj: object,
         key: string,
-        definition: CompleteDefinition,
+        type: ScalarType,
         options: ReprOptions,
         currentDepth: number,
     ) {
-        const misuse = validateScalar(
-            obj,
-            key,
-            definition as ScalarDefinition,
-            options,
-        );
+        const misuse = validateScalar(obj, key, type, options);
 
         if (misuse) {
             yield {

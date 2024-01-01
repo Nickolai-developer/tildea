@@ -1,4 +1,3 @@
-import { nullableDefaults } from "../constants.js";
 import Schema from "../entities/schema.js";
 import {
     PropertyValidationResult,
@@ -39,7 +38,7 @@ export default function validateSchema(
     for (const { depth, ...result } of schema.execute(
         { key: obj },
         "key",
-        { type: schema, nullableOptions: nullableDefaults },
+        schema,
         options,
         0,
     )) {

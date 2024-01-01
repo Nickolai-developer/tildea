@@ -1,5 +1,4 @@
 import {
-    CompleteDefinition,
     PropertyValidationStreamableMessage,
     ReprOptions,
     TypeRepresentation,
@@ -8,21 +7,21 @@ import { ReprDefinitions, repr } from "../validation/repr.js";
 import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
 
 interface ArrayInput extends EntityInput {
-    elemDefinition: CompleteDefinition;
+    elemType: ExactTypeEntity;
 }
 
 export default class ArrayType extends ExactTypeEntity {
     override readonly entity = "ARRAY";
-    elemDefinition: CompleteDefinition;
+    elemType: ExactTypeEntity;
 
-    constructor({ elemDefinition, ...entityInput }: ArrayInput) {
+    constructor({ elemType, ...entityInput }: ArrayInput) {
         super(entityInput);
-        this.elemDefinition = elemDefinition;
+        this.elemType = elemType;
     }
 
     public override repr(options: ReprOptions): TypeRepresentation {
         const nullableStr = super.repr(options);
-        const elem = this.elemDefinition.type.repr(options);
+        const elem = this.elemType.repr(options);
         return (
             [
                 `${
@@ -38,7 +37,7 @@ export default class ArrayType extends ExactTypeEntity {
     public override *execute(
         obj: object,
         key: string,
-        def: CompleteDefinition,
+        type: ArrayType,
         options: ReprOptions,
         currentDepth: number,
     ): Generator<PropertyValidationStreamableMessage, void, void> {
@@ -46,12 +45,12 @@ export default class ArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: def.type.repr(options),
+            expected: type.repr(options),
             found: propR,
         };
 
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, def, options, currentDepth).next().value;
+            this.checkNulls(obj, key, type, options, currentDepth).next().value;
         if (nullCheck === TERMINATE_EXECUTION) {
             return;
         }
@@ -75,12 +74,12 @@ export default class ArrayType extends ExactTypeEntity {
 
         for (let i = 0; i < array.length; i++) {
             const arrKey = "" + i;
-            const elemType = (def.type as ArrayType).elemDefinition;
+            const elemType = (type as ArrayType).elemType;
             if (!elemType) {
                 break;
             }
             arrKeys.push(arrKey);
-            const errors = elemType.type.execute(
+            const errors = elemType.execute(
                 array,
                 arrKey,
                 elemType,
@@ -98,6 +97,7 @@ export default class ArrayType extends ExactTypeEntity {
             ),
         );
 
+        // ejects common error followed by errors only if there's errors in pools
         let commonErrorWasEjected = false;
         for (const errors of propErrors) {
             if (commonErrorWasEjected) {

@@ -1,4 +1,4 @@
-import { Any, Int, String_, nullableDefaults } from "../constants.js";
+import { Any, Int, String_ } from "../constants.js";
 import ArrayType from "../entities/array.js";
 import Schema from "../entities/schema.js";
 import StaticArrayType from "../entities/static-array.js";
@@ -14,13 +14,10 @@ const unitTest: UnitTest = {
         const clock = new Clock(this.errors);
         const s0 = new Schema({
             name: "S0",
-            definitions: [
+            props: [
                 {
                     name: "a",
-                    definition: {
-                        type: Any,
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: Any,
                 },
             ],
         });
@@ -30,41 +27,20 @@ const unitTest: UnitTest = {
 
         const s1 = new Schema({
             name: "S1",
-            definitions: [
+            props: [
                 {
                     name: "a",
-                    definition: {
-                        type: new ArrayType({
-                            elemDefinition: {
-                                type: Int,
-                                nullableOptions: {
-                                    ...nullableDefaults,
-                                    nullable: true,
-                                },
-                            },
-                        }),
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: new ArrayType({
+                        elemType: Int.opts({ nullable: true }),
+                    }),
                 },
                 {
                     name: "b",
-                    definition: {
-                        type: new ArrayType({
-                            elemDefinition: {
-                                type: new ArrayType({
-                                    elemDefinition: {
-                                        type: Int,
-                                        nullableOptions: nullableDefaults,
-                                    },
-                                }),
-                                nullableOptions: {
-                                    ...nullableDefaults,
-                                    nullable: true,
-                                },
-                            },
-                        }),
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: new ArrayType({
+                        elemType: new ArrayType({
+                            elemType: Int,
+                        }).opts({ nullable: true }),
+                    }),
                 },
             ],
         });
@@ -142,18 +118,12 @@ const unitTest: UnitTest = {
 
         const s2 = new Schema({
             name: "S2",
-            definitions: [
+            props: [
                 {
                     name: "a",
-                    definition: {
-                        type: new ArrayType({
-                            elemDefinition: {
-                                type: Int,
-                                nullableOptions: nullableDefaults,
-                            },
-                        }),
-                        nullableOptions: nullableDefaults,
-                    },
+                    type: new ArrayType({
+                        elemType: Int,
+                    }),
                 },
             ],
         });
@@ -200,61 +170,24 @@ const unitTest: UnitTest = {
 
         const s3 = new Schema({
             name: "S3",
-            definitions: [
+            props: [
                 {
                     name: "prop1",
-                    definition: {
-                        type: new StaticArrayType({
-                            types: [
-                                {
-                                    type: Int,
-                                    nullableOptions: {
-                                        ...nullableDefaults,
-                                        nullable: true,
-                                    },
-                                },
-                                {
-                                    type: String_,
-                                    nullableOptions: {
-                                        ...nullableDefaults,
-                                        defined: false,
-                                    },
-                                },
-                                {
-                                    type: new StaticArrayType({
-                                        types: [
-                                            {
-                                                type: Int,
-                                                nullableOptions:
-                                                    nullableDefaults,
-                                            },
-                                            {
-                                                type: new StaticArrayType({
-                                                    name: "StaticArray1",
-                                                    types: [
-                                                        {
-                                                            type: Int,
-                                                            nullableOptions:
-                                                                nullableDefaults,
-                                                        },
-                                                        {
-                                                            type: Int,
-                                                            nullableOptions:
-                                                                nullableDefaults,
-                                                        },
-                                                    ],
-                                                }),
-                                                nullableOptions:
-                                                    nullableDefaults,
-                                            },
-                                        ],
+                    type: new StaticArrayType({
+                        types: [
+                            Int.opts({ nullable: true }),
+                            String_.opts({ defined: false }),
+                            new StaticArrayType({
+                                types: [
+                                    Int,
+                                    new StaticArrayType({
+                                        name: "StaticArray1",
+                                        types: [Int, Int],
                                     }),
-                                    nullableOptions: nullableDefaults,
-                                },
-                            ],
-                        }),
-                        nullableOptions: nullableDefaults,
-                    },
+                                ],
+                            }),
+                        ],
+                    }),
                 },
             ],
         });

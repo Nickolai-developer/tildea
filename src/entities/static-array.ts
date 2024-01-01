@@ -1,5 +1,4 @@
 import {
-    CompleteDefinition,
     PropertyValidationStreamableMessage,
     ReprOptions,
     TypeRepresentation,
@@ -9,13 +8,13 @@ import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
 
 interface StaticArrayInput extends EntityInput {
     name?: string;
-    types: CompleteDefinition[];
+    types: ExactTypeEntity[];
 }
 
 export default class StaticArrayType extends ExactTypeEntity {
     override readonly entity = "STATIC";
     name?: string;
-    types: CompleteDefinition[];
+    types: ExactTypeEntity[];
 
     constructor({ types, name, ...entityInput }: StaticArrayInput) {
         super(entityInput);
@@ -28,7 +27,7 @@ export default class StaticArrayType extends ExactTypeEntity {
         return this.joinTypeParts(
             this.name ||
                 `[${this.types
-                    .map(t => t.type.repr(options))
+                    .map(t => t.repr(options))
                     .join(ReprDefinitions.DELIM_COLON)}]`,
             nullableStr,
         );
@@ -37,7 +36,7 @@ export default class StaticArrayType extends ExactTypeEntity {
     public override *execute(
         obj: object,
         key: string,
-        def: CompleteDefinition,
+        def: StaticArrayType,
         options: ReprOptions,
         currentDepth: number,
     ): Generator<PropertyValidationStreamableMessage, void, void> {
@@ -45,7 +44,7 @@ export default class StaticArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: def.type.repr(options),
+            expected: def.repr(options),
             found: propR,
         };
 
@@ -74,16 +73,16 @@ export default class StaticArrayType extends ExactTypeEntity {
 
         const maxindex = Math.max(
             array.length,
-            (def.type as StaticArrayType).types.length,
+            (def as StaticArrayType).types.length,
         );
         for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
-            const elemType = (def.type as StaticArrayType).types[i];
+            const elemType = (def as StaticArrayType).types[i];
             if (!elemType) {
                 break;
             }
             arrKeys.push(arrKey);
-            const errors = elemType.type.execute(
+            const errors = elemType.execute(
                 array,
                 arrKey,
                 elemType,

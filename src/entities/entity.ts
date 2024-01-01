@@ -1,6 +1,5 @@
 import { nullableDefaults } from "../constants.js";
 import {
-    CompleteDefinition,
     NullableOptions,
     PropertyValidationStreamableMessage,
     ReprOptions,
@@ -26,7 +25,7 @@ export default abstract class ExactTypeEntity {
     public abstract execute(
         obj: object,
         key: string,
-        def: CompleteDefinition,
+        type: ExactTypeEntity,
         options: ReprOptions,
         currentDepth: number,
     ): Generator<PropertyValidationStreamableMessage, void, void>;
@@ -93,21 +92,16 @@ export default abstract class ExactTypeEntity {
     protected *checkNulls(
         obj: object,
         key: string,
-        definition: CompleteDefinition,
+        type: ExactTypeEntity,
         options: ReprOptions,
         currentDepth: number,
     ): Generator<PropertyValidationStreamableMessage | string, void, void> {
-        const valNull = validateNullable(
-            obj,
-            key,
-            definition.nullableOptions,
-            options,
-        );
+        const valNull = validateNullable(obj, key, type.nullable, options);
         if (valNull) {
             yield {
                 name: key,
                 depth: currentDepth,
-                expected: definition.type.repr(options),
+                expected: type.repr(options),
                 found: valNull.found,
             };
             return;
