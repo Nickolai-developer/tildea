@@ -7,7 +7,7 @@ import {
     ReprOptions,
     ScalarDefinition,
 } from "../interfaces.js";
-import { ReprDefinitions, nullableRepr, typeRepr } from "../validation/repr.js";
+import { ReprDefinitions, typeRepr } from "../validation/repr.js";
 import { Clock, UnitTest } from "./common.js";
 
 const null0: NullableOptions = {
@@ -39,114 +39,29 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        clock.assertEqual(nullableRepr(null0, opts0), "");
-        clock.assertEqual(typeRepr(defInt, opts0), "Int");
-        clock.assertEqual(nullableRepr(null0, opts1), "");
-        clock.assertEqual(typeRepr(defString, opts1), "String");
+        clock.assertEqual(defInt.type.repr(opts0), "Int");
+        clock.assertEqual(defString.type.repr(opts1), "String");
 
         clock.assertEqual(
-            nullableRepr({ ...null0, defined: false }, opts0),
-            ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, nullable: true }, opts0),
-            ReprDefinitions.NULL,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, optional: true }, opts0),
-            "",
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, optional: true }, opts1),
-            ReprDefinitions.NO_PROPERTY,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, defined: false, nullable: true }, opts0),
-            ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, defined: false, optional: true }, opts0),
-            ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, defined: false, optional: true }, opts1),
-            ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NO_PROPERTY,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, nullable: true, optional: true }, opts0),
-            ReprDefinitions.NULL,
-        );
-        clock.assertEqual(
-            nullableRepr({ ...null0, nullable: true, optional: true }, opts1),
-            ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NO_PROPERTY,
-        );
-        clock.assertEqual(
-            nullableRepr(
-                { ...null0, defined: false, nullable: true, optional: true },
-                opts0,
-            ),
-            ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.UNDEFINED,
-        );
-        clock.assertEqual(
-            nullableRepr(
-                { ...null0, defined: false, nullable: true, optional: true },
-                opts1,
-            ),
-            ReprDefinitions.NULL +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.UNDEFINED +
-                ReprDefinitions.DELIM_OR +
-                ReprDefinitions.NO_PROPERTY,
-        );
-
-        clock.assertEqual(
-            typeRepr(
-                { ...defInt, nullableOptions: { ...null0, defined: false } },
-                opts0,
-            ),
+            defInt.type.opts({ ...null0, defined: false }).repr(opts0),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            typeRepr(
-                { ...defInt, nullableOptions: { ...null0, nullable: true } },
-                opts0,
-            ),
+            defInt.type.opts({ ...null0, nullable: true }).repr(opts0),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
         clock.assertEqual(
-            typeRepr(
-                { ...defInt, nullableOptions: { ...null0, optional: true } },
-                opts0,
-            ),
+            defInt.type.opts({ ...null0, optional: true }).repr(opts0),
             "Int",
         );
         clock.assertEqual(
-            typeRepr(
-                { ...defInt, nullableOptions: { ...null0, optional: true } },
-                opts1,
-            ),
+            defInt.type.opts({ ...null0, optional: true }).repr(opts1),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        ...null0,
-                        defined: false,
-                        nullable: true,
-                    },
-                },
-                opts0,
-            ),
+            defInt.type
+                .opts({ ...null0, defined: false, nullable: true })
+                .repr(opts0),
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -154,31 +69,19 @@ const unitTest: UnitTest = {
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        ...null0,
-                        defined: false,
-                        optional: true,
-                    },
-                },
-                opts0,
-            ),
+            defInt.type
+                .opts({ ...null0, defined: false, optional: true })
+                .repr(opts0),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        ...null0,
-                        defined: false,
-                        optional: true,
-                    },
-                },
-                opts1,
-            ),
+            defInt.type
+                .opts({
+                    ...null0,
+                    defined: false,
+                    optional: true,
+                })
+                .repr(opts1),
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
@@ -186,31 +89,23 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        ...null0,
-                        nullable: true,
-                        optional: true,
-                    },
-                },
-                opts0,
-            ),
+            defInt.type
+                .opts({
+                    ...null0,
+                    nullable: true,
+                    optional: true,
+                })
+                .repr(opts0),
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        ...null0,
-                        nullable: true,
-                        optional: true,
-                    },
-                },
-                opts1,
-            ),
+            defInt.type
+                .opts({
+                    ...null0,
+                    nullable: true,
+                    optional: true,
+                })
+                .repr(opts1),
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -218,17 +113,13 @@ const unitTest: UnitTest = {
                 ReprDefinitions.NO_PROPERTY,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        defined: false,
-                        nullable: true,
-                        optional: true,
-                    },
-                },
-                opts0,
-            ),
+            defInt.type
+                .opts({
+                    defined: false,
+                    nullable: true,
+                    optional: true,
+                })
+                .repr(opts0),
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -236,17 +127,13 @@ const unitTest: UnitTest = {
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            typeRepr(
-                {
-                    ...defInt,
-                    nullableOptions: {
-                        defined: false,
-                        nullable: true,
-                        optional: true,
-                    },
-                },
-                opts1,
-            ),
+            defInt.type
+                .opts({
+                    defined: false,
+                    nullable: true,
+                    optional: true,
+                })
+                .repr(opts1),
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +

@@ -3,11 +3,12 @@ import {
     PropertyValidationStreamableMessage,
     ReprOptions,
     SchemaDefinition,
+    TypeRepresentation,
 } from "../interfaces.js";
-import { ReprDefinitions, repr, typeRepr } from "../validation/repr.js";
-import ExactTypeEntity, { TERMINATE_EXECUTION } from "./entity.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
+import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
 
-interface SchemaInput {
+interface SchemaInput extends EntityInput {
     name: string;
     definitions: SchemaProperty[];
 }
@@ -22,10 +23,15 @@ export default class Schema extends ExactTypeEntity {
     name: string;
     definitions: SchemaProperty[];
 
-    constructor({ definitions, name }: SchemaInput) {
-        super();
+    constructor({ definitions, name, ...entityInput }: SchemaInput) {
+        super(entityInput);
         this.definitions = definitions;
         this.name = name;
+    }
+
+    public override repr(options: ReprOptions): TypeRepresentation {
+        const nullableStr = super.repr(options);
+        return this.joinTypeParts(this.name, nullableStr);
     }
 
     public override *execute(
@@ -39,7 +45,7 @@ export default class Schema extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: typeRepr(def, options),
+            expected: def.type.repr(options),
             found: propR,
         };
 

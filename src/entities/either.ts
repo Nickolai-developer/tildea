@@ -4,10 +4,10 @@ import {
     PropertyValidationStreamableMessage,
     ReprOptions,
 } from "../interfaces.js";
-import { repr, typeRepr } from "../validation/repr.js";
-import ExactTypeEntity from "./entity.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
+import ExactTypeEntity, { EntityInput } from "./entity.js";
 
-interface EitherInput {
+interface EitherInput extends EntityInput {
     name?: string;
     types: ExactTypeEntity[];
 }
@@ -54,15 +54,43 @@ const pickBestGuess = (scores: Score[]): number => {
     return min;
 };
 
+const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
+    const extendedTypes = types.map(type =>
+        type instanceof EitherType && !type.name
+            ? uniqueTypes(type.types)
+            : type,
+    );
+    const unique = extendedTypes.flat().reduce((arr, current) => {
+        if (arr.findIndex(t => t === current) === -1) {
+            arr.push(current);
+        }
+        return arr;
+    }, [] as ExactTypeEntity[]);
+    return unique;
+};
+
 export default class EitherType extends ExactTypeEntity {
     override readonly entity = "EITHER";
     name?: string;
     types: ExactTypeEntity[];
 
-    constructor({ types, name }: EitherInput) {
-        super();
+    constructor({ types, name, ...entityInput }: EitherInput) {
+        super(entityInput);
         this.name = name;
         this.types = types;
+    }
+
+    public override repr(options: ReprOptions) {
+        const nullableStr = super.repr(options);
+        if (this.name) {
+            return nullableStr
+                ? this.encase(this.joinTypeParts(this.name, nullableStr))
+                : this.name;
+        }
+        const typeRs = uniqueTypes(this.types).map(t => t.repr(options));
+        nullableStr && typeRs.push(nullableStr);
+        const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
+        return typeRs.length > 1 ? this.encase(typeR) : typeR;
     }
 
     public override *execute(
@@ -109,7 +137,7 @@ export default class EitherType extends ExactTypeEntity {
         yield {
             name: key,
             depth: currentDepth,
-            expected: typeRepr(def, options),
+            expected: def.type.repr(options),
             found: repr(obj, key, options),
         };
         yield* errors[bestGuess].slice(1) as any;

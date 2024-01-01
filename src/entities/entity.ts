@@ -1,15 +1,27 @@
+import { nullableDefaults } from "../constants.js";
 import {
     CompleteDefinition,
+    NullableOptions,
     PropertyValidationStreamableMessage,
     ReprOptions,
+    TypeRepresentation,
 } from "../interfaces.js";
-import { ReprDefinitions, repr, typeRepr } from "../validation/repr.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
 import validateNullable from "../validation/validate-nullable.js";
 
 export const TERMINATE_EXECUTION: string = "terminate";
 
+export interface EntityInput {
+    nullable?: Partial<NullableOptions>;
+}
+
 export default abstract class ExactTypeEntity {
     readonly entity: string;
+    nullable: NullableOptions;
+
+    constructor({ nullable }: EntityInput) {
+        this.nullable = Object.assign({}, nullableDefaults, nullable);
+    }
 
     public abstract execute(
         obj: object,
@@ -48,6 +60,36 @@ export default abstract class ExactTypeEntity {
         }
     }
 
+    // TODO: redefine it in child classes for safety
+    protected copy<T extends ExactTypeEntity>(): T {
+        return new (this.constructor as new (input: EntityInput) => T)(this);
+    }
+
+    public opts(options: Partial<NullableOptions>) {
+        const cp = this.copy();
+        cp.nullable = Object.assign({}, nullableDefaults, options);
+        return cp;
+    }
+
+    protected joinTypeParts(
+        ...args: (string | false | null | undefined)[]
+    ): TypeRepresentation {
+        return args.filter(s => s).join(ReprDefinitions.DELIM_OR);
+    }
+
+    protected encase(type: TypeRepresentation): TypeRepresentation {
+        return type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
+    }
+
+    public repr(options: ReprOptions): TypeRepresentation {
+        const { defined, nullable, optional } = this.nullable;
+        return this.joinTypeParts(
+            nullable && ReprDefinitions.NULL,
+            !defined && ReprDefinitions.UNDEFINED,
+            options.hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
+        );
+    }
+
     protected *checkNulls(
         obj: object,
         key: string,
@@ -65,7 +107,7 @@ export default abstract class ExactTypeEntity {
             yield {
                 name: key,
                 depth: currentDepth,
-                expected: typeRepr(definition, options),
+                expected: definition.type.repr(options),
                 found: valNull.found,
             };
             return;

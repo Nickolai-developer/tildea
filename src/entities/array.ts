@@ -2,11 +2,12 @@ import {
     CompleteDefinition,
     PropertyValidationStreamableMessage,
     ReprOptions,
+    TypeRepresentation,
 } from "../interfaces.js";
-import { repr, typeRepr } from "../validation/repr.js";
-import ExactTypeEntity, { TERMINATE_EXECUTION } from "./entity.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
+import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
 
-interface ArrayInput {
+interface ArrayInput extends EntityInput {
     elemDefinition: CompleteDefinition;
 }
 
@@ -14,9 +15,24 @@ export default class ArrayType extends ExactTypeEntity {
     override readonly entity = "ARRAY";
     elemDefinition: CompleteDefinition;
 
-    constructor({ elemDefinition }: ArrayInput) {
-        super();
+    constructor({ elemDefinition, ...entityInput }: ArrayInput) {
+        super(entityInput);
         this.elemDefinition = elemDefinition;
+    }
+
+    public override repr(options: ReprOptions): TypeRepresentation {
+        const nullableStr = super.repr(options);
+        const elem = this.elemDefinition.type.repr(options);
+        return (
+            [
+                `${
+                    elem.includes(ReprDefinitions.DELIM_OR)
+                        ? this.encase(elem)
+                        : elem
+                }[]`,
+                nullableStr,
+            ].filter(s => s) as string[]
+        ).join(ReprDefinitions.DELIM_OR);
     }
 
     public override *execute(
@@ -30,7 +46,7 @@ export default class ArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: typeRepr(def, options),
+            expected: def.type.repr(options),
             found: propR,
         };
 

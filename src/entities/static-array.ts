@@ -2,11 +2,12 @@ import {
     CompleteDefinition,
     PropertyValidationStreamableMessage,
     ReprOptions,
+    TypeRepresentation,
 } from "../interfaces.js";
-import { repr, typeRepr } from "../validation/repr.js";
-import ExactTypeEntity, { TERMINATE_EXECUTION } from "./entity.js";
+import { ReprDefinitions, repr } from "../validation/repr.js";
+import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
 
-interface StaticArrayInput {
+interface StaticArrayInput extends EntityInput {
     name?: string;
     types: CompleteDefinition[];
 }
@@ -16,10 +17,21 @@ export default class StaticArrayType extends ExactTypeEntity {
     name?: string;
     types: CompleteDefinition[];
 
-    constructor({ types, name }: StaticArrayInput) {
-        super();
+    constructor({ types, name, ...entityInput }: StaticArrayInput) {
+        super(entityInput);
         this.name = name;
         this.types = types;
+    }
+
+    public override repr(options: ReprOptions): TypeRepresentation {
+        const nullableStr = super.repr(options);
+        return this.joinTypeParts(
+            this.name ||
+                `[${this.types
+                    .map(t => t.type.repr(options))
+                    .join(ReprDefinitions.DELIM_COLON)}]`,
+            nullableStr,
+        );
     }
 
     public override *execute(
@@ -33,7 +45,7 @@ export default class StaticArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: typeRepr(def, options),
+            expected: def.type.repr(options),
             found: propR,
         };
 
