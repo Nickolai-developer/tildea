@@ -1,3 +1,4 @@
+import { useOptions } from "../config.js";
 import { Any, Int, String_ } from "../constants.js";
 import ArrayType from "../entities/array.js";
 import Schema from "../entities/schema.js";
@@ -21,7 +22,9 @@ const unitTest: UnitTest = {
                 },
             ],
         });
-        clock.assertEqual(validateSchema({ a: [1, 2, 3, 4] }, s0, {}), {
+
+        useOptions({});
+        clock.assertEqual(validateSchema({ a: [1, 2, 3, 4] }, s0), {
             errors: null,
         });
 
@@ -51,7 +54,6 @@ const unitTest: UnitTest = {
                     b: [[1, 2, 3], [4, 5, 6], null, [7, 8, 9]],
                 },
                 s1,
-                {},
             ),
             { errors: null } as SchemaValidationResult,
         );
@@ -62,7 +64,6 @@ const unitTest: UnitTest = {
                     b: [[1, 2, 3], [null, 5, 6], null, [7, 8, 9]],
                 },
                 s1,
-                {},
             ),
             {
                 errors: [
@@ -129,7 +130,7 @@ const unitTest: UnitTest = {
         });
         const arr0 = [1, 2, 3, 4];
         (arr0 as any).prop0 = 6;
-        clock.assertEqual(validateSchema({ a: arr0 }, s2, {}), {
+        clock.assertEqual(validateSchema({ a: arr0 }, s2), {
             errors: [
                 {
                     name: "a",
@@ -145,28 +146,27 @@ const unitTest: UnitTest = {
                 },
             ],
         } as SchemaValidationResult);
-        clock.assertEqual(
-            validateSchema({ a: arr0 }, s2, {
-                hasPropertyCheck: true,
-                useValue: true,
-            }),
-            {
-                errors: [
-                    {
-                        name: "a",
-                        expected: "Int[]",
-                        found: ReprDefinitions.OBJECT,
-                        subproperties: [
-                            {
-                                name: "prop0",
-                                expected: ReprDefinitions.NO_PROPERTY,
-                                found: "6",
-                            },
-                        ],
-                    },
-                ],
-            } as SchemaValidationResult,
-        );
+
+        useOptions({
+            hasPropertyCheck: true,
+            useValue: true,
+        });
+        clock.assertEqual(validateSchema({ a: arr0 }, s2), {
+            errors: [
+                {
+                    name: "a",
+                    expected: "Int[]",
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: [
+                        {
+                            name: "prop0",
+                            expected: ReprDefinitions.NO_PROPERTY,
+                            found: "6",
+                        },
+                    ],
+                },
+            ],
+        } as SchemaValidationResult);
 
         const s3 = new Schema({
             name: "S3",
@@ -191,14 +191,13 @@ const unitTest: UnitTest = {
                 },
             ],
         });
+
+        useOptions({});
+        clock.assertEqual(validateSchema({ prop1: [0, "", [0, [0, 0]]] }, s3), {
+            errors: null,
+        } as SchemaValidationResult);
         clock.assertEqual(
-            validateSchema({ prop1: [0, "", [0, [0, 0]]] }, s3, {}),
-            {
-                errors: null,
-            } as SchemaValidationResult,
-        );
-        clock.assertEqual(
-            validateSchema({ prop1: [null, undefined, [0, [0, 0]]] }, s3, {}),
+            validateSchema({ prop1: [null, undefined, [0, [0, 0]]] }, s3),
             {
                 errors: null,
             } as SchemaValidationResult,
@@ -207,7 +206,6 @@ const unitTest: UnitTest = {
             validateSchema(
                 { prop1: [undefined, [undefined], [null, [null]]] },
                 s3,
-                {},
             ),
             {
                 errors: [
@@ -260,11 +258,12 @@ const unitTest: UnitTest = {
                 ],
             } as SchemaValidationResult,
         );
+
+        useOptions({ hasPropertyCheck: true });
         clock.assertEqual(
             validateSchema(
                 { prop1: [undefined, [undefined], [null, [null]], 5] },
                 s3,
-                { hasPropertyCheck: true },
             ),
             {
                 errors: [

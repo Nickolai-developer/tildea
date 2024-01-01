@@ -1,8 +1,8 @@
+import { usedReprOpts } from "../config.js";
 import { nullableDefaults } from "../constants.js";
 import {
     NullableOptions,
     PropertyValidationStreamableMessage,
-    ReprOptions,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
@@ -14,6 +14,12 @@ export interface EntityInput {
     nullable?: Partial<NullableOptions>;
 }
 
+export interface ExecutionContext {
+    obj: object;
+    key: string;
+    currentDepth: number;
+}
+
 export default abstract class ExactTypeEntity {
     readonly entity: string;
     nullable: NullableOptions;
@@ -22,18 +28,19 @@ export default abstract class ExactTypeEntity {
         this.nullable = Object.assign({}, nullableDefaults, nullable);
     }
 
-    public abstract execute(
-        obj: object,
-        key: string,
-        type: ExactTypeEntity,
-        options: ReprOptions,
-        currentDepth: number,
-    ): Generator<PropertyValidationStreamableMessage, void, void>;
+    public abstract execute({
+        obj,
+        key,
+        currentDepth,
+    }: ExecutionContext): Generator<
+        PropertyValidationStreamableMessage,
+        void,
+        void
+    >;
 
     protected *redundantPropsErrors(
         obj: object,
         objectOwnKeys: string[],
-        options: ReprOptions,
         currentDepth: number,
     ): Generator<PropertyValidationStreamableMessage, void, void> {
         const objKeys = Object.keys(obj);
@@ -44,17 +51,17 @@ export default abstract class ExactTypeEntity {
         for (const key of redundantKeys) {
             if (
                 obj[key as keyof object] === undefined &&
-                !options.hasPropertyCheck
+                !usedReprOpts.hasPropertyCheck
             ) {
                 continue;
             }
             yield {
                 name: key,
                 depth: currentDepth,
-                expected: options.hasPropertyCheck
+                expected: usedReprOpts.hasPropertyCheck
                     ? ReprDefinitions.NO_PROPERTY
                     : ReprDefinitions.UNDEFINED,
-                found: repr(obj, key, options),
+                found: repr(obj, key, usedReprOpts),
             };
         }
     }
@@ -80,34 +87,39 @@ export default abstract class ExactTypeEntity {
         return type.startsWith("(") && type.endsWith(")") ? type : `(${type})`;
     }
 
-    public repr(options: ReprOptions): TypeRepresentation {
+    protected _repr: TypeRepresentation | undefined;
+    public get repr(): TypeRepresentation {
         const { defined, nullable, optional } = this.nullable;
         return this.joinTypeParts(
             nullable && ReprDefinitions.NULL,
             !defined && ReprDefinitions.UNDEFINED,
-            options.hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
+            usedReprOpts.hasPropertyCheck &&
+                optional &&
+                ReprDefinitions.NO_PROPERTY,
         );
     }
 
-    protected *checkNulls(
-        obj: object,
-        key: string,
-        type: ExactTypeEntity,
-        options: ReprOptions,
-        currentDepth: number,
-    ): Generator<PropertyValidationStreamableMessage | string, void, void> {
-        const valNull = validateNullable(obj, key, type.nullable, options);
+    protected *checkNulls({
+        obj,
+        key,
+        currentDepth,
+    }: ExecutionContext): Generator<
+        PropertyValidationStreamableMessage | string,
+        void,
+        void
+    > {
+        const valNull = validateNullable(obj, key, this.nullable, usedReprOpts);
         if (valNull) {
             yield {
                 name: key,
                 depth: currentDepth,
-                expected: type.repr(options),
+                expected: this.repr,
                 found: valNull.found,
             };
             return;
         }
 
-        const propR = repr(obj, key, options);
+        const propR = repr(obj, key, usedReprOpts);
 
         if (
             [

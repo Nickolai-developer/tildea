@@ -1,10 +1,14 @@
+import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    ReprOptions,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
+import ExactTypeEntity, {
+    EntityInput,
+    ExecutionContext,
+    TERMINATE_EXECUTION,
+} from "./entity.js";
 
 interface ArrayInput extends EntityInput {
     elemType: ExactTypeEntity;
@@ -19,38 +23,43 @@ export default class ArrayType extends ExactTypeEntity {
         this.elemType = elemType;
     }
 
-    public override repr(options: ReprOptions): TypeRepresentation {
-        const nullableStr = super.repr(options);
-        const elem = this.elemType.repr(options);
-        return (
-            [
-                `${
-                    elem.includes(ReprDefinitions.DELIM_OR)
-                        ? this.encase(elem)
-                        : elem
-                }[]`,
-                nullableStr,
-            ].filter(s => s) as string[]
-        ).join(ReprDefinitions.DELIM_OR);
+    public override get repr(): TypeRepresentation {
+        if (!this._repr) {
+            const nullableStr = super.repr;
+            const elem = this.elemType.repr;
+            return (
+                [
+                    `${
+                        elem.includes(ReprDefinitions.DELIM_OR)
+                            ? this.encase(elem)
+                            : elem
+                    }[]`,
+                    nullableStr,
+                ].filter(s => s) as string[]
+            ).join(ReprDefinitions.DELIM_OR);
+        }
+        return this._repr;
     }
 
-    public override *execute(
-        obj: object,
-        key: string,
-        type: ArrayType,
-        options: ReprOptions,
-        currentDepth: number,
-    ): Generator<PropertyValidationStreamableMessage, void, void> {
-        const propR = repr(obj, key, options);
+    public override *execute({
+        obj,
+        key,
+        currentDepth,
+    }: ExecutionContext): Generator<
+        PropertyValidationStreamableMessage,
+        void,
+        void
+    > {
+        const propR = repr(obj, key, usedReprOpts);
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: type.repr(options),
+            expected: this.repr,
             found: propR,
         };
 
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, type, options, currentDepth).next().value;
+            this.checkNulls({ obj, key, currentDepth }).next().value;
         if (nullCheck === TERMINATE_EXECUTION) {
             return;
         }
@@ -74,27 +83,20 @@ export default class ArrayType extends ExactTypeEntity {
 
         for (let i = 0; i < array.length; i++) {
             const arrKey = "" + i;
-            const elemType = (type as ArrayType).elemType;
+            const elemType = this.elemType;
             if (!elemType) {
                 break;
             }
             arrKeys.push(arrKey);
-            const errors = elemType.execute(
-                array,
-                arrKey,
-                elemType,
-                options,
-                currentDepth + 1,
-            );
+            const errors = elemType.execute({
+                obj: array,
+                key: arrKey,
+                currentDepth: currentDepth + 1,
+            });
             propErrors.push(errors);
         }
         propErrors.push(
-            this.redundantPropsErrors(
-                array,
-                arrKeys,
-                options,
-                currentDepth + 1,
-            ),
+            this.redundantPropsErrors(array, arrKeys, currentDepth + 1),
         );
 
         // ejects common error followed by errors only if there's errors in pools

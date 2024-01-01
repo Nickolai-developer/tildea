@@ -1,4 +1,4 @@
-import { usedReprOptions } from "../config.js";
+import { useOptions, usedReprOpts } from "../config.js";
 import { ReprOptions, SchemaValidationResult } from "../interfaces.js";
 import validateSchema from "../validation/validate-schema.js";
 import Store from "./store.js";
@@ -12,10 +12,10 @@ export default class Inspectable {
         if (!schema) {
             throw new Error(`No schema defined for ${this.name}`);
         }
-        return validateSchema(
-            obj,
-            schema,
-            Object.assign({}, usedReprOptions, options || {}),
-        );
+        const holdOptions = usedReprOpts;
+        options && useOptions(options);
+        const result = validateSchema(obj, schema);
+        useOptions(holdOptions);
+        return result;
     }
 }

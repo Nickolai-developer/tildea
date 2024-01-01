@@ -1,3 +1,4 @@
+import { useOptions } from "../config.js";
 import { Int, String_ } from "../constants.js";
 import ScalarType from "../entities/scalar.js";
 import { ReprOptions } from "../interfaces.js";
@@ -83,6 +84,7 @@ const unitTest: UnitTest = {
             },
         );
 
+        useOptions(opts3);
         clock.assertEqual(
             validateScalar(
                 { a: "" },

@@ -1,6 +1,7 @@
-import { ReprOptions, TypeRepresentation } from "../interfaces.js";
+import { usedReprOpts } from "../config.js";
+import { TypeRepresentation } from "../interfaces.js";
 import validateScalar from "../validation/validate-scalar.js";
-import ExactTypeEntity, { EntityInput } from "./entity.js";
+import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface ScalarInput extends EntityInput {
     validate: (v: unknown) => boolean;
@@ -18,19 +19,16 @@ export default class ScalarType extends ExactTypeEntity {
         this.validate = validate;
     }
 
-    public override repr(options: ReprOptions): TypeRepresentation {
-        const nullableStr = super.repr(options);
-        return this.joinTypeParts(this.name, nullableStr);
+    public override get repr(): TypeRepresentation {
+        if (!this._repr) {
+            const nullableStr = super.repr;
+            return this.joinTypeParts(this.name, nullableStr);
+        }
+        return this._repr;
     }
 
-    public override *execute(
-        obj: object,
-        key: string,
-        type: ScalarType,
-        options: ReprOptions,
-        currentDepth: number,
-    ) {
-        const misuse = validateScalar(obj, key, type, options);
+    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
+        const misuse = validateScalar(obj, key, this, usedReprOpts);
 
         if (misuse) {
             yield {

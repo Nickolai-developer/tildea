@@ -1,3 +1,4 @@
+import { useOptions } from "../config.js";
 import { Int, String_ } from "../constants.js";
 import ArrayType from "../entities/array.js";
 import EitherType from "../entities/either.js";
@@ -25,27 +26,31 @@ const unitTest: UnitTest = {
     errors: new Map(),
     test() {
         const clock = new Clock(this.errors);
-        clock.assertEqual(Int.repr(opts0), "Int");
-        clock.assertEqual(String_.repr(opts1), "String");
+        useOptions(opts0);
+        clock.assertEqual(Int.repr, "Int");
+        useOptions(opts1);
+        clock.assertEqual(String_.repr, "String");
 
+        useOptions(opts0);
         clock.assertEqual(
-            Int.opts({ ...null0, defined: false }).repr(opts0),
+            Int.opts({ ...null0, defined: false }).repr,
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            Int.opts({ ...null0, nullable: true }).repr(opts0),
+            Int.opts({ ...null0, nullable: true }).repr,
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
+        clock.assertEqual(Int.opts({ ...null0, optional: true }).repr, "Int");
+
+        useOptions(opts1);
         clock.assertEqual(
-            Int.opts({ ...null0, optional: true }).repr(opts0),
-            "Int",
-        );
-        clock.assertEqual(
-            Int.opts({ ...null0, optional: true }).repr(opts1),
+            Int.opts({ ...null0, optional: true }).repr,
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NO_PROPERTY,
         );
+
+        useOptions(opts0);
         clock.assertEqual(
-            Int.opts({ ...null0, defined: false, nullable: true }).repr(opts0),
+            Int.opts({ ...null0, defined: false, nullable: true }).repr,
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -53,59 +58,69 @@ const unitTest: UnitTest = {
                 ReprDefinitions.UNDEFINED,
         );
         clock.assertEqual(
-            Int.opts({ ...null0, defined: false, optional: true }).repr(opts0),
+            Int.opts({ ...null0, defined: false, optional: true }).repr,
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.UNDEFINED,
         );
+
+        useOptions(opts1);
         clock.assertEqual(
             Int.opts({
                 ...null0,
                 defined: false,
                 optional: true,
-            }).repr(opts1),
+            }).repr,
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
+
+        useOptions(opts0);
         clock.assertEqual(
             Int.opts({
                 ...null0,
                 nullable: true,
                 optional: true,
-            }).repr(opts0),
+            }).repr,
             "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
+
+        useOptions(opts1);
         clock.assertEqual(
             Int.opts({
                 ...null0,
                 nullable: true,
                 optional: true,
-            }).repr(opts1),
+            }).repr,
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NO_PROPERTY,
         );
+
+        useOptions(opts0);
         clock.assertEqual(
             Int.opts({
                 defined: false,
                 nullable: true,
                 optional: true,
-            }).repr(opts0),
+            }).repr,
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED,
         );
+
+        useOptions(opts1);
         clock.assertEqual(
             Int.opts({
                 defined: false,
                 nullable: true,
                 optional: true,
-            }).repr(opts1),
+            }).repr,
             "Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -130,25 +145,23 @@ const unitTest: UnitTest = {
                 optional: true,
             }),
         });
-        clock.assertEqual(arrType0.repr({ hasPropertyCheck: true }), "Int[]");
+
+        useOptions(opts1);
+        clock.assertEqual(arrType0.repr, "Int[]");
         clock.assertEqual(
-            arrType0
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: true }),
+            arrType0.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "Int[]" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
         );
         clock.assertEqual(
-            arrType1
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: true }),
+            arrType1.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.UNDEFINED +
@@ -156,14 +169,14 @@ const unitTest: UnitTest = {
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL,
         );
+
+        useOptions(opts0);
         clock.assertEqual(
-            arrType2
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            arrType2.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -173,14 +186,14 @@ const unitTest: UnitTest = {
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL,
         );
+
+        useOptions(opts1);
         clock.assertEqual(
-            arrType2
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: true }),
+            arrType2.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(Int" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -204,28 +217,26 @@ const unitTest: UnitTest = {
                 }),
             ],
         });
+
+        useOptions(opts0);
         sArray0.name = "StaticArrayProperties";
         clock.assertEqual(
-            sArray0
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            sArray0.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "StaticArrayProperties" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL,
         );
         sArray0.name = undefined;
         clock.assertEqual(
-            sArray0
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            sArray0.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "[Int" +
                 ReprDefinitions.DELIM_COLON +
                 "String" +
@@ -237,14 +248,14 @@ const unitTest: UnitTest = {
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL,
         );
+
+        useOptions(opts1);
         clock.assertEqual(
-            sArray0
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: true }),
+            sArray0.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "[Int" +
                 ReprDefinitions.DELIM_COLON +
                 "String" +
@@ -267,27 +278,24 @@ const unitTest: UnitTest = {
             types: [Int, String_],
             name: "EitherType1",
         });
+        useOptions(opts0);
         clock.assertEqual(
-            e0
-                .opts({
-                    defined: true,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            e0.opts({
+                defined: true,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(EitherType1" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
                 ")",
         );
         clock.assertEqual(
-            e1
-                .opts({
-                    defined: false,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            e1.opts({
+                defined: false,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(EitherType1" +
                 ReprDefinitions.DELIM_OR +
                 ReprDefinitions.NULL +
@@ -299,13 +307,11 @@ const unitTest: UnitTest = {
         clock.assertEqual(
             new EitherType({
                 types: [Int, String_, e0],
-            })
-                .opts({
-                    defined: false,
-                    nullable: true,
-                    optional: false,
-                })
-                .repr({ hasPropertyCheck: false }),
+            }).opts({
+                defined: false,
+                nullable: true,
+                optional: false,
+            }).repr,
             "(Int" +
                 ReprDefinitions.DELIM_OR +
                 "String" +

@@ -1,10 +1,14 @@
+import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    ReprOptions,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
+import ExactTypeEntity, {
+    EntityInput,
+    ExecutionContext,
+    TERMINATE_EXECUTION,
+} from "./entity.js";
 
 interface SchemaInput extends EntityInput {
     name: string;
@@ -27,23 +31,20 @@ export default class Schema extends ExactTypeEntity {
         this.name = name;
     }
 
-    public override repr(options: ReprOptions): TypeRepresentation {
-        const nullableStr = super.repr(options);
-        return this.joinTypeParts(this.name, nullableStr);
+    public override get repr(): TypeRepresentation {
+        if (!this._repr) {
+            const nullableStr = super.repr;
+            return this.joinTypeParts(this.name, nullableStr);
+        }
+        return this._repr;
     }
 
-    public override *execute(
-        obj: object,
-        key: string,
-        type: Schema,
-        options: ReprOptions,
-        currentDepth: number,
-    ) {
-        const propR = repr(obj, key, options);
+    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
+        const propR = repr(obj, key, usedReprOpts);
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: type.repr(options),
+            expected: this.repr,
             found: propR,
         };
 
@@ -53,7 +54,7 @@ export default class Schema extends ExactTypeEntity {
         }
 
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, type, options, currentDepth).next().value;
+            this.checkNulls({ obj, key, currentDepth }).next().value;
         if (nullCheck === TERMINATE_EXECUTION) {
             return;
         }
@@ -68,17 +69,20 @@ export default class Schema extends ExactTypeEntity {
             void
         >[] = [];
         const obj_ = obj[key as keyof object];
-        for (const { name, type: t } of type.props) {
+        for (const { name, type: t } of this.props) {
             propErrors.push(
-                t.execute(obj_, name, t, options, currentDepth + 1),
+                t.execute({
+                    obj: obj_,
+                    key: name,
+                    currentDepth: currentDepth + 1,
+                }),
             );
         }
 
         propErrors.push(
             this.redundantPropsErrors(
                 obj_,
-                type.props.map(def => def.name),
-                options,
+                this.props.map(type => type.name),
                 currentDepth + 1,
             ),
         );

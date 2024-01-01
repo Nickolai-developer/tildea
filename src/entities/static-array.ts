@@ -1,10 +1,14 @@
+import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    ReprOptions,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, TERMINATE_EXECUTION } from "./entity.js";
+import ExactTypeEntity, {
+    EntityInput,
+    ExecutionContext,
+    TERMINATE_EXECUTION,
+} from "./entity.js";
 
 interface StaticArrayInput extends EntityInput {
     name?: string;
@@ -22,34 +26,39 @@ export default class StaticArrayType extends ExactTypeEntity {
         this.types = types;
     }
 
-    public override repr(options: ReprOptions): TypeRepresentation {
-        const nullableStr = super.repr(options);
-        return this.joinTypeParts(
-            this.name ||
-                `[${this.types
-                    .map(t => t.repr(options))
-                    .join(ReprDefinitions.DELIM_COLON)}]`,
-            nullableStr,
-        );
+    public override get repr(): TypeRepresentation {
+        if (!this._repr) {
+            const nullableStr = super.repr;
+            return this.joinTypeParts(
+                this.name ||
+                    `[${this.types
+                        .map(t => t.repr)
+                        .join(ReprDefinitions.DELIM_COLON)}]`,
+                nullableStr,
+            );
+        }
+        return this._repr;
     }
 
-    public override *execute(
-        obj: object,
-        key: string,
-        def: StaticArrayType,
-        options: ReprOptions,
-        currentDepth: number,
-    ): Generator<PropertyValidationStreamableMessage, void, void> {
-        const propR = repr(obj, key, options);
+    public override *execute({
+        obj,
+        key,
+        currentDepth,
+    }: ExecutionContext): Generator<
+        PropertyValidationStreamableMessage,
+        void,
+        void
+    > {
+        const propR = repr(obj, key, usedReprOpts);
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: def.repr(options),
+            expected: this.repr,
             found: propR,
         };
 
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, def, options, currentDepth).next().value;
+            this.checkNulls({ obj, key, currentDepth }).next().value;
         if (nullCheck === TERMINATE_EXECUTION) {
             return;
         }
@@ -71,35 +80,26 @@ export default class StaticArrayType extends ExactTypeEntity {
             void
         >[] = [];
 
-        const maxindex = Math.max(
-            array.length,
-            (def as StaticArrayType).types.length,
-        );
+        const maxindex = Math.max(array.length, this.types.length);
         for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
-            const elemType = (def as StaticArrayType).types[i];
+            const elemType = this.types[i];
             if (!elemType) {
                 break;
             }
             arrKeys.push(arrKey);
-            const errors = elemType.execute(
-                array,
-                arrKey,
-                elemType,
-                options,
-                currentDepth + 1,
-            );
+            const errors = elemType.execute({
+                obj: array,
+                key: arrKey,
+                currentDepth: currentDepth + 1,
+            });
             propErrors.push(errors);
         }
         propErrors.push(
-            this.redundantPropsErrors(
-                array,
-                arrKeys,
-                options,
-                currentDepth + 1,
-            ),
+            this.redundantPropsErrors(array, arrKeys, currentDepth + 1),
         );
 
+        // ejects common error followed by errors only if there's errors in pools
         let commonErrorWasEjected = false;
         for (const errors of propErrors) {
             if (commonErrorWasEjected) {

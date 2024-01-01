@@ -1,14 +1,12 @@
 import Schema from "../entities/schema.js";
 import {
     PropertyValidationResult,
-    ReprOptions,
     SchemaValidationResult,
 } from "../interfaces.js";
 
 export default function validateSchema(
     obj: object,
     schema: Schema,
-    options: ReprOptions,
 ): SchemaValidationResult {
     const errors: PropertyValidationResult[] = [];
 
@@ -35,13 +33,11 @@ export default function validateSchema(
         pickFacility(newDepth);
     };
 
-    for (const { depth, ...result } of schema.execute(
-        { key: obj },
-        "key",
-        schema,
-        options,
-        0,
-    )) {
+    for (const { depth, ...result } of schema.execute({
+        obj: { key: obj },
+        key: "key",
+        currentDepth: 0,
+    })) {
         pickFacility(depth);
         currentFacility.push(result);
     }

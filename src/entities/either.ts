@@ -1,9 +1,7 @@
-import {
-    PropertyValidationStreamableMessage,
-    ReprOptions,
-} from "../interfaces.js";
+import { usedReprOpts } from "../config.js";
+import { PropertyValidationStreamableMessage } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput } from "./entity.js";
+import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface EitherInput extends EntityInput {
     name?: string;
@@ -78,28 +76,25 @@ export default class EitherType extends ExactTypeEntity {
         this.types = types;
     }
 
-    public override repr(options: ReprOptions) {
-        const nullableStr = super.repr(options);
-        if (this.name) {
-            return nullableStr
-                ? this.encase(this.joinTypeParts(this.name, nullableStr))
-                : this.name;
+    public override get repr() {
+        if (!this._repr) {
+            const nullableStr = super.repr;
+            if (this.name) {
+                return nullableStr
+                    ? this.encase(this.joinTypeParts(this.name, nullableStr))
+                    : this.name;
+            }
+            const typeRs = uniqueTypes(this.types).map(t => t.repr);
+            nullableStr && typeRs.push(nullableStr);
+            const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
+            this._repr = typeRs.length > 1 ? this.encase(typeR) : typeR;
         }
-        const typeRs = uniqueTypes(this.types).map(t => t.repr(options));
-        nullableStr && typeRs.push(nullableStr);
-        const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
-        return typeRs.length > 1 ? this.encase(typeR) : typeR;
+        return this._repr;
     }
 
-    public override *execute(
-        obj: object,
-        key: string,
-        type: EitherType,
-        options: ReprOptions,
-        currentDepth: number,
-    ) {
+    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
         const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls(obj, key, type, options, currentDepth).next().value;
+            this.checkNulls({ obj, key, currentDepth }).next().value;
         if (typeof nullCheck === "string") {
             return;
         }
@@ -108,8 +103,8 @@ export default class EitherType extends ExactTypeEntity {
             return;
         }
 
-        const errPools = type.types.map(type =>
-            type.execute(obj, key, type, options, currentDepth),
+        const errPools = this.types.map(type =>
+            type.execute({ obj, key, currentDepth }),
         );
         const errors: PropertyValidationStreamableMessage[][] = [];
         for (let i = 0; i < errPools.length; i++) {
@@ -129,8 +124,8 @@ export default class EitherType extends ExactTypeEntity {
         yield {
             name: key,
             depth: currentDepth,
-            expected: type.repr(options),
-            found: repr(obj, key, options),
+            expected: this.repr,
+            found: repr(obj, key, usedReprOpts),
         };
         yield* errors[bestGuess].slice(1) as any;
     }

@@ -1,3 +1,4 @@
+import { useOptions } from "../config.js";
 import { Int, String_ } from "../constants.js";
 import EitherType from "../entities/either.js";
 import Schema from "../entities/schema.js";
@@ -48,68 +49,69 @@ const unitTest: UnitTest = {
                 },
             ],
         });
-        clock.assertEqual(validateSchema({ prop1: 0 }, s4, {}), {
+        useOptions({});
+        clock.assertEqual(validateSchema({ prop1: 0 }, s4), {
             errors: null,
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop1: "0" }, s4, {}), {
+        clock.assertEqual(validateSchema({ prop1: "0" }, s4), {
             errors: null,
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop1: true }, s4, {}), {
+        clock.assertEqual(validateSchema({ prop1: true }, s4), {
             errors: [
                 {
                     name: "prop1",
-                    expected: s4.props[0].type.repr({}),
+                    expected: s4.props[0].type.repr,
                     found: "boolean",
                 },
             ],
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop1: {} }, s4, {}), {
+        clock.assertEqual(validateSchema({ prop1: {} }, s4), {
             errors: [
                 {
                     name: "prop1",
-                    expected: s4.props[0].type.repr({}),
+                    expected: s4.props[0].type.repr,
                     found: ReprDefinitions.OBJECT,
                     subproperties: [
                         {
                             name: "a",
-                            expected: Int.repr({}),
+                            expected: Int.repr,
                             found: ReprDefinitions.UNDEFINED,
                         },
                         {
                             name: "b",
-                            expected: String_.repr({}),
-                            found: ReprDefinitions.UNDEFINED,
-                        },
-                    ],
-                },
-            ],
-        } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop1: { a: 0 } }, s4, {}), {
-            errors: [
-                {
-                    name: "prop1",
-                    expected: s4.props[0].type.repr({}),
-                    found: ReprDefinitions.OBJECT,
-                    subproperties: [
-                        {
-                            name: "b",
-                            expected: String_.repr({}),
+                            expected: String_.repr,
                             found: ReprDefinitions.UNDEFINED,
                         },
                     ],
                 },
             ],
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop1: { a: "0" } }, s4, {}), {
+        clock.assertEqual(validateSchema({ prop1: { a: 0 } }, s4), {
             errors: [
                 {
                     name: "prop1",
-                    expected: s4.props[0].type.repr({}),
+                    expected: s4.props[0].type.repr,
                     found: ReprDefinitions.OBJECT,
                     subproperties: [
                         {
                             name: "b",
-                            expected: Int.repr({}),
+                            expected: String_.repr,
+                            found: ReprDefinitions.UNDEFINED,
+                        },
+                    ],
+                },
+            ],
+        } as SchemaValidationResult);
+        clock.assertEqual(validateSchema({ prop1: { a: "0" } }, s4), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: s4.props[0].type.repr,
+                    found: ReprDefinitions.OBJECT,
+                    subproperties: [
+                        {
+                            name: "b",
+                            expected: Int.repr,
                             found: ReprDefinitions.UNDEFINED,
                         },
                     ],

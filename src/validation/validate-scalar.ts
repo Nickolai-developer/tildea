@@ -35,7 +35,7 @@ export default function validateScalar(
     }
     if (!type.validate(scalar)) {
         return {
-            expected: type.repr(options),
+            expected: type.repr,
             found: repr(scalar, options),
         };
     }

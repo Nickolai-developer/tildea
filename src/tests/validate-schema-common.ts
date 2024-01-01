@@ -1,3 +1,4 @@
+import { useOptions } from "../config.js";
 import { Int, String_ } from "../constants.js";
 import Schema from "../entities/schema.js";
 import { ReprOptions, SchemaValidationResult } from "../interfaces.js";
@@ -24,14 +25,16 @@ const unitTest: UnitTest = {
                 },
             ],
         });
-        clock.assertEqual(validateSchema({ prop1: 0 }, s1, {}), {
+
+        useOptions({});
+        clock.assertEqual(validateSchema({ prop1: 0 }, s1), {
             errors: null,
         });
-        clock.assertEqual(validateSchema({ prop1: "0" }, s1, {}), {
+        clock.assertEqual(validateSchema({ prop1: "0" }, s1), {
             errors: [{ name: "prop1", expected: "Int", found: "string" }],
         } as SchemaValidationResult);
 
-        clock.assertEqual(validateSchema({}, s1, {}), {
+        clock.assertEqual(validateSchema({}, s1), {
             errors: [
                 {
                     name: "prop1",
@@ -40,7 +43,9 @@ const unitTest: UnitTest = {
                 },
             ],
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({}, s1, opts1), {
+
+        useOptions(opts1);
+        clock.assertEqual(validateSchema({}, s1), {
             errors: [
                 {
                     name: "prop1",
@@ -50,7 +55,8 @@ const unitTest: UnitTest = {
             ],
         } as SchemaValidationResult);
 
-        clock.assertEqual(validateSchema({ prop2: "value" }, s1, {}), {
+        useOptions({});
+        clock.assertEqual(validateSchema({ prop2: "value" }, s1), {
             errors: [
                 {
                     name: "prop1",
@@ -64,7 +70,9 @@ const unitTest: UnitTest = {
                 },
             ],
         } as SchemaValidationResult);
-        clock.assertEqual(validateSchema({ prop2: "value" }, s1, opts1), {
+
+        useOptions(opts1);
+        clock.assertEqual(validateSchema({ prop2: "value" }, s1), {
             errors: [
                 {
                     name: "prop1",
@@ -79,26 +87,21 @@ const unitTest: UnitTest = {
             ],
         } as SchemaValidationResult);
 
-        clock.assertEqual(
-            validateSchema({ prop2: "value" }, s1, {
-                hasPropertyCheck: true,
-                useValue: true,
-            }),
-            {
-                errors: [
-                    {
-                        name: "prop1",
-                        expected: "Int",
-                        found: ReprDefinitions.NO_PROPERTY,
-                    },
-                    {
-                        name: "prop2",
-                        expected: ReprDefinitions.NO_PROPERTY,
-                        found: '"value"',
-                    },
-                ],
-            } as SchemaValidationResult,
-        );
+        useOptions({ hasPropertyCheck: true, useValue: true });
+        clock.assertEqual(validateSchema({ prop2: "value" }, s1), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: "Int",
+                    found: ReprDefinitions.NO_PROPERTY,
+                },
+                {
+                    name: "prop2",
+                    expected: ReprDefinitions.NO_PROPERTY,
+                    found: '"value"',
+                },
+            ],
+        } as SchemaValidationResult);
 
         const s12 = new Schema({
             name: "Schema2",
@@ -126,34 +129,25 @@ const unitTest: UnitTest = {
                 },
             ],
         });
+
+        useOptions({ hasPropertyCheck: true, useValue: true });
+        clock.assertEqual(validateSchema({ prop2: "value" }, s12), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected:
+                        "Int" + ReprDefinitions.DELIM_OR + ReprDefinitions.NULL,
+                    found: ReprDefinitions.NO_PROPERTY,
+                },
+                {
+                    name: "prop2",
+                    expected: ReprDefinitions.NO_PROPERTY,
+                    found: '"value"',
+                },
+            ],
+        } as SchemaValidationResult);
         clock.assertEqual(
-            validateSchema({ prop2: "value" }, s12, {
-                hasPropertyCheck: true,
-                useValue: true,
-            }),
-            {
-                errors: [
-                    {
-                        name: "prop1",
-                        expected:
-                            "Int" +
-                            ReprDefinitions.DELIM_OR +
-                            ReprDefinitions.NULL,
-                        found: ReprDefinitions.NO_PROPERTY,
-                    },
-                    {
-                        name: "prop2",
-                        expected: ReprDefinitions.NO_PROPERTY,
-                        found: '"value"',
-                    },
-                ],
-            } as SchemaValidationResult,
-        );
-        clock.assertEqual(
-            validateSchema({ prop1: undefined, prop2: "value" }, s13, {
-                hasPropertyCheck: true,
-                useValue: true,
-            }),
+            validateSchema({ prop1: undefined, prop2: "value" }, s13),
             {
                 errors: [
                     {
@@ -196,16 +190,13 @@ const unitTest: UnitTest = {
                 },
             ],
         });
+
+        useOptions(opts1);
+        clock.assertEqual(validateSchema({ schemaProp: { prop1: 0 } }, s2), {
+            errors: null,
+        });
         clock.assertEqual(
-            validateSchema({ schemaProp: { prop1: 0 } }, s2, {
-                hasPropertyCheck: true,
-            }),
-            { errors: null },
-        );
-        clock.assertEqual(
-            validateSchema({ schemaProp: { prop1: 0 }, prop0: undefined }, s2, {
-                hasPropertyCheck: true,
-            }),
+            validateSchema({ schemaProp: { prop1: 0 }, prop0: undefined }, s2),
             {
                 errors: [
                     {
@@ -221,28 +212,24 @@ const unitTest: UnitTest = {
                 ],
             } as SchemaValidationResult,
         );
-        clock.assertEqual(
-            validateSchema({ schemaProp: { prop1: 0 } }, s2, {
-                hasPropertyCheck: false,
-            }),
-            {
-                errors: [
-                    {
-                        name: "prop0",
-                        expected:
-                            "String" +
-                            ReprDefinitions.DELIM_OR +
-                            ReprDefinitions.NULL,
-                        found: ReprDefinitions.UNDEFINED,
-                    },
-                ],
-            } as SchemaValidationResult,
-        );
 
+        useOptions({});
+        clock.assertEqual(validateSchema({ schemaProp: { prop1: 0 } }, s2), {
+            errors: [
+                {
+                    name: "prop0",
+                    expected:
+                        "String" +
+                        ReprDefinitions.DELIM_OR +
+                        ReprDefinitions.NULL,
+                    found: ReprDefinitions.UNDEFINED,
+                },
+            ],
+        } as SchemaValidationResult);
+
+        useOptions(opts1);
         clock.assertEqual(
-            validateSchema({ schemaProp: { prop1: [], prop2: 4 } }, s2, {
-                hasPropertyCheck: true,
-            }),
+            validateSchema({ schemaProp: { prop1: [], prop2: 4 } }, s2),
             {
                 errors: [
                     {
@@ -268,8 +255,10 @@ const unitTest: UnitTest = {
                 ],
             } as SchemaValidationResult,
         );
+
+        useOptions({});
         clock.assertEqual(
-            validateSchema({ schemaProp: "{ prop1: 0 }", prop0: null }, s2, {}),
+            validateSchema({ schemaProp: "{ prop1: 0 }", prop0: null }, s2),
             {
                 errors: [
                     {

@@ -1,8 +1,8 @@
 import { reprDefaults } from "./constants.js";
 import { ReprOptions } from "./interfaces.js";
 
-export let usedReprOptions: ReprOptions = reprDefaults;
+export let usedReprOpts: ReprOptions = reprDefaults;
 
-export const tildaConfigure = (options: ReprOptions) => {
-    usedReprOptions = options;
+export const useOptions = (options: ReprOptions) => {
+    usedReprOpts = options;
 };
