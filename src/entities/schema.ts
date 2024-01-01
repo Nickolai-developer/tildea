@@ -4,11 +4,7 @@ import {
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, {
-    EntityInput,
-    ExecutionContext,
-    TERMINATE_EXECUTION,
-} from "./entity.js";
+import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface SchemaInput extends EntityInput {
     name: string;
@@ -53,13 +49,11 @@ export default class Schema extends ExactTypeEntity {
             return;
         }
 
-        const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls({ obj, key, currentDepth }).next().value;
-        if (nullCheck === TERMINATE_EXECUTION) {
-            return;
-        }
-        if (typeof nullCheck === "object") {
-            yield nullCheck;
+        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        if (nullCheck !== undefined) {
+            if (nullCheck !== null) {
+                yield nullCheck;
+            }
             return;
         }
 

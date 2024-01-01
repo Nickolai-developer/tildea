@@ -1,8 +1,5 @@
-import {
-    NullableOptions,
-    ReprOptions,
-    TypeRepresentation,
-} from "../interfaces.js";
+import { usedReprOpts } from "../config.js";
+import { ReprOptions, TypeRepresentation } from "../interfaces.js";
 
 export enum ReprDefinitions {
     DELIM_OR = " | ",
@@ -13,17 +10,22 @@ export enum ReprDefinitions {
     NAN = "<NaN>",
     OBJECT = "<object>",
 }
-
+export function repr(val: any, options?: ReprOptions): TypeRepresentation;
+export function repr(
+    obj: object,
+    key: string,
+    options?: ReprOptions,
+): TypeRepresentation;
 export function repr(
     valOrObj: any,
-    propOrOptions: string | ReprOptions,
+    propOrOptions?: string | ReprOptions,
     opts?: ReprOptions,
 ): TypeRepresentation {
     let val, obj, property: string, options: ReprOptions;
     if (typeof propOrOptions === "string") {
         property = propOrOptions;
         obj = valOrObj;
-        options = opts || {};
+        options = opts || usedReprOpts;
         return obj.hasOwnProperty(property)
             ? repr(obj[property], options)
             : options.hasPropertyCheck
@@ -31,7 +33,7 @@ export function repr(
             : ReprDefinitions.UNDEFINED;
     } else {
         val = valOrObj;
-        options = propOrOptions;
+        options = propOrOptions || usedReprOpts;
         if (
             options.useValue &&
             ["bigint", "number", "string", "boolean"].includes(typeof val)
@@ -53,19 +55,4 @@ export function repr(
                 throw new Error(`Repr error: ${typeof val} isn't allowed.`);
         }
     }
-}
-
-const joinTypeParts = (
-    ...args: (string | false | null | undefined)[]
-): string => args.filter(s => s).join(ReprDefinitions.DELIM_OR);
-
-export function nullableRepr(
-    { nullable, defined, optional }: NullableOptions,
-    options: ReprOptions,
-): TypeRepresentation {
-    return joinTypeParts(
-        nullable && ReprDefinitions.NULL,
-        !defined && ReprDefinitions.UNDEFINED,
-        options.hasPropertyCheck && optional && ReprDefinitions.NO_PROPERTY,
-    );
 }

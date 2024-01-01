@@ -93,13 +93,11 @@ export default class EitherType extends ExactTypeEntity {
     }
 
     public override *execute({ obj, key, currentDepth }: ExecutionContext) {
-        const nullCheck: PropertyValidationStreamableMessage | string | void =
-            this.checkNulls({ obj, key, currentDepth }).next().value;
-        if (typeof nullCheck === "string") {
-            return;
-        }
-        if (typeof nullCheck === "object") {
-            yield nullCheck;
+        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        if (nullCheck !== undefined) {
+            if (nullCheck !== null) {
+                yield nullCheck;
+            }
             return;
         }
 

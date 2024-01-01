@@ -6,9 +6,6 @@ import {
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import validateNullable from "../validation/validate-nullable.js";
-
-export const TERMINATE_EXECUTION: string = "terminate";
 
 export interface EntityInput {
     nullable?: Partial<NullableOptions>;
@@ -99,36 +96,36 @@ export default abstract class ExactTypeEntity {
         );
     }
 
-    protected *checkNulls({
+    protected checkNulls({
         obj,
         key,
         currentDepth,
-    }: ExecutionContext): Generator<
-        PropertyValidationStreamableMessage | string,
-        void,
-        void
-    > {
-        const valNull = validateNullable(obj, key, this.nullable, usedReprOpts);
-        if (valNull) {
-            yield {
-                name: key,
-                depth: currentDepth,
-                expected: this.repr,
-                found: valNull.found,
-            };
-            return;
-        }
-
+    }: ExecutionContext): PropertyValidationStreamableMessage | null | void {
         const propR = repr(obj, key, usedReprOpts);
 
         if (
-            [
+            ![
                 ReprDefinitions.NULL,
                 ReprDefinitions.UNDEFINED,
                 ReprDefinitions.NO_PROPERTY,
             ].includes(propR as ReprDefinitions)
         ) {
-            yield TERMINATE_EXECUTION;
+            return;
         }
+
+        const possibleNulls = this.repr
+            .slice(1)
+            .split(ReprDefinitions.DELIM_OR) as ReprDefinitions[];
+
+        if (!possibleNulls.includes(propR as ReprDefinitions)) {
+            return {
+                name: key,
+                depth: currentDepth,
+                expected: this.repr,
+                found: propR,
+            };
+        }
+
+        return null;
     }
 }

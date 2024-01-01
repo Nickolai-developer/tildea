@@ -1,6 +1,6 @@
 import { usedReprOpts } from "../config.js";
 import { TypeRepresentation } from "../interfaces.js";
-import validateScalar from "../validation/validate-scalar.js";
+import { repr } from "../validation/repr.js";
 import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface ScalarInput extends EntityInput {
@@ -28,13 +28,25 @@ export default class ScalarType extends ExactTypeEntity {
     }
 
     public override *execute({ obj, key, currentDepth }: ExecutionContext) {
-        const misuse = validateScalar(obj, key, this, usedReprOpts);
+        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        if (nullCheck !== undefined) {
+            if (nullCheck !== null) {
+                yield nullCheck;
+            }
+            return;
+        }
 
-        if (misuse) {
+        const scalar = obj[key as keyof object];
+
+        if (scalar === null || scalar === undefined) {
+            return;
+        }
+        if (!this.validate(scalar)) {
             yield {
                 name: key,
+                expected: this.repr,
+                found: repr(scalar, usedReprOpts),
                 depth: currentDepth,
-                ...misuse,
             };
         }
     }
