@@ -20,6 +20,16 @@ export class ScalarType extends ExactTypeEntity {
         this.validate = validate;
     }
 
+    protected override copy(): this {
+        return new ScalarType({
+            name: this.name,
+            validate: this.validate,
+            declDeps: this.declDeps,
+            usedDeps: this.usedDeps,
+            nullable: this.nullable,
+        }) as this;
+    }
+
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;

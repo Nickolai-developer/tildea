@@ -54,6 +54,16 @@ export class Schema extends ExactTypeEntity {
         this.name = name;
     }
 
+    protected override copy(): this {
+        return new Schema({
+            name: this.name,
+            props: this.props,
+            declDeps: this.declDeps,
+            usedDeps: this.usedDeps,
+            nullable: this.nullable,
+        }) as this;
+    }
+
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;

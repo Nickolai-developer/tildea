@@ -35,7 +35,7 @@ export interface ExecutionContext {
     readonly depMap: DependencyMap;
 }
 
-export class ExactTypeEntity {
+export abstract class ExactTypeEntity {
     readonly entity: string;
 
     protected _nullable: NullableOptions;
@@ -59,9 +59,7 @@ export class ExactTypeEntity {
         this._usedDeps = Object.assign([], usedDeps);
     }
 
-    protected copy(): this {
-        return new (this.constructor as new (input: EntityInput) => this)(this);
-    }
+    protected abstract copy(): this;
 
     public opts(options: Partial<NullableOptions>): this {
         const cp = this.copy();
@@ -192,7 +190,11 @@ export class ExactTypeEntity {
             );
         }
         const entityContext = Object.fromEntries(
-            this._declDeps.map((k, i) => [k, this._usedDeps[i]]),
+            this._declDeps
+                .map(
+                    (k, i) => k !== this._usedDeps[i] && [k, this._usedDeps[i]],
+                )
+                .filter(e => e) as readonly any[],
         );
         return Object.assign({}, depMap, entityContext);
     }

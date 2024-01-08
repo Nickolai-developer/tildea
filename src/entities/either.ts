@@ -89,6 +89,16 @@ export class EitherType extends ExactTypeEntity {
         this._types = newTypes;
     }
 
+    protected override copy(): this {
+        return new EitherType({
+            types: this.types,
+            name: this.name,
+            declDeps: this.declDeps,
+            usedDeps: this.usedDeps,
+            nullable: this.nullable,
+        }) as this;
+    }
+
     public override get repr() {
         if (!this._repr) {
             const nullableStr = super.repr;

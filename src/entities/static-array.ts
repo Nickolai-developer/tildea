@@ -30,6 +30,16 @@ export class StaticArrayType extends ExactTypeEntity {
         this._types = types;
     }
 
+    protected override copy(): this {
+        return new StaticArrayType({
+            types: this.types,
+            name: this.name,
+            declDeps: this.declDeps,
+            usedDeps: this.usedDeps,
+            nullable: this.nullable,
+        }) as this;
+    }
+
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;

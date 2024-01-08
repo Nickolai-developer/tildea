@@ -27,6 +27,15 @@ export class ArrayType extends ExactTypeEntity {
         this._elemType = elemType;
     }
 
+    protected override copy(): this {
+        return new ArrayType({
+            elemType: this.elemType,
+            declDeps: this.declDeps,
+            usedDeps: this.usedDeps,
+            nullable: this.nullable,
+        }) as this;
+    }
+
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;
