@@ -5,7 +5,7 @@ import {
 } from "../initialization/schema-builder.js";
 import { Inspectable } from "../initialization/inspectable.js";
 import { Clock, UnitTest } from "./common.js";
-import { Int } from "../constants.js";
+import { Int, Null, Undefined } from "../constants.js";
 import { SchemaValidationResult } from "../index.js";
 
 @Declare("T", "U")
@@ -38,6 +38,17 @@ class Model1<T, U> extends Inspectable {
     prop6: T | U[];
 }
 
+@Declare("T", "U")
+@SchemaClass()
+class Model2<T, U> extends Inspectable {
+    @Field([
+        "STATIC",
+        ["EITHER", "T", Null],
+        [["EITHER", "U", Undefined]].opts({ nullable: true }),
+    ])
+    prop1: [T | null, [U | undefined] | null];
+}
+
 const unitTest: UnitTest = {
     name: "test",
     errors: new Map(),
@@ -66,15 +77,25 @@ const unitTest: UnitTest = {
             }),
             {
                 errors: [
-                    { name: "prop1", expected: "(T | U[])", found: "string" },
-                    { name: "prop2", expected: "(T | U[])", found: "string" },
-                    { name: "prop3", expected: "(A | B[])", found: "string" },
-                    { name: "prop4", expected: "(A | B)", found: "string" },
-                    { name: "prop5", expected: "(A | B)", found: "string" },
-                    { name: "prop6", expected: "(A | U[])", found: "string" },
+                    { name: "prop1", expected: "T | U[]", found: "string" },
+                    { name: "prop2", expected: "T | U[]", found: "string" },
+                    { name: "prop3", expected: "A | B[]", found: "string" },
+                    { name: "prop4", expected: "A | B", found: "string" },
+                    { name: "prop5", expected: "A | B", found: "string" },
+                    { name: "prop6", expected: "A | U[]", found: "string" },
                 ],
             } as SchemaValidationResult,
         );
+        const Model2_Int_Int = Model2.apply(Int, Int);
+        clock.assertEqual(Model2_Int_Int.inspect({}), {
+            errors: [
+                {
+                    name: "prop1",
+                    expected: "[T | null, (U | undefined)[] | null]",
+                    found: "undefined",
+                },
+            ],
+        } as SchemaValidationResult);
     },
 };
 

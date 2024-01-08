@@ -19,3 +19,18 @@ export const String_ = new ScalarType({
     name: "String",
     validate: val => typeof val === "string",
 });
+
+export const Null = new ScalarType({
+    name: "",
+    validate: val => val === null,
+}).opts({ nullable: true });
+
+export const Undefined = new ScalarType({
+    name: "",
+    validate: val => val === undefined,
+}).opts({ defined: false });
+
+export const Optional = new ScalarType({
+    name: "",
+    validate: val => val === undefined,
+}).opts({ optional: true });

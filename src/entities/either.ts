@@ -1,7 +1,7 @@
 import { nullableDefaults, usedReprOpts } from "../config.js";
 import { PropertyValidationStreamableMessage } from "../index.js";
 import { eqDeep, mergeNullable } from "../utils.js";
-import { ReprDefinitions, repr } from "../validation/repr.js";
+import { repr } from "../validation/repr.js";
 import {
     ExactTypeEntity,
     EntityInput,
@@ -104,15 +104,15 @@ export class EitherType extends ExactTypeEntity {
             const nullableStr = super.repr;
             if (this.name) {
                 return nullableStr
-                    ? this.encase(this.joinTypeParts(this.name, nullableStr))
+                    ? this.joinTypeParts(this.name, nullableStr)
                     : this.name;
             }
             const typeRs = this._types.map(t =>
                 typeof t === "string" ? t : t.repr,
             );
             nullableStr && typeRs.push(nullableStr);
-            const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
-            this._repr = typeRs.length > 1 ? this.encase(typeR) : typeR;
+            const typeR = this.joinTypeParts(...typeRs);
+            this._repr = typeR;
         }
         return this._repr;
     }
