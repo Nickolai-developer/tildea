@@ -1,5 +1,6 @@
-import { usedReprOpts } from "../config.js";
+import { nullableDefaults, usedReprOpts } from "../config.js";
 import { PropertyValidationStreamableMessage } from "../index.js";
+import { eqDeep, mergeNullable } from "../utils.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
 import {
     ExactTypeEntity,
@@ -55,21 +56,6 @@ const pickBestGuess = (scores: Score[]): number => {
     return min;
 };
 
-const uniqueTypes = (types: TypeEntity[]): TypeEntity[] => {
-    const extendedTypes = types.map(type =>
-        type instanceof EitherType && !type.name
-            ? uniqueTypes(type.types)
-            : type,
-    );
-    const unique = extendedTypes.flat().reduce((arr, current) => {
-        if (arr.findIndex(t => t === current) === -1) {
-            arr.push(current);
-        }
-        return arr;
-    }, [] as TypeEntity[]);
-    return unique;
-};
-
 export class EitherType extends ExactTypeEntity {
     override readonly entity = "EITHER";
     name?: string;
@@ -82,6 +68,25 @@ export class EitherType extends ExactTypeEntity {
         super(entityInput);
         this.name = name;
         this._types = types;
+        this.cleanseTypes();
+    }
+
+    private cleanseTypes(): void {
+        const newTypes: TypeEntity[] = [];
+        let t: TypeEntity;
+        for (const type of this._types) {
+            if (type instanceof ExactTypeEntity) {
+                this._nullable = mergeNullable(this._nullable, type.nullable);
+                t = type.opts(nullableDefaults);
+            } else {
+                t = type;
+            }
+
+            if (!newTypes.find(e => eqDeep(e, t))) {
+                newTypes.push(t);
+            }
+        }
+        this._types = newTypes;
     }
 
     public override get repr() {
@@ -92,7 +97,7 @@ export class EitherType extends ExactTypeEntity {
                     ? this.encase(this.joinTypeParts(this.name, nullableStr))
                     : this.name;
             }
-            const typeRs = uniqueTypes(this._types).map(t =>
+            const typeRs = this._types.map(t =>
                 typeof t === "string" ? t : t.repr,
             );
             nullableStr && typeRs.push(nullableStr);
