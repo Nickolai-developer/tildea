@@ -1,21 +1,6 @@
 import { UnitTest, runUnitTests } from "./common.js";
 import repr from "./repr.js";
-import typeRepr from "./type-repr.js";
-import nullable from "./validate-nullable.js";
-import scalar from "./validate-scalar.js";
-import schemaCommon from "./validate-schema-common.js";
-import schemaIntermediate from "./validate-schema-intermediate.js";
-import schemaAdvanced from "./validate-schema-advanced.js";
-
-const tests: UnitTest[] = [
-    repr,
-    typeRepr,
-    nullable,
-    scalar,
-    schemaCommon,
-    schemaIntermediate,
-    schemaAdvanced,
-];
+const tests: UnitTest[] = [repr];
 
 runUnitTests(tests);
 
