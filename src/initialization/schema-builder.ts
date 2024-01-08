@@ -75,7 +75,7 @@ Array.prototype.use = function (
     return type.use(...args);
 };
 
-String.opts = String_.opts;
+String.opts = String_.opts.bind(String_);
 
 export const constructType = (type: TypeDescription): TypeEntity => {
     if (typeof type === "function") {
