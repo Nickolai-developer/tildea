@@ -180,7 +180,7 @@ export class ExactTypeEntity {
     }
 
     public get fullyDefined(): boolean {
-        return this._declDeps.length >= this._usedDeps.length;
+        return this._declDeps.length <= this._usedDeps.length;
     }
 
     protected applyContextDependencies(
