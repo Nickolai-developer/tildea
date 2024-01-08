@@ -1,7 +1,7 @@
 import type { ExactTypeEntity } from "./entities/entity.js";
 import type { ScalarType } from "./entities/scalar.js";
-import { Inspectable } from "./initialization/inspectable.js";
-import { TypeDescription } from "./initialization/schema-builder.js";
+import type { Schema } from "./entities/schema.js";
+import type { TypeDescription } from "./initialization/schema-builder.js";
 
 declare global {
     interface Array<T> {
@@ -59,6 +59,4 @@ export interface PropertyValidationStreamableMessage extends TypeMisuseResult {
     depth: number;
 }
 
-export default {
-    Inspectable,
-};
+export const Store = new WeakMap<Function, Schema>();

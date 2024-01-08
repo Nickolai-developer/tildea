@@ -1,8 +1,12 @@
 import { useOptions, usedReprOpts } from "../config.js";
 import { TildaRuntimeError } from "../errors.js";
-import type { ReprOptions, SchemaValidationResult } from "../index.js";
+import {
+    Store,
+    type ReprOptions,
+    type SchemaValidationResult,
+} from "../index.js";
 import { validateSchema } from "../validation/validate-schema.js";
-import { Store } from "./store.js";
+import { TypeDescription } from "./schema-builder.js";
 
 export abstract class Inspectable {
     public static inspect<T extends Inspectable>(
@@ -25,5 +29,12 @@ export abstract class Inspectable {
         const result = validateSchema(obj, schema);
         useOptions(holdOptions);
         return result;
+    }
+
+    public static apply(...args: TypeDescription[]): typeof Inspectable {
+        const template = Store.get(this)!;
+        class AppliedTemplate extends this {}
+        Store.set(AppliedTemplate, template.use(...args));
+        return AppliedTemplate;
     }
 }

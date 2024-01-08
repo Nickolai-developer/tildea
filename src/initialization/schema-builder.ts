@@ -3,12 +3,11 @@ import { ExactTypeEntity, TypeEntity } from "../entities/entity.js";
 import { TildaSchemaBuildingError } from "../errors.js";
 import { Inspectable } from "./inspectable.js";
 import { Schema } from "../entities/schema.js";
-import { Store } from "./store.js";
 import { ArrayType } from "../entities/array.js";
 import { EitherType } from "../entities/either.js";
 import { StaticArrayType } from "../entities/static-array.js";
 import { nullableDefaults } from "../config.js";
-import { DependencyIndex, NullableOptions } from "../index.js";
+import { DependencyIndex, NullableOptions, Store } from "../index.js";
 
 export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
 
