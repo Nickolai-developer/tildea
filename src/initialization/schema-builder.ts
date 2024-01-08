@@ -132,3 +132,10 @@ export const Field = (type: TypeDescription): PropertyDecorator => {
         });
     };
 };
+
+export const Declare = (...args: DependencyIndex[]): ClassDecorator => {
+    return (target: Function) => {
+        const schema = getSchema(target);
+        schema.declare(...args);
+    };
+};
