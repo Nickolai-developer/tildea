@@ -100,6 +100,16 @@ export default class EitherType extends ExactTypeEntity {
         return this._repr;
     }
 
+    // Either type is the reason why validateSchema implemented through generators;
+    // We need to guess what type of collection fits, and if neither of them does,
+    // should pick the most suitable one and stream errors of its pool;
+    // In order not to validate through entirety of each type, while most of them are wrong in the first place,
+    // we validate them until getting first error and hoping for
+    // a one of them to not return any; therefore we can return no errors;
+    // In case if all types were wrong, we are pulling errors from all pools,
+    // then calculating the scores for each pool, then picking the best suitable pool based on the scores
+    // (TODO: optimize and make those "then"-s simultaneous?), then push general error and follow it
+    // by errors from most suitable pool (put away first error);
     public override *execute({
         obj,
         key,
