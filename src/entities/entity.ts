@@ -207,7 +207,7 @@ export class ExactTypeEntity {
         const next = depMap[type];
         if (!next) {
             throw new TildaRuntimeError(
-                `No type for "${type}" in \`${this.constructor.name}\`. Maybe you forgot to call .declare on type entity?`,
+                `No type in current scope for "${type}" in \`${this.constructor.name}\`. You either forgot to call .declare on type entity or pass this type on a top level.`,
             );
         }
         return this.pickDependency(next, depMap);
