@@ -8,7 +8,7 @@ import { ArrayType } from "../entities/array.js";
 import { EitherType } from "../entities/either.js";
 import { StaticArrayType } from "../entities/static-array.js";
 import { nullableDefaults } from "../config.js";
-import { DependencyIndex } from "../index.js";
+import { DependencyIndex, NullableOptions } from "../index.js";
 
 export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
 
@@ -79,6 +79,14 @@ Array.prototype.use = function (
 ): ExactTypeEntity {
     const type = constructType(this) as ExactTypeEntity;
     return type.use(...args);
+};
+
+Array.prototype.opts = function (
+    this: ArrayLikeDescription,
+    options: Partial<NullableOptions>,
+) {
+    const type = constructType(this) as ExactTypeEntity;
+    return type.opts(options);
 };
 
 String.opts = String_.opts.bind(String_);

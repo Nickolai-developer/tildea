@@ -7,6 +7,7 @@ declare global {
     interface Array<T> {
         use(...args: TypeDescription[]): ExactTypeEntity;
         declare(...args: DependencyIndex[]): ExactTypeEntity;
+        opts(options: Partial<NullableOptions>): ExactTypeEntity;
     }
     interface StringConstructor {
         opts(options: Partial<NullableOptions>): ScalarType;
