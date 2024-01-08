@@ -1,10 +1,12 @@
 import { usedReprOpts } from "../config.js";
-import {
-    PropertyValidationStreamableMessage,
-    TypeEntity,
-} from "../interfaces.js";
+import { PropertyValidationStreamableMessage } from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    EntityInput,
+    ExecutionContext,
+    TypeEntity,
+} from "./entity.js";
 
 interface EitherInput extends EntityInput {
     name?: string;
@@ -68,7 +70,7 @@ const uniqueTypes = (types: TypeEntity[]): TypeEntity[] => {
     return unique;
 };
 
-export default class EitherType extends ExactTypeEntity {
+export class EitherType extends ExactTypeEntity {
     override readonly entity = "EITHER";
     name?: string;
     private _types: TypeEntity[];

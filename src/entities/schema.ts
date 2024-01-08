@@ -1,11 +1,15 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    TypeEntity,
     TypeRepresentation,
-} from "../interfaces.js";
+} from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    EntityInput,
+    ExecutionContext,
+    TypeEntity,
+} from "./entity.js";
 
 interface SchemaInput extends EntityInput {
     name: string;
@@ -17,7 +21,7 @@ interface SchemaProperty {
     type: TypeEntity;
 }
 
-export default class Schema extends ExactTypeEntity {
+export class Schema extends ExactTypeEntity {
     override readonly entity = "SCHEMA";
     name: string;
 

@@ -1,18 +1,22 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    TypeEntity,
     TypeRepresentation,
-} from "../interfaces.js";
+} from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    EntityInput,
+    ExecutionContext,
+    TypeEntity,
+} from "./entity.js";
 
 interface StaticArrayInput extends EntityInput {
     name?: string;
     types: TypeEntity[];
 }
 
-export default class StaticArrayType extends ExactTypeEntity {
+export class StaticArrayType extends ExactTypeEntity {
     override readonly entity = "STATIC";
     name?: string;
     private _types: TypeEntity[];

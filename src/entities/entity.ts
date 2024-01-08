@@ -1,16 +1,22 @@
-import { usedReprOpts } from "../config.js";
-import { nullableDefaults } from "../constants.js";
+import { nullableDefaults, usedReprOpts } from "../config.js";
 import { TildaRuntimeError, TildaSchemaBuildingError } from "../errors.js";
-import { constructType } from "../initialization/schema-builder.js";
 import {
     DependencyIndex,
     NullableOptions,
     PropertyValidationStreamableMessage,
-    TypeDescription,
-    TypeEntity,
     TypeRepresentation,
-} from "../interfaces.js";
+} from "../index.js";
+import {
+    TypeDescription,
+    constructType,
+} from "../initialization/schema-builder.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
+
+/**
+ * Type in schemas can either be a exact type
+ * as well as index pointing on a dependency which is another exact type
+ */
+export type TypeEntity = ExactTypeEntity | DependencyIndex;
 
 export interface EntityInput {
     nullable?: Partial<NullableOptions>;
@@ -29,7 +35,7 @@ export interface ExecutionContext {
     readonly depMap: DependencyMap;
 }
 
-export default abstract class ExactTypeEntity {
+export class ExactTypeEntity {
     readonly entity: string;
 
     protected _nullable: NullableOptions;
@@ -81,15 +87,11 @@ export default abstract class ExactTypeEntity {
         return cp;
     }
 
-    public abstract execute({
-        obj,
-        key,
-        currentDepth,
-    }: ExecutionContext): Generator<
-        PropertyValidationStreamableMessage,
-        void,
-        void
-    >;
+    public execute(
+        _o: ExecutionContext,
+    ): Generator<PropertyValidationStreamableMessage, void, void> {
+        return null as any;
+    }
 
     protected *redundantPropsErrors(
         obj: object,

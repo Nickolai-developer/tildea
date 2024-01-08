@@ -1,6 +1,6 @@
 import { usedReprOpts } from "../config.js";
 import { TildaRuntimeError } from "../errors.js";
-import { ReprOptions, TypeRepresentation } from "../interfaces.js";
+import { ReprOptions, TypeRepresentation } from "../index.js";
 
 export enum ReprDefinitions {
     DELIM_OR = " | ",

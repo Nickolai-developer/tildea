@@ -1,10 +1,10 @@
-import Schema from "../entities/schema.js";
-import {
+import type { Schema } from "../entities/schema.js";
+import type {
     PropertyValidationResult,
     SchemaValidationResult,
-} from "../interfaces.js";
+} from "../index.js";
 
-export default function validateSchema(
+export function validateSchema(
     obj: object,
     schema: Schema,
 ): SchemaValidationResult {

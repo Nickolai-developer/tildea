@@ -1,5 +1,15 @@
-import { reprDefaults } from "./constants.js";
-import { ReprOptions } from "./interfaces.js";
+import type { NullableOptions, ReprOptions } from "./index.js";
+
+export const nullableDefaults: NullableOptions = {
+    defined: true,
+    nullable: false,
+    optional: false,
+};
+
+export const reprDefaults: ReprOptions = {
+    hasPropertyCheck: false,
+    useValue: false,
+};
 
 export let usedReprOpts: ReprOptions = reprDefaults;
 

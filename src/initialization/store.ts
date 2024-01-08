@@ -1,4 +1,4 @@
-import Schema from "../entities/schema.js";
+import type { Schema } from "../entities/schema.js";
 
 type StoredMetadataKey = Function;
 
@@ -15,6 +15,4 @@ type StoredMetadataValue = Schema;
 //     }
 // }
 
-const Store = new Map<StoredMetadataKey, StoredMetadataValue>();
-
-export default Store;
+export const Store = new Map<StoredMetadataKey, StoredMetadataValue>();

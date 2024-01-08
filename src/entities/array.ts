@@ -1,17 +1,21 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
-    TypeEntity,
     TypeRepresentation,
-} from "../interfaces.js";
+} from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    EntityInput,
+    ExecutionContext,
+    TypeEntity,
+} from "./entity.js";
 
 interface ArrayInput extends EntityInput {
     elemType: TypeEntity;
 }
 
-export default class ArrayType extends ExactTypeEntity {
+export class ArrayType extends ExactTypeEntity {
     override readonly entity = "ARRAY";
     private _elemType: TypeEntity;
     public get elemType(): TypeEntity {

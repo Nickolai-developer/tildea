@@ -1,20 +1,36 @@
-import { String_, nullableDefaults } from "../constants.js";
-import Inspectable from "./inspectable.js";
-import Store from "./store.js";
-import Schema from "../entities/schema.js";
-import {
-    ArrayLikeDescription,
-    DependencyIndex,
-    NullableOptions,
-    TypeDescription,
-    TypeEntity,
-} from "../interfaces.js";
-import ExactTypeEntity from "../entities/entity.js";
-import ScalarType from "../entities/scalar.js";
+import { String_ } from "../constants.js";
+import { ExactTypeEntity, TypeEntity } from "../entities/entity.js";
 import { TildaSchemaBuildingError } from "../errors.js";
-import ArrayType from "../entities/array.js";
-import EitherType from "../entities/either.js";
-import StaticArrayType from "../entities/static-array.js";
+import { Inspectable } from "./inspectable.js";
+import { Schema } from "../entities/schema.js";
+import { Store } from "./store.js";
+import { ArrayType } from "../entities/array.js";
+import { EitherType } from "../entities/either.js";
+import { StaticArrayType } from "../entities/static-array.js";
+import { nullableDefaults } from "../config.js";
+import { DependencyIndex } from "../index.js";
+
+export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
+
+export type ArrayLikeDescription =
+    | ArrayDescription
+    | StaticArrayDescription
+    | EitherDescription;
+
+export type ArrayDescription = [TypeDescription];
+
+export type StaticArrayDescription = [
+    "STATIC",
+    TypeDescription,
+    ...TypeDescription[],
+];
+
+export type EitherDescription = [
+    "EITHER",
+    TypeDescription,
+    TypeDescription,
+    ...TypeDescription[],
+];
 
 const POSSIBLE_MODEL_ROOTS: Function[] = [Inspectable, Object];
 
@@ -48,16 +64,6 @@ export const SchemaClass = (name?: string): ClassDecorator => {
         }
     };
 };
-
-declare global {
-    interface Array<T> {
-        use(...args: TypeDescription[]): ExactTypeEntity;
-        declare(...args: DependencyIndex[]): ExactTypeEntity;
-    }
-    interface StringConstructor {
-        opts(options: Partial<NullableOptions>): ScalarType;
-    }
-}
 
 Array.prototype.declare = function (
     this: ArrayLikeDescription,

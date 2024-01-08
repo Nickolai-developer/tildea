@@ -1,6 +1,8 @@
 import { UnitTest, runUnitTests } from "./common.js";
 import repr from "./repr.js";
-const tests: UnitTest[] = [repr];
+import schemaBuilding from "./schema-building.js";
+
+const tests: UnitTest[] = [repr, schemaBuilding];
 
 runUnitTests(tests);
 

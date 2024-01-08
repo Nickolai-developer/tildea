@@ -1,10 +1,10 @@
 import { useOptions, usedReprOpts } from "../config.js";
 import { TildaRuntimeError } from "../errors.js";
-import { ReprOptions, SchemaValidationResult } from "../interfaces.js";
-import validateSchema from "../validation/validate-schema.js";
-import Store from "./store.js";
+import type { ReprOptions, SchemaValidationResult } from "../index.js";
+import { validateSchema } from "../validation/validate-schema.js";
+import { Store } from "./store.js";
 
-export default class Inspectable {
+export abstract class Inspectable {
     public static inspect<T extends Inspectable>(
         obj: T,
         options?: ReprOptions,
