@@ -53,7 +53,9 @@ export default abstract class ExactTypeEntity {
         this._usedDeps = Object.assign([], usedDeps);
     }
 
-    protected abstract copy(): this;
+    protected copy(): this {
+        return new (this.constructor as new (input: EntityInput) => this)(this);
+    }
 
     public opts(options: Partial<NullableOptions>): this {
         const cp = this.copy();

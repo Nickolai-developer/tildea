@@ -23,10 +23,6 @@ export default class ArrayType extends ExactTypeEntity {
         this._elemType = elemType;
     }
 
-    protected override copy(): this {
-        return new ArrayType(this) as this;
-    }
-
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;

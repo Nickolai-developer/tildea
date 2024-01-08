@@ -50,10 +50,6 @@ export default class Schema extends ExactTypeEntity {
         this.name = name;
     }
 
-    protected override copy() {
-        return new Schema(this) as this;
-    }
-
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;
