@@ -37,6 +37,7 @@ export default function validateSchema(
         obj: { key: obj },
         key: "key",
         currentDepth: 0,
+        depMap: {},
     })) {
         pickFacility(depth);
         currentFacility.push(result);

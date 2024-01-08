@@ -1,4 +1,5 @@
 import { useOptions, usedReprOpts } from "../config.js";
+import { TildaRuntimeError } from "../errors.js";
 import { ReprOptions, SchemaValidationResult } from "../interfaces.js";
 import validateSchema from "../validation/validate-schema.js";
 import Store from "./store.js";
@@ -10,7 +11,14 @@ export default class Inspectable {
     ): SchemaValidationResult {
         const schema = Store.get(this);
         if (!schema) {
-            throw new Error(`No schema defined for ${this.name}`);
+            throw new TildaRuntimeError(
+                `No schema defined for \`${this.name}\``,
+            );
+        }
+        if (!schema.fullyDefined) {
+            throw new TildaRuntimeError(
+                `Schema \`${this.name}\` is a template schema.`,
+            );
         }
         const holdOptions = usedReprOpts;
         options && useOptions(options);

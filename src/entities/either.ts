@@ -1,11 +1,14 @@
 import { usedReprOpts } from "../config.js";
-import { PropertyValidationStreamableMessage } from "../interfaces.js";
+import {
+    PropertyValidationStreamableMessage,
+    TypeEntity,
+} from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
 import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface EitherInput extends EntityInput {
     name?: string;
-    types: ExactTypeEntity[];
+    types: TypeEntity[];
 }
 
 type Score = number[];
@@ -50,7 +53,7 @@ const pickBestGuess = (scores: Score[]): number => {
     return min;
 };
 
-const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
+const uniqueTypes = (types: TypeEntity[]): TypeEntity[] => {
     const extendedTypes = types.map(type =>
         type instanceof EitherType && !type.name
             ? uniqueTypes(type.types)
@@ -61,19 +64,26 @@ const uniqueTypes = (types: ExactTypeEntity[]): ExactTypeEntity[] => {
             arr.push(current);
         }
         return arr;
-    }, [] as ExactTypeEntity[]);
+    }, [] as TypeEntity[]);
     return unique;
 };
 
 export default class EitherType extends ExactTypeEntity {
     override readonly entity = "EITHER";
     name?: string;
-    types: ExactTypeEntity[];
+    private _types: TypeEntity[];
+    public get types(): TypeEntity[] {
+        return [...this._types];
+    }
 
     constructor({ types, name, ...entityInput }: EitherInput) {
         super(entityInput);
         this.name = name;
-        this.types = types;
+        this._types = types;
+    }
+
+    protected override copy(): this {
+        return new EitherType(this) as this;
     }
 
     public override get repr() {
@@ -84,7 +94,9 @@ export default class EitherType extends ExactTypeEntity {
                     ? this.encase(this.joinTypeParts(this.name, nullableStr))
                     : this.name;
             }
-            const typeRs = uniqueTypes(this.types).map(t => t.repr);
+            const typeRs = uniqueTypes(this._types).map(t =>
+                typeof t === "string" ? t : t.repr,
+            );
             nullableStr && typeRs.push(nullableStr);
             const typeR = typeRs.join(ReprDefinitions.DELIM_OR);
             this._repr = typeRs.length > 1 ? this.encase(typeR) : typeR;
@@ -92,7 +104,12 @@ export default class EitherType extends ExactTypeEntity {
         return this._repr;
     }
 
-    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
+    public override *execute({
+        obj,
+        key,
+        currentDepth,
+        depMap,
+    }: ExecutionContext) {
         const nullCheck = this.checkNulls({ obj, key, currentDepth });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
@@ -101,8 +118,14 @@ export default class EitherType extends ExactTypeEntity {
             return;
         }
 
-        const errPools = this.types.map(type =>
-            type.execute({ obj, key, currentDepth }),
+        const contextDependencies = this.applyContextDependencies(depMap);
+        const errPools = this._types.map(type =>
+            this.pickDependency(type, contextDependencies).execute({
+                obj,
+                key,
+                currentDepth,
+                depMap: contextDependencies,
+            }),
         );
         const errors: PropertyValidationStreamableMessage[][] = [];
         for (let i = 0; i < errPools.length; i++) {

@@ -1,6 +1,7 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
+    TypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
@@ -8,18 +9,25 @@ import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface StaticArrayInput extends EntityInput {
     name?: string;
-    types: ExactTypeEntity[];
+    types: TypeEntity[];
 }
 
 export default class StaticArrayType extends ExactTypeEntity {
     override readonly entity = "STATIC";
     name?: string;
-    types: ExactTypeEntity[];
+    private _types: TypeEntity[];
+    get types(): TypeEntity[] {
+        return [...this._types];
+    }
 
     constructor({ types, name, ...entityInput }: StaticArrayInput) {
         super(entityInput);
         this.name = name;
-        this.types = types;
+        this._types = types;
+    }
+
+    protected override copy(): this {
+        return new StaticArrayType(this) as this;
     }
 
     public override get repr(): TypeRepresentation {
@@ -27,8 +35,8 @@ export default class StaticArrayType extends ExactTypeEntity {
             const nullableStr = super.repr;
             return this.joinTypeParts(
                 this.name ||
-                    `[${this.types
-                        .map(t => t.repr)
+                    `[${this._types
+                        .map(t => (typeof t === "string" ? t : t.repr))
                         .join(ReprDefinitions.DELIM_COLON)}]`,
                 nullableStr,
             );
@@ -40,6 +48,7 @@ export default class StaticArrayType extends ExactTypeEntity {
         obj,
         key,
         currentDepth,
+        depMap,
     }: ExecutionContext): Generator<
         PropertyValidationStreamableMessage,
         void,
@@ -61,6 +70,7 @@ export default class StaticArrayType extends ExactTypeEntity {
             return;
         }
 
+        const contextDependencies = this.applyContextDependencies(depMap);
         const array = obj[key as keyof object] as Array<unknown>;
         if (!(array instanceof Array)) {
             yield commonError;
@@ -74,18 +84,23 @@ export default class StaticArrayType extends ExactTypeEntity {
             void
         >[] = [];
 
-        const maxindex = Math.max(array.length, this.types.length);
+        const maxindex = Math.max(array.length, this._types.length);
         for (let i = 0; i < maxindex; i++) {
             const arrKey = "" + i;
-            const elemType = this.types[i];
-            if (!elemType) {
+            const elemTypeIndex = this._types[i];
+            if (!elemTypeIndex) {
                 break;
             }
             arrKeys.push(arrKey);
+            const elemType = this.pickDependency(
+                elemTypeIndex,
+                contextDependencies,
+            );
             const errors = elemType.execute({
                 obj: array,
                 key: arrKey,
                 currentDepth: currentDepth + 1,
+                depMap: contextDependencies,
             });
             propErrors.push(errors);
         }

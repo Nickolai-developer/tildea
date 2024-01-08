@@ -1,155 +1,120 @@
-// import { String_, nullableDefaults } from "../constants.js";
-// import Inspectable from "./inspectable.js";
-// import {
-//     NullableOptions,
-//     Schema,
-//     ExactTypeEntity,
-//     TypeDescription,
-//     StaticArrayElementDescription,
-//     CompleteDefinition,
-// } from "../interfaces.js";
-// import Store from "./store.js";
+import { String_, nullableDefaults } from "../constants.js";
+import Inspectable from "./inspectable.js";
+import Store from "./store.js";
+import Schema from "../entities/schema.js";
+import {
+    ArrayLikeDescription,
+    DependencyIndex,
+    NullableOptions,
+    TypeDescription,
+    TypeEntity,
+} from "../interfaces.js";
+import ExactTypeEntity from "../entities/entity.js";
+import ScalarType from "../entities/scalar.js";
+import { TildaSchemaBuildingError } from "../errors.js";
+import ArrayType from "../entities/array.js";
+import EitherType from "../entities/either.js";
+import StaticArrayType from "../entities/static-array.js";
 
-// const POSSIBLE_MODEL_ROOTS: Function[] = [Inspectable, Object];
+const POSSIBLE_MODEL_ROOTS: Function[] = [Inspectable, Object];
 
-// const getSchema = (target: Function): Schema => {
-//     let schema = Store.get(target);
-//     if (!schema) {
-//         schema = {
-//             entity: "SCHEMA",
-//             name: target.name,
-//             definitions: [],
-//         };
-//         Store.set(target, schema);
-//     }
-//     return schema;
-// };
+const getSchema = (target: Function): Schema => {
+    let schema = Store.get(target);
+    if (!schema) {
+        schema = new Schema({
+            name: target.name,
+            props: [],
+            nullable: nullableDefaults,
+        });
+        Store.set(target, schema);
+    }
+    return schema;
+};
 
-// const recognizeType = (type?: TypeDescription): ExactTypeEntity | null => {
-//     if (!type || type === String) {
-//         return String_;
-//     }
+export const SchemaClass = (name?: string): ClassDecorator => {
+    return (target: Function) => {
+        const schema = getSchema(target);
+        if (name) {
+            schema.name = name;
+        }
+        let constructor = target;
+        while (true) {
+            constructor = constructor.prototype.__proto__.constructor;
+            if (POSSIBLE_MODEL_ROOTS.includes(constructor)) {
+                break;
+            }
+            const parentSchema = getSchema(constructor);
+            schema.mergeProps(parentSchema);
+        }
+    };
+};
 
-//     if ((type as ExactTypeEntity).entity) {
-//         return type as ExactTypeEntity;
-//     }
-//     if (Array.isArray(type)) {
-//         if (!type.length) {
-//             return null;
-//         }
-//         if (type[0] === "EITHER") {
-//             const types = type.slice(1) as ExactTypeEntity[];
-//             if (!types.every(e => e.entity) || type.length < 3) {
-//                 return null;
-//             }
-//             return {
-//                 entity: "EITHER",
-//                 types,
-//             };
-//         }
-//         if (type[0] === "STATIC") {
-//             const types = type.slice(1) as StaticArrayElementDescription[];
-//             const defs = types.map<CompleteDefinition>(e => {
-//                 let type: ExactTypeEntity, options: Partial<NullableOptions>;
-//                 if (Array.isArray(e)) {
-//                     [type, options] = e;
-//                 } else {
-//                     type = e;
-//                     options = {};
-//                 }
-//                 return {
-//                     type,
-//                     nullableOptions: Object.assign(
-//                         {},
-//                         nullableDefaults,
-//                         options,
-//                     ),
-//                 };
-//             });
-//             return {
-//                 entity: "STATIC",
-//                 types: defs,
-//             };
-//         }
-//         let elemType: ExactTypeEntity | undefined,
-//             options: Partial<NullableOptions> = {};
-//         if (Array.isArray(type[0]) && type.length === 2) {
-//             [[elemType], options] = type;
-//         } else if (type.length === 1) {
-//             elemType = type[0];
-//             options = {};
-//         }
-//         if (!elemType) {
-//             return null;
-//         }
-//         return {
-//             entity: "ARRAY",
-//             elemDefinition: {
-//                 type: elemType,
-//                 nullableOptions: Object.assign({}, nullableDefaults, options),
-//             },
-//         };
-//     }
+declare global {
+    interface Array<T> {
+        use(...args: TypeDescription[]): ExactTypeEntity;
+        declare(...args: DependencyIndex[]): ExactTypeEntity;
+    }
+    interface StringConstructor {
+        opts(options: Partial<NullableOptions>): ScalarType;
+    }
+}
 
-//     return null;
-// };
+Array.prototype.declare = function (
+    this: ArrayLikeDescription,
+    ...args: DependencyIndex[]
+): ExactTypeEntity {
+    const type = constructType(this) as ExactTypeEntity;
+    return type.declare(...args);
+};
 
-// export const SchemaClass = (name?: string): ClassDecorator => {
-//     return (target: Function) => {
-//         const schema = getSchema(target);
-//         if (name) {
-//             schema.name = name;
-//         }
-//         let defs = Object.fromEntries(
-//             schema.definitions.map(({ definition, name }) => [
-//                 name,
-//                 definition,
-//             ]),
-//         );
-//         let constructor = target;
-//         while (true) {
-//             constructor = constructor.prototype.__proto__.constructor;
-//             if (POSSIBLE_MODEL_ROOTS.includes(constructor)) {
-//                 break;
-//             }
-//             const parentSchema = getSchema(constructor);
-//             const parentDefs = Object.fromEntries(
-//                 parentSchema.definitions.map(({ definition, name }) => [
-//                     name,
-//                     definition,
-//                 ]),
-//             );
-//             defs = Object.assign({}, parentDefs, defs);
-//         }
-//         schema.definitions = Object.entries(defs).map(([name, definition]) => ({
-//             name,
-//             definition,
-//         }));
-//     };
-// };
+Array.prototype.use = function (
+    this: ArrayLikeDescription,
+    ...args: TypeDescription[]
+): ExactTypeEntity {
+    const type = constructType(this) as ExactTypeEntity;
+    return type.use(...args);
+};
 
-// export const Field = (
-//     type?: TypeDescription,
-//     options?: Partial<NullableOptions>,
-// ): PropertyDecorator => {
-//     const opts = Object.assign({}, nullableDefaults, options || {});
-//     const typeEntity = recognizeType(type);
-//     return (target: Object, propertyKey: string | symbol) => {
-//         if (typeof propertyKey === "symbol") {
-//             throw new Error("Symbols aren't implemented~");
-//         }
-//         if (typeEntity === null) {
-//             throw new Error(
-//                 `Cannot recognize type for ${target.constructor.name}.${propertyKey}`,
-//             );
-//         }
-//         const schema = getSchema(target.constructor);
-//         schema.definitions.push({
-//             name: propertyKey,
-//             definition: {
-//                 type: typeEntity,
-//                 nullableOptions: opts,
-//             },
-//         });
-//     };
-// };
+String.opts = String_.opts;
+
+export const constructType = (type: TypeDescription): TypeEntity => {
+    if (typeof type === "function") {
+        return String_;
+    }
+    if (type instanceof ExactTypeEntity || typeof type === "string") {
+        return type;
+    }
+    const e = new TildaSchemaBuildingError(
+        `Cannot construct type from value: "${type}".`,
+    );
+    if (!Array.isArray(type)) {
+        throw e;
+    }
+    if (type.length === 1) {
+        const elemType = constructType(type[0]);
+        return new ArrayType({ elemType });
+    }
+    if (type[0] === "EITHER" && type.length > 2) {
+        const types = type.slice(1).map(t => constructType(t));
+        return new EitherType({ types });
+    }
+    if (type[0] === "STATIC") {
+        const types = type.slice(1).map(t => constructType(t));
+        return new StaticArrayType({ types });
+    }
+    throw e;
+};
+
+export const Field = (type: TypeDescription): PropertyDecorator => {
+    const typeEntity = constructType(type);
+    return (target: Object, propertyKey: string | symbol) => {
+        if (typeof propertyKey === "symbol") {
+            throw new TildaSchemaBuildingError("Symbols aren't implemented~");
+        }
+        const schema = getSchema(target.constructor);
+        schema.pushProps({
+            name: propertyKey,
+            type: typeEntity,
+        });
+    };
+};

@@ -1,28 +1,39 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
+    TypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
 import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
 
 interface ArrayInput extends EntityInput {
-    elemType: ExactTypeEntity;
+    elemType: TypeEntity;
 }
 
 export default class ArrayType extends ExactTypeEntity {
     override readonly entity = "ARRAY";
-    elemType: ExactTypeEntity;
+    private _elemType: TypeEntity;
+    public get elemType(): TypeEntity {
+        return this._elemType;
+    }
 
     constructor({ elemType, ...entityInput }: ArrayInput) {
         super(entityInput);
-        this.elemType = elemType;
+        this._elemType = elemType;
+    }
+
+    protected override copy(): this {
+        return new ArrayType(this) as this;
     }
 
     public override get repr(): TypeRepresentation {
         if (!this._repr) {
             const nullableStr = super.repr;
-            const elem = this.elemType.repr;
+            const elem =
+                typeof this._elemType === "string"
+                    ? this._elemType
+                    : this._elemType.repr;
             return (
                 [
                     `${
@@ -41,6 +52,7 @@ export default class ArrayType extends ExactTypeEntity {
         obj,
         key,
         currentDepth,
+        depMap,
     }: ExecutionContext): Generator<
         PropertyValidationStreamableMessage,
         void,
@@ -62,6 +74,7 @@ export default class ArrayType extends ExactTypeEntity {
             return;
         }
 
+        const contextDependencies = this.applyContextDependencies(depMap);
         const array = obj[key as keyof object] as Array<unknown>;
         if (!(array instanceof Array)) {
             yield commonError;
@@ -77,15 +90,16 @@ export default class ArrayType extends ExactTypeEntity {
 
         for (let i = 0; i < array.length; i++) {
             const arrKey = "" + i;
-            const elemType = this.elemType;
-            if (!elemType) {
-                break;
-            }
+            const elemType = this.pickDependency(
+                this._elemType,
+                contextDependencies,
+            );
             arrKeys.push(arrKey);
             const errors = elemType.execute({
                 obj: array,
                 key: arrKey,
                 currentDepth: currentDepth + 1,
+                depMap: contextDependencies,
             });
             propErrors.push(errors);
         }

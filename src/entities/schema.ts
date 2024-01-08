@@ -1,6 +1,7 @@
 import { usedReprOpts } from "../config.js";
 import {
     PropertyValidationStreamableMessage,
+    TypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
@@ -13,18 +14,44 @@ interface SchemaInput extends EntityInput {
 
 interface SchemaProperty {
     name: string;
-    type: ExactTypeEntity;
+    type: TypeEntity;
 }
 
 export default class Schema extends ExactTypeEntity {
     override readonly entity = "SCHEMA";
     name: string;
-    props: SchemaProperty[];
+
+    private _props: SchemaProperty[];
+    public get props(): SchemaProperty[] {
+        return this._props.map(prop => ({ ...prop }));
+    }
+
+    public pushProps(...props: SchemaProperty[]): number {
+        this._props.push(...props);
+        return this._props.length;
+    }
+
+    public mergeProps(other: Schema): void {
+        const asObj = Object.fromEntries(
+            this._props.map(({ type, name }) => [name, type]),
+        );
+        const parentDefs = Object.fromEntries(
+            other._props.map(({ type, name }) => [name, type]),
+        );
+
+        this._props = Object.entries(Object.assign(parentDefs, asObj)).map(
+            ([name, type]) => ({ name, type }),
+        );
+    }
 
     constructor({ props, name, ...entityInput }: SchemaInput) {
         super(entityInput);
-        this.props = props;
+        this._props = props;
         this.name = name;
+    }
+
+    protected override copy() {
+        return new Schema(this) as this;
     }
 
     public override get repr(): TypeRepresentation {
@@ -35,7 +62,12 @@ export default class Schema extends ExactTypeEntity {
         return this._repr;
     }
 
-    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
+    public override *execute({
+        obj,
+        key,
+        currentDepth,
+        depMap,
+    }: ExecutionContext) {
         const propR = repr(obj, key, usedReprOpts);
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
@@ -57,18 +89,21 @@ export default class Schema extends ExactTypeEntity {
             return;
         }
 
+        const contextDependencies = this.applyContextDependencies(depMap);
         const propErrors: Generator<
             PropertyValidationStreamableMessage,
             void,
             void
         >[] = [];
         const obj_ = obj[key as keyof object];
-        for (const { name, type: t } of this.props) {
+        for (const { name, type } of this._props) {
+            const typeEntity = this.pickDependency(type, contextDependencies);
             propErrors.push(
-                t.execute({
+                typeEntity.execute({
                     obj: obj_,
                     key: name,
                     currentDepth: currentDepth + 1,
+                    depMap: contextDependencies,
                 }),
             );
         }
@@ -76,7 +111,7 @@ export default class Schema extends ExactTypeEntity {
         propErrors.push(
             this.redundantPropsErrors(
                 obj_,
-                this.props.map(type => type.name),
+                this._props.map(type => type.name),
                 currentDepth + 1,
             ),
         );

@@ -1,28 +1,82 @@
 import { usedReprOpts } from "../config.js";
 import { nullableDefaults } from "../constants.js";
+import { TildaRuntimeError, TildaSchemaBuildingError } from "../errors.js";
+import { constructType } from "../initialization/schema-builder.js";
 import {
+    DependencyIndex,
     NullableOptions,
     PropertyValidationStreamableMessage,
+    TypeDescription,
+    TypeEntity,
     TypeRepresentation,
 } from "../interfaces.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
 
 export interface EntityInput {
     nullable?: Partial<NullableOptions>;
+    declDeps?: DependencyIndex[];
+    usedDeps?: TypeEntity[];
+}
+
+export interface DependencyMap {
+    [x: string]: TypeEntity;
 }
 
 export interface ExecutionContext {
     obj: object;
     key: string;
     currentDepth: number;
+    readonly depMap: DependencyMap;
 }
 
 export default abstract class ExactTypeEntity {
     readonly entity: string;
-    nullable: NullableOptions;
 
-    constructor({ nullable }: EntityInput) {
-        this.nullable = Object.assign({}, nullableDefaults, nullable);
+    protected _nullable: NullableOptions;
+    get nullable() {
+        return Object.assign({}, this._nullable);
+    }
+
+    protected _declDeps: DependencyIndex[];
+    get declDeps() {
+        return Object.assign([], this._declDeps);
+    }
+
+    protected _usedDeps: TypeEntity[];
+    get usedDeps() {
+        return Object.assign([], this._usedDeps);
+    }
+
+    constructor({ nullable, declDeps, usedDeps }: EntityInput) {
+        this._nullable = Object.assign({}, nullableDefaults, nullable);
+        this._declDeps = Object.assign([], declDeps);
+        this._usedDeps = Object.assign([], usedDeps);
+    }
+
+    protected abstract copy(): this;
+
+    public opts(options: Partial<NullableOptions>): this {
+        const cp = this.copy();
+        cp._nullable = Object.assign({}, nullableDefaults, options);
+        return cp;
+    }
+
+    public declare(...args: DependencyIndex[]): this {
+        this._declDeps.push(...args);
+        return this;
+    }
+
+    public use(...args: TypeDescription[]): this {
+        if (this._declDeps.length < args.length + this._usedDeps.length) {
+            throw new TildaSchemaBuildingError(
+                `Tried to use ${args.length} dependencies, but type has only ${this._declDeps.length} declared`,
+            );
+        }
+        const cp = this.copy();
+        cp._usedDeps.push(
+            ...args.map(description => constructType(description)),
+        );
+        return cp;
     }
 
     public abstract execute({
@@ -63,17 +117,6 @@ export default abstract class ExactTypeEntity {
         }
     }
 
-    // TODO: redefine it in child classes for safety
-    protected copy<T extends ExactTypeEntity>(): T {
-        return new (this.constructor as new (input: EntityInput) => T)(this);
-    }
-
-    public opts(options: Partial<NullableOptions>) {
-        const cp = this.copy();
-        cp.nullable = Object.assign({}, nullableDefaults, options);
-        return cp;
-    }
-
     protected joinTypeParts(
         ...args: (string | false | null | undefined)[]
     ): TypeRepresentation {
@@ -86,7 +129,7 @@ export default abstract class ExactTypeEntity {
 
     protected _repr: TypeRepresentation | undefined;
     public get repr(): TypeRepresentation {
-        const { defined, nullable, optional } = this.nullable;
+        const { defined, nullable, optional } = this._nullable;
         return this.joinTypeParts(
             nullable && ReprDefinitions.NULL,
             !defined && ReprDefinitions.UNDEFINED,
@@ -100,7 +143,10 @@ export default abstract class ExactTypeEntity {
         obj,
         key,
         currentDepth,
-    }: ExecutionContext): PropertyValidationStreamableMessage | null | void {
+    }: Omit<
+        ExecutionContext,
+        "depMap"
+    >): PropertyValidationStreamableMessage | null | void {
         const propR = repr(obj, key, usedReprOpts);
 
         if (
@@ -127,5 +173,39 @@ export default abstract class ExactTypeEntity {
         }
 
         return null;
+    }
+
+    public get fullyDefined(): boolean {
+        return this._declDeps.length >= this._usedDeps.length;
+    }
+
+    protected applyContextDependencies(
+        depMap: /* readonly */ DependencyMap,
+    ): DependencyMap {
+        if (!this.fullyDefined) {
+            throw new TildaRuntimeError(
+                `Cannot validate \`${this.constructor.name}\`. It's a template.`,
+            );
+        }
+        const entityContext = Object.fromEntries(
+            this._declDeps.map((k, i) => [k, this._usedDeps[i]]),
+        );
+        return Object.assign({}, depMap, entityContext);
+    }
+
+    protected pickDependency(
+        type: TypeEntity,
+        depMap: DependencyMap,
+    ): ExactTypeEntity {
+        if (type instanceof ExactTypeEntity) {
+            return type;
+        }
+        const next = depMap[type];
+        if (!next) {
+            throw new TildaRuntimeError(
+                `No type for "${type}" in \`${this.constructor.name}\`. Maybe you forgot to call .declare on type entity?`,
+            );
+        }
+        return this.pickDependency(next, depMap);
     }
 }

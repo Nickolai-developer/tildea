@@ -1,4 +1,5 @@
 import { usedReprOpts } from "../config.js";
+import { TildaSchemaBuildingError } from "../errors.js";
 import { TypeRepresentation } from "../interfaces.js";
 import { repr } from "../validation/repr.js";
 import ExactTypeEntity, { EntityInput, ExecutionContext } from "./entity.js";
@@ -17,6 +18,10 @@ export default class ScalarType extends ExactTypeEntity {
         super(entityInput);
         this.name = name;
         this.validate = validate;
+    }
+
+    protected override copy(): this {
+        return new ScalarType(this) as this;
     }
 
     public override get repr(): TypeRepresentation {
@@ -49,5 +54,17 @@ export default class ScalarType extends ExactTypeEntity {
                 depth: currentDepth,
             };
         }
+    }
+
+    public override declare(): never {
+        throw new TildaSchemaBuildingError(
+            "Can't call .declare on scalar type since it can't have dependencies.",
+        );
+    }
+
+    public override use(): never {
+        throw new TildaSchemaBuildingError(
+            "Can't call .use on scalar type since it can't have dependencies.",
+        );
     }
 }

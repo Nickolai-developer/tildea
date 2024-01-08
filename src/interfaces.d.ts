@@ -1,32 +1,26 @@
 import ExactTypeEntity from "./entities/entity.ts";
 
-// export type TypeDescription =
-//     | typeof String
-//     | ExactTypeEntity
-//     | ArrayDescription
-//     | StaticArrayDescription
-//     | EitherDescription;
+export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
 
-// export type ArrayDescription =
-//     | [ExactTypeEntity]
-//     | [[ExactTypeEntity], Partial<NullableOptions>];
+export type ArrayLikeDescription =
+    | ArrayDescription
+    | StaticArrayDescription
+    | EitherDescription;
 
-// export type StaticArrayElementDescription =
-//     | ExactTypeEntity
-//     | [ExactTypeEntity, Partial<NullableOptions>];
+export type ArrayDescription = [TypeDescription];
 
-// export type StaticArrayDescription = [
-//     "STATIC",
-//     StaticArrayElementDescription,
-//     ...StaticArrayElementDescription[],
-// ];
+export type StaticArrayDescription = [
+    "STATIC",
+    TypeDescription,
+    ...TypeDescription[],
+];
 
-// export type EitherDescription = [
-//     "EITHER",
-//     ExactTypeEntity,
-//     ExactTypeEntity,
-//     ...ExactTypeEntity[],
-// ];
+export type EitherDescription = [
+    "EITHER",
+    TypeDescription,
+    TypeDescription,
+    ...TypeDescription[],
+];
 
 export interface ReprOptions {
     /** make difference between missing property and undefined */

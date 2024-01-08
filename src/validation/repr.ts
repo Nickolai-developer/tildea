@@ -1,4 +1,5 @@
 import { usedReprOpts } from "../config.js";
+import { TildaRuntimeError } from "../errors.js";
 import { ReprOptions, TypeRepresentation } from "../interfaces.js";
 
 export enum ReprDefinitions {
@@ -52,7 +53,9 @@ export function repr(
             case "string":
                 return typeof val;
             default:
-                throw new Error(`Repr error: ${typeof val} isn't allowed.`);
+                throw new TildaRuntimeError(
+                    `Repr error: ${typeof val} isn't allowed.`,
+                );
         }
     }
 }
