@@ -11,7 +11,7 @@ import {
     type TypeDescription,
     constructType,
 } from "../initialization/schema-builder.js";
-import { ReprDefinitions, repr } from "../validation/repr.js";
+import { ReprDefinitions, repr } from "../repr.js";
 
 export interface EntityInput {
     nullable?: Partial<NullableOptions>;

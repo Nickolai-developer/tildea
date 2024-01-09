@@ -4,7 +4,7 @@ import type {
     TypeEntity,
 } from "../index.js";
 import { eqDeep, mergeNullable } from "../utils.js";
-import { repr } from "../validation/repr.js";
+import { repr } from "../repr.js";
 import {
     ExactTypeEntity,
     type EntityInput,
