@@ -4,9 +4,9 @@ import {
     SchemaClass,
 } from "../initialization/schema-builder.js";
 import { Inspectable } from "../initialization/inspectable.js";
-import { Clock, UnitTest } from "./common.js";
+import { Clock, type UnitTest } from "./common.js";
 import { Int, Null, Undefined } from "../constants.js";
-import { SchemaValidationResult } from "../index.js";
+import type { SchemaValidationResult } from "../index.js";
 
 @Declare("T", "U")
 @SchemaClass()

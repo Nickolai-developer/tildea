@@ -1,8 +1,12 @@
 import { usedReprOpts } from "../config.js";
 import { TildaSchemaBuildingError } from "../errors.js";
-import { TypeRepresentation } from "../index.js";
+import type { TypeRepresentation } from "../index.js";
 import { repr } from "../validation/repr.js";
-import { ExactTypeEntity, EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    type EntityInput,
+    type ExecutionContext,
+} from "./entity.js";
 
 interface ScalarInput extends EntityInput {
     validate: (v: unknown) => boolean;

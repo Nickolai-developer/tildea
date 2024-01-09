@@ -1,11 +1,15 @@
 import { usedReprOpts } from "../config.js";
-import {
+import type {
     PropertyValidationStreamableMessage,
     TypeEntity,
     TypeRepresentation,
 } from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import { ExactTypeEntity, EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    type EntityInput,
+    type ExecutionContext,
+} from "./entity.js";
 
 interface SchemaInput extends EntityInput {
     name: string;
@@ -24,24 +28,6 @@ export class Schema extends ExactTypeEntity {
     private _props: SchemaProperty[];
     public get props(): SchemaProperty[] {
         return this._props.map(prop => ({ ...prop }));
-    }
-
-    public pushProps(...props: SchemaProperty[]): number {
-        this._props.push(...props);
-        return this._props.length;
-    }
-
-    public mergeProps(other: Schema): void {
-        const asObj = Object.fromEntries(
-            this._props.map(({ type, name }) => [name, type]),
-        );
-        const parentDefs = Object.fromEntries(
-            other._props.map(({ type, name }) => [name, type]),
-        );
-
-        this._props = Object.entries(Object.assign(parentDefs, asObj)).map(
-            ([name, type]) => ({ name, type }),
-        );
     }
 
     constructor({ props, name, ...entityInput }: SchemaInput) {
@@ -136,5 +122,23 @@ export class Schema extends ExactTypeEntity {
                 }
             }
         }
+    }
+
+    public pushProps(...props: SchemaProperty[]): number {
+        this._props.push(...props);
+        return this._props.length;
+    }
+
+    public mergeProps(other: Schema): void {
+        const asObj = Object.fromEntries(
+            this._props.map(({ type, name }) => [name, type]),
+        );
+        const parentDefs = Object.fromEntries(
+            other._props.map(({ type, name }) => [name, type]),
+        );
+
+        this._props = Object.entries(Object.assign(parentDefs, asObj)).map(
+            ([name, type]) => ({ name, type }),
+        );
     }
 }

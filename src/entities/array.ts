@@ -1,11 +1,15 @@
 import { usedReprOpts } from "../config.js";
-import {
+import type {
     PropertyValidationStreamableMessage,
     TypeEntity,
     TypeRepresentation,
 } from "../index.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-import { ExactTypeEntity, EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    type EntityInput,
+    type ExecutionContext,
+} from "./entity.js";
 
 interface ArrayInput extends EntityInput {
     elemType: TypeEntity;

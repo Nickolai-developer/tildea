@@ -11,20 +11,16 @@ import { DependencyIndex, NullableOptions, TypeEntity } from "../index.js";
 
 export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
 
-export type ArrayLikeDescription =
+type ArrayLikeDescription =
     | ArrayDescription
     | StaticArrayDescription
     | EitherDescription;
 
-export type ArrayDescription = [TypeDescription];
+type ArrayDescription = [TypeDescription];
 
-export type StaticArrayDescription = [
-    "STATIC",
-    TypeDescription,
-    ...TypeDescription[],
-];
+type StaticArrayDescription = ["STATIC", TypeDescription, ...TypeDescription[]];
 
-export type EitherDescription = [
+type EitherDescription = [
     "EITHER",
     TypeDescription,
     TypeDescription,
@@ -44,24 +40,6 @@ const getSchema = (target: Function): Schema => {
         Store.set(target, schema);
     }
     return schema;
-};
-
-export const SchemaClass = (name?: string): ClassDecorator => {
-    return (target: Function) => {
-        const schema = getSchema(target);
-        if (name) {
-            schema.name = name;
-        }
-        let constructor = target;
-        while (true) {
-            constructor = constructor.prototype.__proto__.constructor;
-            if (POSSIBLE_MODEL_ROOTS.includes(constructor)) {
-                break;
-            }
-            const parentSchema = getSchema(constructor);
-            schema.mergeProps(parentSchema);
-        }
-    };
 };
 
 Array.prototype.declare = function (
@@ -89,6 +67,24 @@ Array.prototype.opts = function (
 };
 
 String.opts = String_.opts.bind(String_);
+
+export const SchemaClass = (name?: string): ClassDecorator => {
+    return (target: Function) => {
+        const schema = getSchema(target);
+        if (name) {
+            schema.name = name;
+        }
+        let constructor = target;
+        while (true) {
+            constructor = constructor.prototype.__proto__.constructor;
+            if (POSSIBLE_MODEL_ROOTS.includes(constructor)) {
+                break;
+            }
+            const parentSchema = getSchema(constructor);
+            schema.mergeProps(parentSchema);
+        }
+    };
+};
 
 export const constructType = (type: TypeDescription): TypeEntity => {
     if (typeof type === "function") {

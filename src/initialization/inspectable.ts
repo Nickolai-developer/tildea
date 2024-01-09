@@ -1,5 +1,5 @@
 import { useOptions, usedReprOpts } from "../config.js";
-import { type Schema } from "../entities/schema.js";
+import type { Schema } from "../entities/schema.js";
 import { TildaRuntimeError } from "../errors.js";
 import { type ReprOptions, type SchemaValidationResult } from "../index.js";
 import { validateSchema } from "../validation/validate-schema.js";

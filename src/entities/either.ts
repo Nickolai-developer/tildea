@@ -1,8 +1,15 @@
 import { nullableDefaults, usedReprOpts } from "../config.js";
-import { PropertyValidationStreamableMessage, TypeEntity } from "../index.js";
+import type {
+    PropertyValidationStreamableMessage,
+    TypeEntity,
+} from "../index.js";
 import { eqDeep, mergeNullable } from "../utils.js";
 import { repr } from "../validation/repr.js";
-import { ExactTypeEntity, EntityInput, ExecutionContext } from "./entity.js";
+import {
+    ExactTypeEntity,
+    type EntityInput,
+    type ExecutionContext,
+} from "./entity.js";
 
 interface EitherInput extends EntityInput {
     name?: string;
@@ -64,24 +71,6 @@ export class EitherType extends ExactTypeEntity {
         this.name = name;
         this._types = types;
         this.cleanseTypes();
-    }
-
-    private cleanseTypes(): void {
-        const newTypes: TypeEntity[] = [];
-        let t: TypeEntity;
-        for (const type of this._types) {
-            if (type instanceof ExactTypeEntity) {
-                this._nullable = mergeNullable(this._nullable, type.nullable);
-                t = type.opts(nullableDefaults);
-            } else {
-                t = type;
-            }
-
-            if (!newTypes.find(e => eqDeep(e, t))) {
-                newTypes.push(t);
-            }
-        }
-        this._types = newTypes;
     }
 
     protected override copy(): this {
@@ -167,5 +156,23 @@ export class EitherType extends ExactTypeEntity {
             found: repr(obj, key, usedReprOpts),
         };
         yield* errors[bestGuess].slice(1) as any;
+    }
+
+    private cleanseTypes(): void {
+        const newTypes: TypeEntity[] = [];
+        let t: TypeEntity;
+        for (const type of this._types) {
+            if (type instanceof ExactTypeEntity) {
+                this._nullable = mergeNullable(this._nullable, type.nullable);
+                t = type.opts(nullableDefaults);
+            } else {
+                t = type;
+            }
+
+            if (!newTypes.find(e => eqDeep(e, t))) {
+                newTypes.push(t);
+            }
+        }
+        this._types = newTypes;
     }
 }

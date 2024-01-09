@@ -1,4 +1,4 @@
-import { UnitTest, runUnitTests } from "./common.js";
+import { type UnitTest, runUnitTests } from "./common.js";
 import repr from "./repr.js";
 import schemaBuilding from "./schema-building.js";
 import test from "./test.js";

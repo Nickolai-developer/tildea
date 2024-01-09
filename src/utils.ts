@@ -1,4 +1,4 @@
-import { NullableOptions } from "./index.js";
+import type { NullableOptions } from "./index.js";
 
 export const eqDeep = (one: unknown, other: unknown): boolean => {
     if (typeof one !== typeof other) {
