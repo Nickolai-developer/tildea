@@ -1,12 +1,11 @@
 import { useOptions, usedReprOpts } from "../config.js";
+import { type Schema } from "../entities/schema.js";
 import { TildaRuntimeError } from "../errors.js";
-import {
-    Store,
-    type ReprOptions,
-    type SchemaValidationResult,
-} from "../index.js";
+import { type ReprOptions, type SchemaValidationResult } from "../index.js";
 import { validateSchema } from "../validation/validate-schema.js";
 import { TypeDescription } from "./schema-builder.js";
+
+export const Store = new WeakMap<Function, Schema>();
 
 export abstract class Inspectable {
     public static inspect<T extends Inspectable>(

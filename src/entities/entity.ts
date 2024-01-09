@@ -4,6 +4,7 @@ import {
     DependencyIndex,
     NullableOptions,
     PropertyValidationStreamableMessage,
+    TypeEntity,
     TypeRepresentation,
 } from "../index.js";
 import {
@@ -11,12 +12,6 @@ import {
     constructType,
 } from "../initialization/schema-builder.js";
 import { ReprDefinitions, repr } from "../validation/repr.js";
-
-/**
- * Type in schemas can either be a exact type
- * as well as index pointing on a dependency which is another exact type
- */
-export type TypeEntity = ExactTypeEntity | DependencyIndex;
 
 export interface EntityInput {
     nullable?: Partial<NullableOptions>;

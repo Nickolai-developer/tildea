@@ -1,13 +1,8 @@
 import { nullableDefaults, usedReprOpts } from "../config.js";
-import { PropertyValidationStreamableMessage } from "../index.js";
+import { PropertyValidationStreamableMessage, TypeEntity } from "../index.js";
 import { eqDeep, mergeNullable } from "../utils.js";
 import { repr } from "../validation/repr.js";
-import {
-    ExactTypeEntity,
-    EntityInput,
-    ExecutionContext,
-    TypeEntity,
-} from "./entity.js";
+import { ExactTypeEntity, EntityInput, ExecutionContext } from "./entity.js";
 
 interface EitherInput extends EntityInput {
     name?: string;

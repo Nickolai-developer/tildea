@@ -5,12 +5,11 @@ import {
 } from "../initialization/schema-builder.js";
 import { Schema } from "../entities/schema.js";
 import { Float, Int, String_ } from "../constants.js";
-import { Inspectable } from "../initialization/inspectable.js";
+import { Inspectable, Store } from "../initialization/inspectable.js";
 import { Clock, UnitTest } from "./common.js";
 import { EitherType } from "../entities/either.js";
 import { ArrayType } from "../entities/array.js";
 import { StaticArrayType } from "../entities/static-array.js";
-import { Store } from "../index.js";
 
 @SchemaClass()
 class Model1 extends Inspectable {

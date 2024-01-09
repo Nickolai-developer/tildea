@@ -1,13 +1,13 @@
 import { String_ } from "../constants.js";
-import { ExactTypeEntity, TypeEntity } from "../entities/entity.js";
+import { ExactTypeEntity } from "../entities/entity.js";
 import { TildaSchemaBuildingError } from "../errors.js";
-import { Inspectable } from "./inspectable.js";
+import { Inspectable, Store } from "./inspectable.js";
 import { Schema } from "../entities/schema.js";
 import { ArrayType } from "../entities/array.js";
 import { EitherType } from "../entities/either.js";
 import { StaticArrayType } from "../entities/static-array.js";
 import { nullableDefaults } from "../config.js";
-import { DependencyIndex, NullableOptions, Store } from "../index.js";
+import { DependencyIndex, NullableOptions, TypeEntity } from "../index.js";
 
 export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
 

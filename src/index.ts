@@ -1,7 +1,18 @@
 import type { ExactTypeEntity } from "./entities/entity.js";
 import type { ScalarType } from "./entities/scalar.js";
-import type { Schema } from "./entities/schema.js";
 import type { TypeDescription } from "./initialization/schema-builder.js";
+
+export * from "./initialization/schema-builder.js";
+export { Any, Float, Int, Null, Optional, Undefined } from "./constants.js";
+export { Inspectable } from "./initialization/inspectable.js";
+export { nullableDefaults, useOptions } from "./config.js";
+export * from "./errors.js";
+
+export { Schema } from "./entities/schema.js";
+export { ScalarType } from "./entities/scalar.js";
+export { ArrayType } from "./entities/array.js";
+export { StaticArrayType } from "./entities/static-array.js";
+export { EitherType } from "./entities/either.js";
 
 declare global {
     interface Array<T> {
@@ -35,6 +46,12 @@ export interface NullableOptions {
     defined: boolean;
 }
 
+/**
+ * Type in schemas can either be a exact type
+ * as well as index pointing on a dependency which is another exact type
+ */
+export type TypeEntity = ExactTypeEntity | DependencyIndex;
+
 /** Identifier of a dependency to use in place */
 export type DependencyIndex = Exclude<string, "EITHER" | "STATIC">;
 
@@ -58,5 +75,3 @@ export interface PropertyValidationStreamableMessage extends TypeMisuseResult {
     name: string;
     depth: number;
 }
-
-export const Store = new WeakMap<Function, Schema>();
