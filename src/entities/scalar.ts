@@ -1,7 +1,7 @@
 import { usedReprOpts } from "../config.js";
 import { TildaSchemaBuildingError } from "../errors.js";
 import type { TypeRepresentation } from "../index.js";
-import { repr } from "../repr.js";
+import { repr } from "../utils.js";
 import {
     ExactTypeEntity,
     type EntityInput,

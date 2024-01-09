@@ -4,7 +4,7 @@ import type {
     TypeEntity,
     TypeRepresentation,
 } from "../index.js";
-import { ReprDefinitions, repr } from "../repr.js";
+import { ReprDefinitions, repr } from "../utils.js";
 import {
     ExactTypeEntity,
     type EntityInput,

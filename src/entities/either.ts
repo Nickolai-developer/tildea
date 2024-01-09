@@ -3,8 +3,7 @@ import type {
     PropertyValidationStreamableMessage,
     TypeEntity,
 } from "../index.js";
-import { eqDeep, mergeNullable } from "../utils.js";
-import { repr } from "../repr.js";
+import { eqDeep, mergeNullable, repr } from "../utils.js";
 import {
     ExactTypeEntity,
     type EntityInput,
