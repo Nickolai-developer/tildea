@@ -1,7 +1,7 @@
 {
   "name": "tilda",
   "version": "0.0.0",
-  "description": "Validate objects in runtime with models",
+  "description": "Validate structure of objects in runtime with user-defined schemas",
   "main": "./dist/index.js",
   "type": "module",
   "scripts": {
@@ -11,13 +11,14 @@
     "prepublishOnly": "yarn build"
   },
   "keywords": [
-    "models",
-    "validation"
+    "schema validation",
+    "testing framework"
   ],
   "author": {
     "name": "Nikolai-dev",
     "email": "n.solenii2016@gmail.com"
   },
+  "license": "MIT",
   "packageManager": "yarn@1.22.18",
   "devDependencies": {
     "@types/node": "20.10.5",
