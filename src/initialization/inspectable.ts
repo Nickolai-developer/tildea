@@ -46,13 +46,13 @@ function validateSchema(obj: object, schema: Schema): SchemaValidationResult {
 
     if (errors.length) {
         if (errors[0].subproperties) {
-            return { errors: errors[0].subproperties! };
+            return errors[0].subproperties;
         } else {
-            return { errors: [{ ...errors[0], name: "" }] };
+            return [{ ...errors[0], name: "" }];
         }
     }
 
-    return { errors: null };
+    return null;
 }
 
 export const Store = new WeakMap<Function, Schema>();

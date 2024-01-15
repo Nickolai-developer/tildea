@@ -65,9 +65,7 @@ export interface PropertyValidationResult extends TypeMisuseResult {
     subproperties?: PropertyValidationResult[];
 }
 
-export interface SchemaValidationResult {
-    errors: PropertyValidationResult[] | null;
-}
+export type SchemaValidationResult = PropertyValidationResult[] | null;
 
 export type TypeRepresentation = string;
 

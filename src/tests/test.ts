@@ -64,7 +64,7 @@ const unitTest: UnitTest = {
                 prop5: [],
                 prop6: 0,
             }),
-            { errors: null } as SchemaValidationResult,
+            null,
         );
         clock.assertEqual(
             Model1_Int_String.inspect({
@@ -75,27 +75,23 @@ const unitTest: UnitTest = {
                 prop5: "",
                 prop6: "",
             }),
-            {
-                errors: [
-                    { name: "prop1", expected: "T | U[]", found: "string" },
-                    { name: "prop2", expected: "T | U[]", found: "string" },
-                    { name: "prop3", expected: "A | B[]", found: "string" },
-                    { name: "prop4", expected: "A | B", found: "string" },
-                    { name: "prop5", expected: "A | B", found: "string" },
-                    { name: "prop6", expected: "A | U[]", found: "string" },
-                ],
-            } as SchemaValidationResult,
+            [
+                { name: "prop1", expected: "T | U[]", found: "string" },
+                { name: "prop2", expected: "T | U[]", found: "string" },
+                { name: "prop3", expected: "A | B[]", found: "string" },
+                { name: "prop4", expected: "A | B", found: "string" },
+                { name: "prop5", expected: "A | B", found: "string" },
+                { name: "prop6", expected: "A | U[]", found: "string" },
+            ] as SchemaValidationResult,
         );
         const Model2_Int_Int = Model2.apply(Int, Int);
-        clock.assertEqual(Model2_Int_Int.inspect({}), {
-            errors: [
-                {
-                    name: "prop1",
-                    expected: "[T | null, (U | undefined)[] | null]",
-                    found: "undefined",
-                },
-            ],
-        } as SchemaValidationResult);
+        clock.assertEqual(Model2_Int_Int.inspect({}), [
+            {
+                name: "prop1",
+                expected: "[T | null, (U | undefined)[] | null]",
+                found: "undefined",
+            },
+        ] as SchemaValidationResult);
     },
 };
 
