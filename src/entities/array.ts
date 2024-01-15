@@ -9,6 +9,7 @@ import {
     ExactTypeEntity,
     type EntityInput,
     type ExecutionContext,
+    type DependencyMap,
 } from "./entity.js";
 
 interface ArrayInput extends EntityInput {
@@ -36,25 +37,28 @@ export class ArrayType extends ExactTypeEntity {
         }) as this;
     }
 
-    public override get repr(): TypeRepresentation {
-        if (!this._repr) {
-            const nullableStr = super.repr;
-            const elem =
-                typeof this._elemType === "string"
-                    ? this._elemType
-                    : this._elemType.repr;
-            return (
-                [
-                    `${
-                        elem.includes(ReprDefinitions.DELIM_OR)
-                            ? this.encase(elem)
-                            : elem
-                    }[]`,
-                    nullableStr,
-                ].filter(s => s) as string[]
-            ).join(ReprDefinitions.DELIM_OR);
-        }
-        return this._repr;
+    public override repr(depMap?: DependencyMap): TypeRepresentation {
+        const nullableStr = super.repr();
+        const contextualDependencies = this.applyContextDependencies(
+            depMap || {},
+        );
+        const elem =
+            typeof this._elemType === "string"
+                ? this.getReprOfDeclaredType(
+                      this._elemType,
+                      contextualDependencies,
+                  )
+                : this._elemType.repr(contextualDependencies);
+        return (
+            [
+                `${
+                    elem.includes(ReprDefinitions.DELIM_OR)
+                        ? this.encase(elem)
+                        : elem
+                }[]`,
+                nullableStr,
+            ].filter(s => s) as string[]
+        ).join(ReprDefinitions.DELIM_OR);
     }
 
     public override *execute({
@@ -71,11 +75,11 @@ export class ArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: this.repr,
+            expected: this.repr(depMap),
             found: propR,
         };
 
-        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        const nullCheck = this.checkNulls({ obj, key, currentDepth, depMap });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
                 yield nullCheck;

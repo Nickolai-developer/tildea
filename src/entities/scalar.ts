@@ -34,16 +34,18 @@ export class ScalarType extends ExactTypeEntity {
         }) as this;
     }
 
-    public override get repr(): TypeRepresentation {
-        if (!this._repr) {
-            const nullableStr = super.repr;
-            return this.joinTypeParts(this.name, nullableStr);
-        }
-        return this._repr;
+    public override repr(): TypeRepresentation {
+        const nullableStr = super.repr();
+        return this.joinTypeParts(this.name, nullableStr);
     }
 
-    public override *execute({ obj, key, currentDepth }: ExecutionContext) {
-        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+    public override *execute({
+        obj,
+        key,
+        currentDepth,
+        depMap,
+    }: ExecutionContext) {
+        const nullCheck = this.checkNulls({ obj, key, currentDepth, depMap });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
                 yield nullCheck;
@@ -59,7 +61,7 @@ export class ScalarType extends ExactTypeEntity {
         if (!this.validate(scalar)) {
             yield {
                 name: key,
-                expected: this.repr,
+                expected: this.repr(),
                 found: repr(scalar, usedReprOpts),
                 depth: currentDepth,
             };

@@ -9,6 +9,7 @@ import {
     ExactTypeEntity,
     type EntityInput,
     type ExecutionContext,
+    type DependencyMap,
 } from "./entity.js";
 
 interface SchemaInput extends EntityInput {
@@ -46,12 +47,18 @@ export class Schema extends ExactTypeEntity {
         }) as this;
     }
 
-    public override get repr(): TypeRepresentation {
-        if (!this._repr) {
-            const nullableStr = super.repr;
-            return this.joinTypeParts(this.name, nullableStr);
-        }
-        return this._repr;
+    public override repr(depMap?: DependencyMap): TypeRepresentation {
+        const nullableStr = super.repr();
+        const contextualDependencies = this.applyContextDependencies(
+            depMap || {},
+        );
+        const templateArgsStr = this._declDeps
+            .map(d => this.getReprOfDeclaredType(d, contextualDependencies))
+            .join(ReprDefinitions.DELIM_COMMA);
+        return this.joinTypeParts(
+            `${this.name}` + templateArgsStr ? `<${templateArgsStr}>` : "",
+            nullableStr,
+        );
     }
 
     public override *execute({
@@ -64,7 +71,7 @@ export class Schema extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: this.repr,
+            expected: this.repr(depMap),
             found: propR,
         };
 
@@ -73,7 +80,7 @@ export class Schema extends ExactTypeEntity {
             return;
         }
 
-        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        const nullCheck = this.checkNulls({ obj, key, currentDepth, depMap });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
                 yield nullCheck;

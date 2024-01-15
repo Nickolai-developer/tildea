@@ -9,6 +9,7 @@ import {
     ExactTypeEntity,
     type EntityInput,
     type ExecutionContext,
+    type DependencyMap,
 } from "./entity.js";
 
 interface StaticArrayInput extends EntityInput {
@@ -40,18 +41,25 @@ export class StaticArrayType extends ExactTypeEntity {
         }) as this;
     }
 
-    public override get repr(): TypeRepresentation {
-        if (!this._repr) {
-            const nullableStr = super.repr;
-            return this.joinTypeParts(
-                this.name ||
-                    `[${this._types
-                        .map(t => (typeof t === "string" ? t : t.repr))
-                        .join(ReprDefinitions.DELIM_COLON)}]`,
-                nullableStr,
-            );
-        }
-        return this._repr;
+    public override repr(depMap?: DependencyMap): TypeRepresentation {
+        const nullableStr = super.repr();
+        const contextualDependencies = this.applyContextDependencies(
+            depMap || {},
+        );
+        return this.joinTypeParts(
+            this.name ||
+                `[${this._types
+                    .map(t =>
+                        typeof t === "string"
+                            ? this.getReprOfDeclaredType(
+                                  t,
+                                  contextualDependencies,
+                              )
+                            : t.repr(contextualDependencies),
+                    )
+                    .join(ReprDefinitions.DELIM_COMMA)}]`,
+            nullableStr,
+        );
     }
 
     public override *execute({
@@ -68,11 +76,11 @@ export class StaticArrayType extends ExactTypeEntity {
         const commonError: PropertyValidationStreamableMessage = {
             name: key,
             depth: currentDepth,
-            expected: this.repr,
+            expected: this.repr(depMap),
             found: propR,
         };
 
-        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        const nullCheck = this.checkNulls({ obj, key, currentDepth, depMap });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
                 yield nullCheck;

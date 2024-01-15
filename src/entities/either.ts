@@ -8,6 +8,7 @@ import {
     ExactTypeEntity,
     type EntityInput,
     type ExecutionContext,
+    type DependencyMap,
 } from "./entity.js";
 
 interface EitherInput extends EntityInput {
@@ -82,22 +83,24 @@ export class EitherType extends ExactTypeEntity {
         }) as this;
     }
 
-    public override get repr() {
-        if (!this._repr) {
-            const nullableStr = super.repr;
-            if (this.name) {
-                return nullableStr
-                    ? this.joinTypeParts(this.name, nullableStr)
-                    : this.name;
-            }
-            const typeRs = this._types.map(t =>
-                typeof t === "string" ? t : t.repr,
-            );
-            nullableStr && typeRs.push(nullableStr);
-            const typeR = this.joinTypeParts(...typeRs);
-            this._repr = typeR;
+    public override repr(depMap?: DependencyMap) {
+        const nullableStr = super.repr();
+        const contextualDependencies = this.applyContextDependencies(
+            depMap || {},
+        );
+        if (this.name) {
+            return nullableStr
+                ? this.joinTypeParts(this.name, nullableStr)
+                : this.name;
         }
-        return this._repr;
+        const typeRs = this._types.map(t =>
+            typeof t === "string"
+                ? this.getReprOfDeclaredType(t, contextualDependencies)
+                : t.repr(contextualDependencies),
+        );
+        nullableStr && typeRs.push(nullableStr);
+        const typeR = this.joinTypeParts(...typeRs);
+        return typeR;
     }
 
     // Either type is the reason why validateSchema implemented through generators;
@@ -116,7 +119,7 @@ export class EitherType extends ExactTypeEntity {
         currentDepth,
         depMap,
     }: ExecutionContext) {
-        const nullCheck = this.checkNulls({ obj, key, currentDepth });
+        const nullCheck = this.checkNulls({ obj, key, currentDepth, depMap });
         if (nullCheck !== undefined) {
             if (nullCheck !== null) {
                 yield nullCheck;
@@ -151,7 +154,7 @@ export class EitherType extends ExactTypeEntity {
         yield {
             name: key,
             depth: currentDepth,
-            expected: this.repr,
+            expected: this.repr(depMap),
             found: repr(obj, key, usedReprOpts),
         };
         yield* errors[bestGuess].slice(1) as any;

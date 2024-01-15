@@ -129,10 +129,8 @@ export abstract class ExactTypeEntity {
         obj,
         key,
         currentDepth,
-    }: Omit<
-        ExecutionContext,
-        "depMap"
-    >): PropertyValidationStreamableMessage | null | void {
+        depMap,
+    }: ExecutionContext): PropertyValidationStreamableMessage | null | void {
         const propR = repr(obj, key, usedReprOpts);
 
         if (
@@ -145,7 +143,7 @@ export abstract class ExactTypeEntity {
             return;
         }
 
-        const possibleNulls = this.repr
+        const possibleNulls = this.repr(depMap)
             .slice(1)
             .split(ReprDefinitions.DELIM_OR) as ReprDefinitions[];
 
@@ -153,12 +151,27 @@ export abstract class ExactTypeEntity {
             return {
                 name: key,
                 depth: currentDepth,
-                expected: this.repr,
+                expected: this.repr(depMap),
                 found: propR,
             };
         }
 
         return null;
+    }
+
+    protected getReprOfDeclaredType(
+        typename: string,
+        depMap: DependencyMap,
+    ): TypeRepresentation {
+        try {
+            const dep = this.pickDependency(typename, depMap);
+            return dep.repr(depMap);
+        } catch (e: unknown) {
+            if (e instanceof TildaRuntimeError) {
+                return typename;
+            }
+            throw e;
+        }
     }
 
     public abstract execute(
@@ -193,8 +206,7 @@ export abstract class ExactTypeEntity {
         return cp;
     }
 
-    protected _repr: TypeRepresentation | undefined;
-    public get repr(): TypeRepresentation {
+    public repr(_depMap?: DependencyMap): TypeRepresentation {
         const { defined, nullable, optional } = this._nullable;
         return this.joinTypeParts(
             nullable && ReprDefinitions.NULL,

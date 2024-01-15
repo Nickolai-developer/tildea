@@ -49,6 +49,16 @@ class Model2<T, U> extends Inspectable {
     prop1: [T | null, [U | undefined] | null];
 }
 
+@Declare("A", "B")
+@SchemaClass()
+class Model3<A, B> extends Inspectable {
+    @Field(Model2.opts({ nullable: true }).use("A", "B"))
+    prop1: Model2<A, B> | null;
+
+    @Field([Int])
+    prop2: number[];
+}
+
 const unitTest: UnitTest = {
     name: "test",
     errors: new Map(),
@@ -76,19 +86,19 @@ const unitTest: UnitTest = {
                 prop6: "",
             }),
             [
-                { name: "prop1", expected: "T | U[]", found: "string" },
-                { name: "prop2", expected: "T | U[]", found: "string" },
-                { name: "prop3", expected: "A | B[]", found: "string" },
-                { name: "prop4", expected: "A | B", found: "string" },
-                { name: "prop5", expected: "A | B", found: "string" },
-                { name: "prop6", expected: "A | U[]", found: "string" },
+                { name: "prop1", expected: "Int | String[]", found: "string" },
+                { name: "prop2", expected: "Int | String[]", found: "string" },
+                { name: "prop3", expected: "Int | String[]", found: "string" },
+                { name: "prop4", expected: "Int | String[]", found: "string" },
+                { name: "prop5", expected: "Int | String[]", found: "string" },
+                { name: "prop6", expected: "Int | String[]", found: "string" },
             ] as SchemaValidationResult,
         );
         const Model2_Int_Int = Model2.apply(Int, Int);
         clock.assertEqual(Model2_Int_Int.inspect({}), [
             {
                 name: "prop1",
-                expected: "[T | null, (U | undefined)[] | null]",
+                expected: "[Int | null, (Int | undefined)[] | null]",
                 found: "undefined",
             },
         ] as SchemaValidationResult);

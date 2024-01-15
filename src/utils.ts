@@ -5,7 +5,7 @@ import type { ReprOptions, TypeRepresentation } from "./index.js";
 
 export enum ReprDefinitions {
     DELIM_OR = " | ",
-    DELIM_COLON = ", ",
+    DELIM_COMMA = ", ",
     NO_PROPERTY = "<no-property>",
     UNDEFINED = "undefined",
     NULL = "null",
