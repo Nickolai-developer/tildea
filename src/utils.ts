@@ -1,6 +1,6 @@
 import type { NullableOptions } from "./index.js";
 import { usedReprOpts } from "./config.js";
-import { TildaRuntimeError } from "./errors.js";
+import { TildeaRuntimeError } from "./errors.js";
 import type { ReprOptions, TypeRepresentation } from "./index.js";
 
 export enum ReprDefinitions {
@@ -54,7 +54,7 @@ export function repr(
             case "string":
                 return typeof val;
             default:
-                throw new TildaRuntimeError(
+                throw new TildeaRuntimeError(
                     `Repr error: ${typeof val} isn't allowed.`,
                 );
         }

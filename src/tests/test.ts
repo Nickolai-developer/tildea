@@ -102,6 +102,7 @@ const unitTest: UnitTest = {
                 found: "undefined",
             },
         ] as SchemaValidationResult);
+        Model3;
     },
 };
 

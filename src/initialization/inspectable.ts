@@ -7,7 +7,7 @@ import type {
     SchemaValidationResult,
 } from "../index.js";
 import { useOptions, usedReprOpts } from "../config.js";
-import { TildaRuntimeError, TildaSchemaBuildingError } from "../errors.js";
+import { TildeaRuntimeError, TildeaSchemaBuildingError } from "../errors.js";
 import { TypeDescription } from "./schema-builder.js";
 
 function validateSchema(obj: object, schema: Schema): SchemaValidationResult {
@@ -66,7 +66,7 @@ export abstract class Inspectable {
     ): SchemaValidationResult {
         const schema = this.getSchema(true);
         if (!schema.fullyDefined) {
-            throw new TildaRuntimeError(
+            throw new TildeaRuntimeError(
                 `Schema \`${this.name}\` is a template schema.`,
             );
         }
@@ -99,9 +99,9 @@ export abstract class Inspectable {
     private static getSchema(runtime?: boolean): Schema {
         const schema = Store.get(this);
         if (!schema) {
-            throw new (runtime ? TildaRuntimeError : TildaSchemaBuildingError)(
-                `No schema was defined for \`${this.name}\` class.`,
-            );
+            throw new (
+                runtime ? TildeaRuntimeError : TildeaSchemaBuildingError
+            )(`No schema was defined for \`${this.name}\` class.`);
         }
         return schema;
     }

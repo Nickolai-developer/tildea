@@ -1,5 +1,5 @@
-export class TildaError extends Error {}
+export class TildeaError extends Error {}
 
-export class TildaRuntimeError extends TildaError {}
+export class TildeaRuntimeError extends TildeaError {}
 
-export class TildaSchemaBuildingError extends TildaError {}
+export class TildeaSchemaBuildingError extends TildeaError {}

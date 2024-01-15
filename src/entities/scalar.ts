@@ -1,5 +1,5 @@
 import { usedReprOpts } from "../config.js";
-import { TildaSchemaBuildingError } from "../errors.js";
+import { TildeaSchemaBuildingError } from "../errors.js";
 import type { TypeRepresentation } from "../index.js";
 import { repr } from "../utils.js";
 import {
@@ -69,13 +69,13 @@ export class ScalarType extends ExactTypeEntity {
     }
 
     public override declare(): never {
-        throw new TildaSchemaBuildingError(
+        throw new TildeaSchemaBuildingError(
             "Can't call .declare on scalar type since it can't have dependencies.",
         );
     }
 
     public override use(): never {
-        throw new TildaSchemaBuildingError(
+        throw new TildeaSchemaBuildingError(
             "Can't call .use on scalar type since it can't have dependencies.",
         );
     }

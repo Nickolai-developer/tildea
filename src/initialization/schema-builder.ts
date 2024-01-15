@@ -1,6 +1,6 @@
 import { String_ } from "../constants.js";
 import { ExactTypeEntity } from "../entities/entity.js";
-import { TildaSchemaBuildingError } from "../errors.js";
+import { TildeaSchemaBuildingError } from "../errors.js";
 import { Inspectable, Store } from "./inspectable.js";
 import { Schema } from "../entities/schema.js";
 import { ArrayType } from "../entities/array.js";
@@ -97,7 +97,7 @@ export const constructType = (type: TypeDescription): TypeEntity => {
         }
         const schema = Store.get(type);
         if (!schema) {
-            throw new TildaSchemaBuildingError(
+            throw new TildeaSchemaBuildingError(
                 `No schema was defined for \`${type.constructor.name}\` class.`,
             );
         }
@@ -106,7 +106,7 @@ export const constructType = (type: TypeDescription): TypeEntity => {
     if (type instanceof ExactTypeEntity || typeof type === "string") {
         return type;
     }
-    const e = new TildaSchemaBuildingError(
+    const e = new TildeaSchemaBuildingError(
         `Cannot construct type from value: "${type}".`,
     );
     if (!Array.isArray(type)) {
@@ -131,7 +131,7 @@ export const Field = (type: TypeDescription): PropertyDecorator => {
     const typeEntity = constructType(type);
     return (target: Object, propertyKey: string | symbol) => {
         if (typeof propertyKey === "symbol") {
-            throw new TildaSchemaBuildingError("Symbols aren't implemented~");
+            throw new TildeaSchemaBuildingError("Symbols aren't implemented~");
         }
         const schema = getSchema(target.constructor);
         schema.pushProps({

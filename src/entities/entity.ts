@@ -1,5 +1,5 @@
 import { nullableDefaults, usedReprOpts } from "../config.js";
-import { TildaRuntimeError, TildaSchemaBuildingError } from "../errors.js";
+import { TildeaRuntimeError, TildeaSchemaBuildingError } from "../errors.js";
 import type {
     DependencyIndex,
     NullableOptions,
@@ -58,7 +58,7 @@ export abstract class ExactTypeEntity {
         depMap: /* readonly */ DependencyMap,
     ): DependencyMap {
         if (!this.fullyDefined) {
-            throw new TildaRuntimeError(
+            throw new TildeaRuntimeError(
                 `Cannot validate \`${this.constructor.name}\`. It's a template.`,
             );
         }
@@ -81,7 +81,7 @@ export abstract class ExactTypeEntity {
         }
         const next = depMap[type];
         if (!next) {
-            throw new TildaRuntimeError(
+            throw new TildeaRuntimeError(
                 `No type in current scope for "${type}" in \`${this.constructor.name}\`. You either forgot to call .declare on type entity or pass this type on a top level.`,
             );
         }
@@ -167,7 +167,7 @@ export abstract class ExactTypeEntity {
             const dep = this.pickDependency(typename, depMap);
             return dep.repr(depMap);
         } catch (e: unknown) {
-            if (e instanceof TildaRuntimeError) {
+            if (e instanceof TildeaRuntimeError) {
                 return typename;
             }
             throw e;
@@ -195,7 +195,7 @@ export abstract class ExactTypeEntity {
 
     public use(...args: TypeDescription[]): this {
         if (this._declDeps.length < args.length + this._usedDeps.length) {
-            throw new TildaSchemaBuildingError(
+            throw new TildeaSchemaBuildingError(
                 `Tried to use ${args.length} dependencies, but type has only ${this._declDeps.length} declared`,
             );
         }

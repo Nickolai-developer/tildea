@@ -1,5 +1,5 @@
 {
-  "name": "tilda",
+  "name": "tildea",
   "version": "0.0.0",
   "description": "Validate structure of objects in runtime with user-defined schemas",
   "main": "./dist/index.js",
