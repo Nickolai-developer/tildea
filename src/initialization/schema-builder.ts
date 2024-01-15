@@ -9,7 +9,11 @@ import { StaticArrayType } from "../entities/static-array.js";
 import { nullableDefaults } from "../config.js";
 import { DependencyIndex, NullableOptions, TypeEntity } from "../index.js";
 
-export type TypeDescription = typeof String | TypeEntity | ArrayLikeDescription;
+export type TypeDescription =
+    | typeof Inspectable
+    | typeof String
+    | TypeEntity
+    | ArrayLikeDescription;
 
 type ArrayLikeDescription =
     | ArrayDescription
@@ -88,7 +92,16 @@ export const SchemaClass = (name?: string): ClassDecorator => {
 
 export const constructType = (type: TypeDescription): TypeEntity => {
     if (typeof type === "function") {
-        return String_;
+        if (type === String) {
+            return String_;
+        }
+        const schema = Store.get(type);
+        if (!schema) {
+            throw new TildaSchemaBuildingError(
+                `No schema was defined for \`${type.constructor.name}\` class.`,
+            );
+        }
+        return schema;
     }
     if (type instanceof ExactTypeEntity || typeof type === "string") {
         return type;

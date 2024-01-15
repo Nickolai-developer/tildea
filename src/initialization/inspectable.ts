@@ -1,11 +1,13 @@
 import type { Schema } from "../entities/schema.js";
 import type {
+    DependencyIndex,
+    NullableOptions,
     PropertyValidationResult,
     ReprOptions,
     SchemaValidationResult,
 } from "../index.js";
 import { useOptions, usedReprOpts } from "../config.js";
-import { TildaRuntimeError } from "../errors.js";
+import { TildaRuntimeError, TildaSchemaBuildingError } from "../errors.js";
 import { TypeDescription } from "./schema-builder.js";
 
 function validateSchema(obj: object, schema: Schema): SchemaValidationResult {
@@ -62,12 +64,7 @@ export abstract class Inspectable {
         obj: T,
         options?: ReprOptions,
     ): SchemaValidationResult {
-        const schema = Store.get(this);
-        if (!schema) {
-            throw new TildaRuntimeError(
-                `No schema defined for \`${this.name}\``,
-            );
-        }
+        const schema = this.getSchema(true);
         if (!schema.fullyDefined) {
             throw new TildaRuntimeError(
                 `Schema \`${this.name}\` is a template schema.`,
@@ -81,9 +78,31 @@ export abstract class Inspectable {
     }
 
     public static apply(...args: TypeDescription[]): typeof Inspectable {
-        const template = Store.get(this)!;
+        const template = this.getSchema();
         class AppliedTemplate extends this {}
         Store.set(AppliedTemplate, template.use(...args));
         return AppliedTemplate;
+    }
+
+    public static opts(options: Partial<NullableOptions>): Schema {
+        return this.getSchema().opts(options);
+    }
+
+    public static declare(...args: DependencyIndex[]): Schema {
+        return this.getSchema().declare(...args);
+    }
+
+    public static use(...args: TypeDescription[]): Schema {
+        return this.getSchema().use(...args);
+    }
+
+    private static getSchema(runtime?: boolean): Schema {
+        const schema = Store.get(this);
+        if (!schema) {
+            throw new (runtime ? TildaRuntimeError : TildaSchemaBuildingError)(
+                `No schema was defined for \`${this.name}\` class.`,
+            );
+        }
+        return schema;
     }
 }
